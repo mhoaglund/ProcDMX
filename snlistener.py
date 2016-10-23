@@ -9,6 +9,8 @@
 
 #possible sensor report format: Sender ID, speed int (low res), rising or falling direction
 
+import uuid
+
 #Intent: match sensor nodes to lights
 RenderMap = {
     1: [0,1,2,3],
@@ -20,36 +22,44 @@ RenderMap = {
     7: [24,25,26,27]
 }
 
+LiveModifiers = {}
+
 #we'll divide intensity readings by this
 Intensity_Modifier = 10
 #we'll multiply channel modifiers by this to ease spatially
-Intensity_Dropoff = 0.5
+Intensity_Dropoff = 1.0/2
 
 Default_Color = [125,125,25,75]
 Default_Modifier_Bias = [15,15,50,50] #will be multiplying intensity modifiers by this, basically...
 
+def CatchReading(senderId, dir, intensity):
+    RenderReading(senderId, intensity)
+    MergeModifiers()
+
 # Intent: catch a sensor packet and create a set of channel modifiers to be layered onto the universe in another function
-def RenderReading(senderId, dir, intensity):
+def RenderReading(senderId, intensity):
+    layerId = uuid.uuid4()
     global RenderMap
     global Intensity_Modifier
     targetLights = RenderMap[senderId] #grab a list of lights that correspond to the sensor that spoke
-    outputLayer = {}
+    outputLayer = []
     intensity_change = intensity/Intensity_Modifier
-    base_intensity = Default_Modifier_Bias * intensity_change
+    base_intensity = [ch / Intensity_Modifier for ch in Default_Modifier_Bias]
     for light in range(len(targetLights)):
-        #first_index = targetLights[i] #the first channel for the light we're working on
-        if i == 0 or i == len(targetLights):
-            channels = base_intensity * Intensity_Dropoff
+        if light == 0 or light == len(targetLights):
+            channels = [ch * Intensity_Dropoff for ch in base_intensity]
             for channel in channels:
                 outputLayer.append(channel)
         else:
             for channel in base_intensity:
                 outputLayer.append(channel)
+    LiveModifiers[layerId] = outputLayer
 
 #The fun part. Given a set of channel modifiers, squish them down into eachother so we have on summed-up reading for each channel.
 #at some point, figuring out when in time to do this will be important.
 def MergeModifiers():
-
+    return
             
+CatchReading(1, 0, 255)
 
 
