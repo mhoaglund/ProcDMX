@@ -10,8 +10,7 @@ DMXINIT2= chr(10)+chr(02)+chr(0)+chr(0)+chr(0)
 DMXFrame1 = [[1,0],[2,0],[3,0],[4,0]]
 DMXFrame2 = [[1,255],[2,255],[3,255],[4,255]]
 FRAMEDURATION = 2 #easing time from frame to frame, in seconds
-CHANNELS_IN_USE = 3
-EMPTY_FRAME = [0]*CHANNELS_IN_USE
+EMPTY_FRAME = [0]*512
 FPS = 30
 frameQueue = Queue.Queue()
 
@@ -75,7 +74,6 @@ class DmxThread(Thread):
 			self.easeFrame(_nextFrame)
 
 	def easeFrame(self, targetFrame):
-		#print 'Hello from worker'
 		deltas = []
 		channels = len(targetFrame)
 		#get the difference between the starting state and target state
