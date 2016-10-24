@@ -106,7 +106,7 @@ def RenderReadingSet(readings):
         targetLights = RenderMap[reading[0]] #grab a list of lights that correspond to the sensor that spoke
 
         intensity_change = reading[1]/Intensity_Modifier
-        base_intensity = [ch / Intensity_Modifier for ch in Default_Modifier_Bias]
+        base_intensity = [ch / Intensity_Modifier + intensity_change for ch in Default_Modifier_Bias]
 
         for light in range(len(targetLights)):
             startchannel = targetLights[light] * 4
@@ -133,6 +133,6 @@ def MergeModifiers():
             
 #CatchReading(1, 0, 255)
 
-QueryReadings([[1, 255],[2, 215],[3, 150]])
+QueryReadings([[1, 25],[2, 215],[3, 150]])
 
 
