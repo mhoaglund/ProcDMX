@@ -21,6 +21,7 @@ import Queue
 import math
 import sys
 
+logging.basicConfig(filename='logs.log',level=logging.DEBUG) #TODO get this pointed at good directory in a cross-platform way
 isHardWareConnected = False
 
 if isHardWareConnected:
@@ -63,6 +64,9 @@ def CatchReading(senderId, dir, intensity):
     if len(LiveModifiers) < 2: #in a calm state we might only have one reading come in at a time, so just chuck it on the stack
         MergeModifiers()
 
+def QueryReadings(readings):
+    RenderReadingSet(readings)
+
 # Intent: catch a sensor packet and create a set of channel modifiers to be layered onto the universe in another function
 def RenderReading(senderId, intensity):
     layerId = uuid.uuid4()
@@ -90,8 +94,34 @@ def RenderReading(senderId, intensity):
 
     LiveModifiers[layerId] = outputLayer
 
+#Intent: address the likely I2C scenario of regularly prodding a bus to get a whole set of readings.
+#TODO: we're ending up with an extra reading. find out why
+def RenderReadingSet(readings):
+    layerId = uuid.uuid4()
+    global RenderMap
+    global Intensity_Modifier
+    global LiveModifiers
+    outputLayer = [0] * 512
+    for reading in readings:
+        targetLights = RenderMap[reading[0]] #grab a list of lights that correspond to the sensor that spoke
+
+        intensity_change = reading[1]/Intensity_Modifier
+        base_intensity = [ch / Intensity_Modifier for ch in Default_Modifier_Bias]
+
+        for light in range(len(targetLights)):
+            startchannel = targetLights[light] * 4
+            outputLayer[startchannel] = base_intensity[0]
+            outputLayer[startchannel + 1] = base_intensity[1]
+            outputLayer[startchannel + 2] = base_intensity[2]
+            outputLayer[startchannel + 3] = base_intensity[3]
+
+    LiveModifiers[layerId] = outputLayer
+
+
 #The fun part. Given a set of channel modifiers, squish them down into eachother so we have on summed-up reading for each channel.
 #at some point, figuring out when in time to do this will be important.
+#This is being moved into a worker thread... but why? If we get our data in a synchronous way from i2c, we can just call this.
+#maybe just hang onto both implementations
 def MergeModifiers():
     if len(LiveModifiers) < 2:
         mergedCopy = LiveModifiers.values()[0]
@@ -101,6 +131,8 @@ def MergeModifiers():
     Frame_Queue.put(mergedCopy)
     return
             
-CatchReading(1, 0, 255)
+#CatchReading(1, 0, 255)
+
+QueryReadings([[1, 255],[2, 215],[3, 150]])
 
 
