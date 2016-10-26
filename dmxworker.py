@@ -9,7 +9,7 @@ DMXINIT1= chr(03)+chr(02)+chr(0)+chr(0)+chr(0)
 DMXINIT2= chr(10)+chr(02)+chr(0)+chr(0)+chr(0)
 DMXFrame1 = [[1,0],[2,0],[3,0],[4,0]]
 DMXFrame2 = [[1,255],[2,255],[3,255],[4,255]]
-FRAMEDURATION = 2 #easing time from frame to frame, in seconds
+FRAMEDURATION = 0.2 #easing time from frame to frame, in seconds
 EMPTY_FRAME = [0]*512
 FPS = 30
 frameQueue = Queue.Queue()
@@ -80,19 +80,18 @@ class DmxThread(Thread):
 		for i in range(0, channels):
                     #val = (targetFrame[i] - self.StopFrame[i])/(FPS * FRAMEDURATION)
 	            #deltas.append(val)
-                        diff = (targetFrame[i] - self.StopFrame[i])
-                        if abs(diff) > 0: 
-                            rate = float(FPS*FRAMEDURATION)
-			    val = (targetFrame[i] - self.StopFrame[i])/rate
-			    deltas.append(val)
-                        else:
-                            deltas.append(0)
+                diff = (targetFrame[i] - self.StopFrame[i])
+                if abs(diff) > 0: 
+                    rate = float(FPS*FRAMEDURATION)
+			        val = (targetFrame[i] - self.StopFrame[i])/rate
+			        deltas.append(val)
+                else:
+                    deltas.append(0)
 		x = 0
 		sleeptime = 1.0/FPS
 		while x<(FPS * FRAMEDURATION):
 			for j in range(0, channels):
 				frameValue = int(self.StopFrame[j] + (x*deltas[j]))
-				#print("setting intensity", frameValue)
 				self.setChannel(j+1, frameValue)
 			self.render()
 			time.sleep(sleeptime)

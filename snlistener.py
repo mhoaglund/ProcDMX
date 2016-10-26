@@ -20,6 +20,7 @@ import os
 import Queue
 import math
 import sys
+from operator import sub
 
 logging.basicConfig(filename='logs.log',level=logging.DEBUG) #TODO get this pointed at good directory in a cross-platform way
 isHardWareConnected = False
@@ -51,10 +52,15 @@ RenderMap = {
 LiveModifiers = {}
 Frame_Queue = Queue.Queue() #we play from this
 
+Business_Threshold = 1500 #total guess here
+Busy_Color = [75,125,255,75] * 128
+Busy_Mode = False
 #we'll divide intensity readings by this
 Intensity_Modifier = 10
 #we'll multiply channel modifiers by this to ease spatially
 Intensity_Dropoff = 1.0/2
+
+Previous_Readings = []
 
 Default_Color = [125,125,25,75]
 Default_Modifier_Bias = [15,15,50,50] #will be multiplying intensity modifiers by this, basically...
@@ -65,7 +71,25 @@ def CatchReading(senderId, dir, intensity):
         MergeModifiers()
 
 def QueryReadings(readings):
-    RenderReadingSet(readings)
+    global Previous_Readings
+    global Busy_Mode
+    Current_Readings = []
+    #bus.getreadings whatever
+    Readings_Delta = map(abs(sub), Previous_Readings, Current_Readings) #will this work?
+    Business = sum(Readings_Delta)
+    if Business > Business_Threshold:
+        Busy_Mode = True #Challenge: obliterate this variable to push code in fuctional direction
+        RenderBusyColor()
+        Previous_Readings
+    else:
+        Busy_Mode = False
+        RenderReadingSet(readings)
+    Previous_Readings = Current_Readings
+
+def RenderBusyColor():
+    global Busy_Color
+    layerId = uuid.uuid4()
+    LiveModifiers[layerId] = Busy_Color
 
 # Intent: catch a sensor packet and create a set of channel modifiers to be layered onto the universe in another function
 def RenderReading(senderId, intensity):
@@ -116,7 +140,6 @@ def RenderReadingSet(readings):
             outputLayer[startchannel + 3] = base_intensity[3]
 
     LiveModifiers[layerId] = outputLayer
-
 
 #The fun part. Given a set of channel modifiers, squish them down into eachother so we have on summed-up reading for each channel.
 #at some point, figuring out when in time to do this will be important.
