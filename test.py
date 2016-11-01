@@ -14,15 +14,18 @@ import math
 import sys
 import RPi.GPIO as gpio
 
-logging.basicConfig(filename='logs.log',level=logging.WARNING)
+logging.basicConfig(format='%(asctime)s %(message)s',filename='logs.log',level=logging.WARNING)
 _readingsQueue = Queue.Queue()
+
+SENSORS = 2
+COLLECTION_SPEED = 50
 
 IS_HARDWARE_CONNECTED = False #glorified debug flag
 
 def SpinUpi2c():
     if __name__ == '__main__':
         global _i2cthread
-        _i2cthread = i2cManager(_readingsQueue, 50, 8, 1)
+        _i2cthread = i2cManager(_readingsQueue, COLLECTION_SPEED, 8, 1, SENSORS)
         _i2cthread.start()
 
 def Stopi2cThread():
@@ -48,4 +51,4 @@ try:
             schedule.run_pending()
 except (KeyboardInterrupt, SystemExit):
     print 'Interrupted!'
-    StopWorkerThread()
+    Stopi2cThread()

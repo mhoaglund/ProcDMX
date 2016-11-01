@@ -1,4 +1,4 @@
-import sys, math, time, Queue, copy, schedule, smbus
+import sys, math, time, Queue, copy, schedule, smbus, logging
 from threading import Thread
 
 #this object's job is to rapidly poll the master arduino for readings and pull them in over i2c,
@@ -23,6 +23,7 @@ class i2cManager(Thread):
             allReadings = bus.read_i2c_block_data(self.internaddr,0,self.arraysize)
             self.MyQueue.put(allReadings)
         except IOError as e:
+            logging.info('i2c encountered a problem. %s', e)
             break
             #TODO: hook up logging here. log "I/O error({0}): {1}".format(e.errno, e.strerror)
         #Recovery stuff? throw up some gradually-decaying fake readings?
