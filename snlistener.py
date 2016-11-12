@@ -36,17 +36,21 @@ def readNumber():
     # number = bus.read_byte_data(address, 1)
     return number
 
-
+Channels_Per_Sensor = 12
 #Intent: match sensor nodes to lights
 #TODO make this a convenient json file thing for customizing
+#30 lights, 4 channels each
 RenderMap = {
-    1: [0,1,2,3],
-    2: [4,5,6,7],
-    3: [8,9,10,11],
-    4: [12,13,14,15],
-    5: [16,17,18,19],
-    6: [20,21,22,23],
-    7: [24,25,26,27]
+    1: [x for x in range(Channels_Per_Sensor * 1)],
+    2: [x for x in range(Channels_Per_Sensor * 1, Channels_Per_Sensor * 2)],
+    3: [x for x in range(Channels_Per_Sensor * 2, Channels_Per_Sensor * 3)],
+    4: [x for x in range(Channels_Per_Sensor * 3, Channels_Per_Sensor * 4)],
+    5: [x for x in range(Channels_Per_Sensor * 4, Channels_Per_Sensor * 5)],
+    6: [x for x in range(Channels_Per_Sensor * 5, Channels_Per_Sensor * 6)],
+    7: [x for x in range(Channels_Per_Sensor * 6, Channels_Per_Sensor * 7)],
+    8: [x for x in range(Channels_Per_Sensor * 7, Channels_Per_Sensor * 8)],
+    9: [x for x in range(Channels_Per_Sensor * 8, Channels_Per_Sensor * 9)],
+    10:[x for x in range(Channels_Per_Sensor * 9, Channels_Per_Sensor * 10)]
 }
 
 LiveModifiers = {}

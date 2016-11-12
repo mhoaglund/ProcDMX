@@ -1,4 +1,4 @@
-import serial, sys, math, time, Queue, copy, multiprocessing, schedule
+import serial, sys, math, time, Queue, copy, schedule
 from threading import Thread
 
 HAS_FRAMES = False

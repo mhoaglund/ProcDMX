@@ -1,6 +1,7 @@
 #Create some fake choreography to flash through the lights.
 from i2cmgmt import i2cManager
 from dmxworker import DmxThread
+from synchronousplayer import syncPlayer
 
 import logging
 import time
@@ -17,33 +18,36 @@ import RPi.GPIO as gpio
 logging.basicConfig(format='%(asctime)s %(message)s',filename='logs.log',level=logging.WARNING)
 _readingsQueue = Queue.Queue()
 
-SENSORS = 2
-COLLECTION_SPEED = 50
+SENSORS = 10
+COLLECTION_SPEED = 1/50
+serialport = '/dev/ttyUSB0'
 
 IS_HARDWARE_CONNECTED = False #glorified debug flag
 
-def SpinUpi2c():
+#TODO: update this for process-based implementation
+def SpinUpWorker():
     if __name__ == '__main__':
-        global _i2cthread
-        _i2cthread = i2cManager(_readingsQueue, COLLECTION_SPEED, 8, 1, SENSORS)
-        _i2cthread.start()
+        global _playthread
+        _playthread = syncPlayer(serialport, _readingsQueue, COLLECTION_SPEED, 8, 1, SENSORS)
+        _playthread.start()
 
-def Stopi2cThread():
-    if '_i2cthread' in globals():
+def StopWorkerThread():
+    if '_playthread' in globals():
         print 'found i2c worker'
-        if _i2cthread.isAlive():
+        if _playthread.isAlive():
             print 'stopping i2c worker'
-            _i2cthread.stop()
-            _i2cthread.join()
+            _playthread.stop()
+            _playthread.join()
 
 def CleanReboot():
     schedule.clear()
-    Stopi2cThread()
+    StopWorkerThread()
     if IS_HARDWARE_CONNECTED == True:
         gpio.cleanup()
     os.system('sudo reboot now')
 
 schedule.every().day.at("23:50").do(CleanReboot)
+SpinUpWorker()
 
 try:
     while True:
@@ -51,4 +55,4 @@ try:
             schedule.run_pending()
 except (KeyboardInterrupt, SystemExit):
     print 'Interrupted!'
-    Stopi2cThread()
+    StopWorkerThread()
