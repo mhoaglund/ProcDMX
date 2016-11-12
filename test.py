@@ -15,7 +15,7 @@ import math
 import sys
 import RPi.GPIO as gpio
 
-logging.basicConfig(format='%(asctime)s %(message)s',filename='logs.log',level=logging.WARNING)
+logging.basicConfig(format='%(asctime)s %(message)s',filename='logs.log',level=logging.DEBUG)
 _readingsQueue = Queue.Queue()
 
 SENSORS = 10
@@ -23,21 +23,24 @@ COLLECTION_SPEED = 1/50
 serialport = '/dev/ttyUSB0'
 
 IS_HARDWARE_CONNECTED = False #glorified debug flag
+Processes = []
 
 #TODO: update this for process-based implementation
 def SpinUpWorker():
     if __name__ == '__main__':
         global _playthread
         _playthread = syncPlayer(serialport, _readingsQueue, COLLECTION_SPEED, 8, 1, SENSORS)
+        Processes.append(_playthread)
         _playthread.start()
 
-def StopWorkerThread():
-    if '_playthread' in globals():
-        print 'found i2c worker'
-        if _playthread.isAlive():
+def StopWorkerThreads():
+    for proc in Processes:
+        print 'found worker'
+        if proc.is_alive():
             print 'stopping i2c worker'
-            _playthread.stop()
-            _playthread.join()
+            proc.stop()
+            proc.join()
+
 
 def CleanReboot():
     schedule.clear()
@@ -55,4 +58,4 @@ try:
             schedule.run_pending()
 except (KeyboardInterrupt, SystemExit):
     print 'Interrupted!'
-    StopWorkerThread()
+    StopWorkerThreads()
