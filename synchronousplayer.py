@@ -56,10 +56,14 @@ class syncPlayer(Process):
         self.cont = True
         self.MyQueue = _queue
         self.internaddr = _internaddr
-        self.delay = _delay * 0.001
+        self.delay = _delay
         self.arraysize = _arraysize
         self.bus = smbus.SMBus(_bus)
         self.dmxData = [chr(0)]*513   #128 plus "spacer".
+        self.lastReadings = [1]*_arraysize
+
+        self.blackout()
+        self.render()
 
     def setChannel(self, chan, _intensity):
         intensity = int(_intensity)
@@ -70,6 +74,7 @@ class syncPlayer(Process):
         self.dmxData[chan] = chr(intensity)
 		
     def blackout(self):
+        print 'blacking out'
         for i in xrange(1, 512, 1):
             self.dmxData[i] = chr(0)
 
@@ -80,25 +85,32 @@ class syncPlayer(Process):
     def run(self):
         while self.cont:
             self.PlayLatestReadings()
-            #do we need to destroy the smbus or anything?
+        self.blackout()
+        self.render()
 
-    lastReadings = []
+    def stop(self):
+        print 'Stopping...'
+        self.cont = False
+
     def PlayLatestReadings(self):
         try:
             allReadings = self.bus.read_i2c_block_data(self.internaddr, 0, self.arraysize)
-            lastReadings = allReadings
+            self.lastReadings = allReadings
         except IOError as e:
             logging.info('i2c encountered a problem. %s', e)
-            allReadings = lastReadings
+            allReadings = self.lastReadings
+        if self.cont != True:
+            self.blackout()
+            self.render()
+            return
         for i in range(1, len(allReadings)):
             myModifiers = [0]*Channels_Per_Sensor #clean array
             myChannelSet = RenderMap[i] #get channels to work with
             myReading = allReadings[i-1] #get the reading
-            #todo: loop over channelset in sets of four, using incrementer array
             if myReading > 0:
-                myModifiers = Increment*Volatility
+                myModifiers = Increment*3
             else:
-                myModifiers = CoolDown*Volatility
+                myModifiers = CoolDown*3
 
             i = 0
             for channel in myChannelSet:
@@ -116,12 +128,12 @@ class syncPlayer(Process):
 
         NEW_FRAME = map(self.RecChannelCompact, PREV_FRAME, MOD_FRAME, INDICES) #sweet
         PREV_FRAME = NEW_FRAME
-        for ch in range(1, len(NEW_FRAME)):
-            self.setChannel(ch, NEW_FRAME[ch])
+        for ch in range(0, len(NEW_FRAME)):
+           self.setChannel(ch+1, NEW_FRAME[ch])
         self.render()
         time.sleep(self.delay)
 
-    def RecChannelCompact(x,y,i):
+    def RecChannelCompact(self, x,y,i):
         temp = x + y
         hiref = MAX_FRAME[i]
         loref = BASE_FRAME[i]
@@ -129,7 +141,6 @@ class syncPlayer(Process):
             temp = hiref
         if temp < loref:
             temp = loref
-        #self.setChannel(i, intensity)
         return temp
 
 

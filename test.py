@@ -1,6 +1,4 @@
 #Create some fake choreography to flash through the lights.
-from i2cmgmt import i2cManager
-from dmxworker import DmxThread
 from synchronousplayer import syncPlayer
 
 import logging
@@ -19,7 +17,7 @@ logging.basicConfig(format='%(asctime)s %(message)s',filename='logs.log',level=l
 _readingsQueue = Queue.Queue()
 
 SENSORS = 10
-COLLECTION_SPEED = 1/50
+COLLECTION_SPEED = 1/25
 serialport = '/dev/ttyUSB0'
 
 IS_HARDWARE_CONNECTED = False #glorified debug flag
