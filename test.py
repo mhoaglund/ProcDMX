@@ -37,14 +37,14 @@ def StopWorkerThreads():
     for proc in Processes:
         print 'found worker'
         if proc.is_alive():
-            print 'stopping i2c worker'
+            print 'stopping worker'
             proc.stop()
             proc.join()
 
 
 def CleanReboot():
     schedule.clear()
-    StopWorkerThread()
+    StopWorkerThreads()
     if IS_HARDWARE_CONNECTED == True:
         gpio.cleanup()
     os.system('sudo reboot now')
