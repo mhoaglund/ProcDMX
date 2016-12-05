@@ -1,6 +1,4 @@
 #Create some fake choreography to flash through the lights.
-
-
 import logging
 import os
 from multiprocessing import Queue

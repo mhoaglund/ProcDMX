@@ -2,47 +2,46 @@ import sys, serial, time, smbus, logging
 from multiprocessing import Process, Queue
 from random import randint
 from operator import add
-from functools import partial
 
 DMXOPEN = chr(126)
 DMXCLOSE = chr(231)
-DMXINTENSITY=chr(6)+chr(1)+chr(2)
-DMXINIT1= chr(03)+chr(02)+chr(0)+chr(0)+chr(0)
-DMXINIT2= chr(10)+chr(02)+chr(0)+chr(0)+chr(0)
+DMXINTENSITY = chr(6)+chr(1)+chr(2)
+DMXINIT1 = chr(03)+chr(02)+chr(0)+chr(0)+chr(0)
+DMXINIT2 = chr(10)+chr(02)+chr(0)+chr(0)+chr(0)
 
 CHANNELS_IN_USE = 120
 EMPTY_FRAME = [0]*CHANNELS_IN_USE
 MOD_FRAME = [0]*CHANNELS_IN_USE
 PREV_FRAME = [0]*CHANNELS_IN_USE
-INDICES = [x for x in range(0,CHANNELS_IN_USE)]
+INDICES = [x for x in range(0, CHANNELS_IN_USE)]
 
-#Sensor nodes register hits and this pushes our lights from default to threshold, then they cool back down over time.
-Default_Color = [67, 0, 125, 0]
-Threshold_Color = [125, 50, 255, 125]
-Busy_Threshold_Color = [150, 80, 255, 200]
-Night_Idle_Color = [0, 0, 120, 255]
-Increment = [2, 1, 3, 1] #the core aesthetic
-CoolDown = [-2, -1, -2, -2]
-Volatility = 3
+#Sensor nodes register hits and this pushes our lights from default to threshold,
+#then they cool back down over time.
+DEFAULT_COLOR = [67, 0, 125, 0]
+THRESHOLD_COLOR = [125, 50, 255, 125]
+BUSY_THRESHOLD_COLOR = [150, 80, 255, 200]
+NIGHT_IDLE_COLOR = [0, 0, 120, 255]
+INCREMENT = [2, 1, 3, 1] #the core aesthetic
+COOLDOWN = [-2, -1, -2, -2]
+VOLATILITY = 3
 
-BASE_FRAME = Default_Color*30
-MAX_FRAME = Threshold_Color*30
-BUSY_FRAME = Threshold_Color*30
-NIGHT_FRAME = Night_Idle_Color*30
+BASE_FRAME = DEFAULT_COLOR*30
+MAX_FRAME = THRESHOLD_COLOR*30
+BUSY_FRAME = THRESHOLD_COLOR*30
+NIGHT_FRAME = NIGHT_IDLE_COLOR*30
 
-Channels_Per_Sensor = 12
-#TODO: for future-proofing, we should set something up for staggering sets of lights for nodes.
-RenderMap = {
-    1: [x+1 for x in range(Channels_Per_Sensor * 1)],
-    2: [x+1 for x in range(Channels_Per_Sensor * 1, Channels_Per_Sensor * 2)],
-    3: [x+1 for x in range(Channels_Per_Sensor * 2, Channels_Per_Sensor * 3)],
-    4: [x+1 for x in range(Channels_Per_Sensor * 3, Channels_Per_Sensor * 4)],
-    5: [x+1 for x in range(Channels_Per_Sensor * 4, Channels_Per_Sensor * 5)],
-    6: [x+1 for x in range(Channels_Per_Sensor * 5, Channels_Per_Sensor * 6)],
-    7: [x+1 for x in range(Channels_Per_Sensor * 6, Channels_Per_Sensor * 7)],
-    8: [x+1 for x in range(Channels_Per_Sensor * 7, Channels_Per_Sensor * 8)],
-    9: [x+1 for x in range(Channels_Per_Sensor * 8, Channels_Per_Sensor * 9)],
-    10:[x+1 for x in range(Channels_Per_Sensor * 9, Channels_Per_Sensor * 10)]
+CHANNELS_PER_SENSOR = 12
+RENDERMAP = {
+    1: [x+1 for x in range(CHANNELS_PER_SENSOR * 1)],
+    2: [x+1 for x in range(CHANNELS_PER_SENSOR * 1, CHANNELS_PER_SENSOR * 2)],
+    3: [x+1 for x in range(CHANNELS_PER_SENSOR * 2, CHANNELS_PER_SENSOR * 3)],
+    4: [x+1 for x in range(CHANNELS_PER_SENSOR * 3, CHANNELS_PER_SENSOR * 4)],
+    5: [x+1 for x in range(CHANNELS_PER_SENSOR * 4, CHANNELS_PER_SENSOR * 5)],
+    6: [x+1 for x in range(CHANNELS_PER_SENSOR * 5, CHANNELS_PER_SENSOR * 6)],
+    7: [x+1 for x in range(CHANNELS_PER_SENSOR * 6, CHANNELS_PER_SENSOR * 7)],
+    8: [x+1 for x in range(CHANNELS_PER_SENSOR * 7, CHANNELS_PER_SENSOR * 8)],
+    9: [x+1 for x in range(CHANNELS_PER_SENSOR * 8, CHANNELS_PER_SENSOR * 9)],
+    10:[x+1 for x in range(CHANNELS_PER_SENSOR * 9, CHANNELS_PER_SENSOR * 10)]
 }
 
 #The Synchronous Player is a simpler implementation that just grabs a buffer from i2c
@@ -126,13 +125,13 @@ class syncPlayer(Process):
             self.render()
             return
         for i in range(1, len(allReadings)):
-            myModifiers = [0]*Channels_Per_Sensor #clean array
-            myChannelSet = RenderMap[i] #get channels to work with
+            myModifiers = [0]*CHANNELS_PER_SENSOR #clean array
+            myChannelSet = RENDERMAP[i] #get channels to work with
             myReading = allReadings[i-1] #get the reading
             if myReading > 0:
-                myModifiers = Increment*3
+                myModifiers = INCREMENT*3
             else:
-                myModifiers = CoolDown*3
+                myModifiers = COOLDOWN*3
 
             i = 0
             for channel in myChannelSet:
