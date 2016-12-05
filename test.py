@@ -1,37 +1,34 @@
 #Create some fake choreography to flash through the lights.
-from synchronousplayer import syncPlayer
+
 
 import logging
-import time
-import datetime
-import threading
-import schedule
-import atexit
 import os
-import Queue
-import math
-import sys
+from multiprocessing import Queue
 import RPi.GPIO as gpio
+import schedule
+from synchronousplayer import syncPlayer
 
-logging.basicConfig(format='%(asctime)s %(message)s',filename='logs.log',level=logging.DEBUG)
-_readingsQueue = Queue.Queue()
+logging.basicConfig(format='%(asctime)s %(message)s', filename='logs.log', level=logging.DEBUG)
+JOBQUEUE = Queue()
 
 SENSORS = 10
 COLLECTION_SPEED = 1/25
-serialport = '/dev/ttyUSB0'
+SERIALPORT = '/dev/ttyUSB0'
 
 IS_HARDWARE_CONNECTED = False #glorified debug flag
 Processes = []
 
 #TODO: update this for process-based implementation
-def SpinUpWorker():
+def spinupworker():
+    """Activate the worker thread that does our lighting work"""
     if __name__ == '__main__':
         global _playthread
-        _playthread = syncPlayer(serialport, _readingsQueue, COLLECTION_SPEED, 8, 1, SENSORS)
+        _playthread = syncPlayer(SERIALPORT, JOBQUEUE, COLLECTION_SPEED, 8, 1, SENSORS)
         Processes.append(_playthread)
         _playthread.start()
 
-def StopWorkerThreads():
+def stopworkerthreads():
+    """Stop any currently running threads"""
     for proc in Processes:
         print 'found worker'
         if proc.is_alive():
@@ -39,16 +36,26 @@ def StopWorkerThreads():
             proc.stop()
             proc.join()
 
-
-def CleanReboot():
+def cleanreboot():
+    """Superstitious daily restart"""
     schedule.clear()
-    StopWorkerThreads()
-    if IS_HARDWARE_CONNECTED == True:
+    stopworkerthreads()
+    if IS_HARDWARE_CONNECTED is True:
         gpio.cleanup()
     os.system('sudo reboot now')
 
-schedule.every().day.at("23:50").do(CleanReboot)
-SpinUpWorker()
+def queuenightjob():
+    """Queue a message to the worker process to switch over to night"""
+    JOBQUEUE.put("NIGHT")
+
+def queuemorningjob():
+    """Queue a message to the worker process to resume normal function"""
+    JOBQUEUE.put("MORNING")
+
+schedule.every().day.at("21:30").do(queuenightjob)
+schedule.every().day.at("6:00").do(queuemorningjob)
+schedule.every().day.at("23:50").do(cleanreboot)
+spinupworker()
 
 try:
     while True:
@@ -56,4 +63,4 @@ try:
             schedule.run_pending()
 except (KeyboardInterrupt, SystemExit):
     print 'Interrupted!'
-    StopWorkerThreads()
+    stopworkerthreads()

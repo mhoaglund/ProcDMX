@@ -1,12 +1,12 @@
-import sys, serial, math, time, Queue, copy, schedule, smbus, logging
-from multiprocessing import Process
+import sys, serial, time, smbus, logging
+from multiprocessing import Process, Queue
 from random import randint
 from operator import add
 from functools import partial
 
 DMXOPEN = chr(126)
 DMXCLOSE = chr(231)
-DMXINTENSITY=chr(6)+chr(1)+chr(2)				
+DMXINTENSITY=chr(6)+chr(1)+chr(2)
 DMXINIT1= chr(03)+chr(02)+chr(0)+chr(0)+chr(0)
 DMXINIT2= chr(10)+chr(02)+chr(0)+chr(0)+chr(0)
 
@@ -17,14 +17,18 @@ PREV_FRAME = [0]*CHANNELS_IN_USE
 INDICES = [x for x in range(0,CHANNELS_IN_USE)]
 
 #Sensor nodes register hits and this pushes our lights from default to threshold, then they cool back down over time.
-Default_Color = [67,0,125,0]
-Threshold_Color = [125,50,255,125]
-Increment = [2,1,3,1] #the core aesthetic
-CoolDown = [-2,-1,-2,-2]
+Default_Color = [67, 0, 125, 0]
+Threshold_Color = [125, 50, 255, 125]
+Busy_Threshold_Color = [150, 80, 255, 200]
+Night_Idle_Color = [0, 0, 120, 255]
+Increment = [2, 1, 3, 1] #the core aesthetic
+CoolDown = [-2, -1, -2, -2]
 Volatility = 3
 
 BASE_FRAME = Default_Color*30
 MAX_FRAME = Threshold_Color*30
+BUSY_FRAME = Threshold_Color*30
+NIGHT_FRAME = Night_Idle_Color*30
 
 Channels_Per_Sensor = 12
 #TODO: for future-proofing, we should set something up for staggering sets of lights for nodes.
@@ -41,7 +45,8 @@ RenderMap = {
     10:[x+1 for x in range(Channels_Per_Sensor * 9, Channels_Per_Sensor * 10)]
 }
 
-#The Synchronous Player is a simpler implementation that just grabs a buffer from i2c and throws it to the lights.
+#The Synchronous Player is a simpler implementation that just grabs a buffer from i2c
+#and throws it to the lights.
 #Can delay between frames, but mostly this is just being run as fast as possible.
 #Not really insulated against any i2c faults.
 class syncPlayer(Process):
@@ -61,6 +66,9 @@ class syncPlayer(Process):
         self.bus = smbus.SMBus(_bus)
         self.dmxData = [chr(0)]*513   #128 plus "spacer".
         self.lastReadings = [1]*_arraysize
+        self.busyFrames = 0
+        self.maxBusyFrames = 100
+        self.isBusy = False
 
         self.blackout()
         self.render()
@@ -93,9 +101,23 @@ class syncPlayer(Process):
         self.cont = False
 
     def PlayLatestReadings(self):
+        if not self.MyQueue.empty():
+            currentJob = self.MyQueue.get()
+            if currentJob == "NIGHT":
+                print 'Going into night mode' #TODO this for real
+            if currentJob == "MORNING":
+                print 'Activating for the day' #TODO this for real
         try:
             allReadings = self.bus.read_i2c_block_data(self.internaddr, 0, self.arraysize)
             self.lastReadings = allReadings
+            if sum(allReadings) > 7:
+                self.busyFrames += 1
+            else:
+                self.busyFrames = 0
+
+            #if we are super busy, just lock at 1 on all channels
+            if self.busyFrames > self.maxBusyFrames:
+                allReadings = [1] * self.arraysize
         except IOError as e:
             logging.info('i2c encountered a problem. %s', e)
             allReadings = self.lastReadings
@@ -135,8 +157,12 @@ class syncPlayer(Process):
 
     def RecChannelCompact(self, x,y,i):
         temp = x + y
-        hiref = MAX_FRAME[i]
-        loref = BASE_FRAME[i]
+        if self.isBusy:
+            hiref = BUSY_FRAME[i]
+            loref = BASE_FRAME[i]
+        else:
+            hiref = MAX_FRAME[i]
+            loref = BASE_FRAME[i]
         if temp > hiref:
             temp = hiref
         if temp < loref:
