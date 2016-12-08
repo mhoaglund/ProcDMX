@@ -45,11 +45,12 @@ RENDERMAP = {
     10:[x+1 for x in range(CHANNELS_PER_SENSOR * 9, CHANNELS_PER_SENSOR * 10)]
 }
 
-#The Synchronous Player is a simpler implementation that just grabs a buffer from i2c
+#The Synchronous Player is a simple implementation that just grabs a buffer from i2c
 #and throws it to the lights.
 #Can delay between frames, but mostly this is just being run as fast as possible.
 #Not really insulated against any i2c faults.
 class syncPlayer(Process):
+    """Handles access to iic and rendering of readings"""
     def __init__(self, _serialPort, _queue, _delay, _internaddr, _bus, _arraysize):
         super(syncPlayer, self).__init__()
         print 'starting worker'
@@ -59,7 +60,7 @@ class syncPlayer(Process):
             print "Error: could not open Serial Port"
             sys.exit(0)
         self.cont = True
-        self.MyQueue = _queue
+        self.myqueue = _queue
         self.internaddr = _internaddr
         self.delay = _delay
         self.arraysize = _arraysize
@@ -80,7 +81,7 @@ class syncPlayer(Process):
         if intensity > 255: intensity = 255
         if intensity < 0: intensity = 0
         self.dmxData[chan] = chr(intensity)
-		
+
     def blackout(self):
         print 'blacking out'
         for i in xrange(1, 512, 1):
@@ -92,7 +93,15 @@ class syncPlayer(Process):
 
     def run(self):
         while self.cont:
-            self.playlatestreadings()
+            if not self.myqueue.empty():
+                currentjob = self.myqueue.get()
+                if currentjob == "NIGHT":
+                    print 'Going into night mode' #TODO this for real
+                    return
+                if currentjob == "MORNING":
+                    print 'Activating for the day' #TODO undo whatever night mode means
+            else:
+                self.playlatestreadings()
         self.blackout()
         self.render()
 
@@ -106,15 +115,12 @@ class syncPlayer(Process):
         self.blackout()
         self.render()
 
+    def playnightroutine(self):
+        """Play a slow fade between two colors"""
+
+
     def playlatestreadings(self):
         """Main loop."""
-        if not self.MyQueue.empty():
-            currentjob = self.MyQueue.get()
-            if currentjob == "NIGHT":
-                print 'Going into night mode' #TODO this for real
-                return
-            if currentjob == "MORNING":
-                print 'Activating for the day' #TODO undo whatever night mode means
         try:
             allreadings = self.bus.read_i2c_block_data(self.internaddr, 0, self.arraysize)
             self.lastreadings = allreadings
@@ -136,8 +142,8 @@ class syncPlayer(Process):
         for i in range(1, len(allreadings)):
             mymodifiers = [0]*CHANNELS_PER_SENSOR #clean array
             mychannels = RENDERMAP[i] #get channels to work with
-            myReading = allreadings[i-1] #get the reading
-            if myReading > 0:
+            myreading = allreadings[i-1] #get the reading
+            if myreading > 0:
                 mymodifiers = INCREMENT*3
             else:
                 mymodifiers = COOLDOWN*3
@@ -149,22 +155,22 @@ class syncPlayer(Process):
                 val = mymodifiers[i]
                 MOD_FRAME[addr] = val
                 i += 1
-        self.ReconcileModifiers()
+        self.reconcilemodifiers()
 
-    #intent: apply mod layer to previous light frame.
-    def ReconcileModifiers(self): 
+    def reconcilemodifiers(self):
+        """Reconcile the current state of lights with the desired state, expressed by deltas"""
         global PREV_FRAME
-        global CURRENT_FRAME
 
-        NEW_FRAME = map(self.RecChannelCompact, PREV_FRAME, MOD_FRAME, INDICES) #sweet
-        PREV_FRAME = NEW_FRAME
-        for ch in range(0, len(NEW_FRAME)):
-           self.setChannel(ch+1, NEW_FRAME[ch])
+        newframe = map(self.recchannel, PREV_FRAME, MOD_FRAME, INDICES) #sweet
+        PREV_FRAME = newframe
+        for channel in range(0, len(newframe)):
+            self.setChannel(channel+1, newframe[channel])
         self.render()
         time.sleep(self.delay)
 
-    def RecChannelCompact(self, x,y,i):
-        temp = x + y
+    def recchannel(self, old, mod, i):
+        """Reconcile channel value with modifier, taking max and mins into account """
+        temp = old + mod
         if self.isbusy:
             hiref = BUSY_FRAME[i]
             loref = BASE_FRAME[i]
