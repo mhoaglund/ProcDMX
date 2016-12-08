@@ -10,8 +10,8 @@ logging.basicConfig(format='%(asctime)s %(message)s', filename='logs.log', level
 JOBQUEUE = Queue()
 
 SENSORS = 10
-COLLECTION_SPEED = 1/25
-SERIALPORT = '/dev/ttyUSB0'
+COLLECTION_SPEED = 0.025
+serialport = '/dev/ttyUSB0'
 
 IS_HARDWARE_CONNECTED = False #glorified debug flag
 Processes = []

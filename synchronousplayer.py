@@ -9,6 +9,7 @@ DMXINTENSITY = chr(6)+chr(1)+chr(2)
 DMXINIT1 = chr(03)+chr(02)+chr(0)+chr(0)+chr(0)
 DMXINIT2 = chr(10)+chr(02)+chr(0)+chr(0)+chr(0)
 
+LIGHTS_IN_USE = 30
 CHANNELS_IN_USE = 120
 EMPTY_FRAME = [0]*CHANNELS_IN_USE
 MOD_FRAME = [0]*CHANNELS_IN_USE
@@ -17,7 +18,7 @@ INDICES = [x for x in range(0, CHANNELS_IN_USE)]
 
 #Sensor nodes register hits and this pushes our lights from default to threshold,
 #then they cool back down over time.
-DEFAULT_COLOR = [67, 0, 125, 0]
+DEFAULT_COLOR = [35, 0, 75, 0]
 THRESHOLD_COLOR = [125, 50, 255, 125]
 BUSY_THRESHOLD_COLOR = [150, 80, 255, 200]
 NIGHT_IDLE_COLOR = [0, 0, 120, 255]
@@ -25,9 +26,9 @@ INCREMENT = [2, 1, 3, 1] #the core aesthetic
 COOLDOWN = [-2, -1, -2, -2]
 VOLATILITY = 3
 
-BASE_FRAME = DEFAULT_COLOR*30
-MAX_FRAME = THRESHOLD_COLOR*30
-BUSY_FRAME = THRESHOLD_COLOR*30
+BASE_FRAME = DEFAULT_COLOR*LIGHTS_IN_USE
+MAX_FRAME = THRESHOLD_COLOR*LIGHTS_IN_USE
+BUSY_FRAME = THRESHOLD_COLOR*LIGHTS_IN_USE
 NIGHT_FRAME = NIGHT_IDLE_COLOR*30
 
 CHANNELS_PER_SENSOR = 12
@@ -97,7 +98,13 @@ class syncPlayer(Process):
 
     def stop(self):
         print 'Stopping...'
-        self.cont = False
+	    self.cont = False
+
+    def terminate(self):
+        print 'Terminating...'
+	    self.cont = False
+	    self.blackout()
+        self.render()
 
     def PlayLatestReadings(self):
         if not self.MyQueue.empty():
