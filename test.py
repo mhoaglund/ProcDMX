@@ -11,7 +11,7 @@ JOBQUEUE = Queue()
 
 SENSORS = 10
 COLLECTION_SPEED = 0.025
-serialport = '/dev/ttyUSB0'
+SERIALPORT = '/dev/ttyUSB0'
 
 IS_HARDWARE_CONNECTED = False #glorified debug flag
 Processes = []

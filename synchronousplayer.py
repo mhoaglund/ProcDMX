@@ -10,7 +10,7 @@ DMXINIT1 = chr(03)+chr(02)+chr(0)+chr(0)+chr(0)
 DMXINIT2 = chr(10)+chr(02)+chr(0)+chr(0)+chr(0)
 
 LIGHTS_IN_USE = 30
-CHANNELS_IN_USE = 120
+CHANNELS_IN_USE = LIGHTS_IN_USE*4
 EMPTY_FRAME = [0]*CHANNELS_IN_USE
 MOD_FRAME = [0]*CHANNELS_IN_USE
 PREV_FRAME = [0]*CHANNELS_IN_USE
@@ -68,7 +68,8 @@ class syncPlayer(Process):
         self.lastReadings = [1]*_arraysize
         self.busyFrames = 0
         self.maxBusyFrames = 100
-        self.isBusy = False
+        self.isbusy = False
+        self.busylimit = _arraysize -2
 
         self.blackout()
         self.render()
@@ -98,12 +99,12 @@ class syncPlayer(Process):
 
     def stop(self):
         print 'Stopping...'
-	    self.cont = False
+        self.cont = False
 
     def terminate(self):
         print 'Terminating...'
-	    self.cont = False
-	    self.blackout()
+        self.cont = False
+        self.blackout()
         self.render()
 
     def PlayLatestReadings(self):
@@ -163,7 +164,7 @@ class syncPlayer(Process):
 
     def RecChannelCompact(self, x,y,i):
         temp = x + y
-        if self.isBusy:
+        if self.isbusy:
             hiref = BUSY_FRAME[i]
             loref = BASE_FRAME[i]
         else:
