@@ -65,12 +65,11 @@ class syncPlayer(Process):
         self.arraysize = _arraysize
         self.bus = smbus.SMBus(_bus)
         self.dmxData = [chr(0)]*513   #128 plus "spacer".
-        self.lastReadings = [1]*_arraysize
-        self.busyFrames = 0
-        self.maxBusyFrames = 100
+        self.lastreadings = [1]*_arraysize
+        self.busyframes = 0
+        self.maxbusyframes = 100
         self.isbusy = False
         self.busylimit = _arraysize -2
-
         self.blackout()
         self.render()
 
@@ -93,7 +92,7 @@ class syncPlayer(Process):
 
     def run(self):
         while self.cont:
-            self.PlayLatestReadings()
+            self.playlatestreadings()
         self.blackout()
         self.render()
 
@@ -107,45 +106,47 @@ class syncPlayer(Process):
         self.blackout()
         self.render()
 
-    def PlayLatestReadings(self):
+    def playlatestreadings(self):
+        """Main loop."""
         if not self.MyQueue.empty():
-            currentJob = self.MyQueue.get()
-            if currentJob == "NIGHT":
+            currentjob = self.MyQueue.get()
+            if currentjob == "NIGHT":
                 print 'Going into night mode' #TODO this for real
-            if currentJob == "MORNING":
-                print 'Activating for the day' #TODO this for real
+                return
+            if currentjob == "MORNING":
+                print 'Activating for the day' #TODO undo whatever night mode means
         try:
-            allReadings = self.bus.read_i2c_block_data(self.internaddr, 0, self.arraysize)
-            self.lastReadings = allReadings
-            if sum(allReadings) > 7:
-                self.busyFrames += 1
+            allreadings = self.bus.read_i2c_block_data(self.internaddr, 0, self.arraysize)
+            self.lastreadings = allreadings
+            if sum(allreadings) > self.busylimit:
+                self.busyframes += 1
             else:
-                self.busyFrames = 0
+                self.busyframes = 0
 
             #if we are super busy, just lock at 1 on all channels
-            if self.busyFrames > self.maxBusyFrames:
-                allReadings = [1] * self.arraysize
+            if self.busyframes > self.maxbusyframes:
+                allreadings = [1] * self.arraysize
         except IOError as e:
             logging.info('i2c encountered a problem. %s', e)
-            allReadings = self.lastReadings
+            allreadings = self.lastreadings
         if self.cont != True:
             self.blackout()
             self.render()
             return
-        for i in range(1, len(allReadings)):
-            myModifiers = [0]*CHANNELS_PER_SENSOR #clean array
-            myChannelSet = RENDERMAP[i] #get channels to work with
-            myReading = allReadings[i-1] #get the reading
+        for i in range(1, len(allreadings)):
+            mymodifiers = [0]*CHANNELS_PER_SENSOR #clean array
+            mychannels = RENDERMAP[i] #get channels to work with
+            myReading = allreadings[i-1] #get the reading
             if myReading > 0:
-                myModifiers = INCREMENT*3
+                mymodifiers = INCREMENT*3
             else:
-                myModifiers = COOLDOWN*3
+                mymodifiers = COOLDOWN*3
 
             i = 0
-            for channel in myChannelSet:
+            for channel in mychannels:
                 #addr = myChannelSet[i]
                 addr = channel
-                val = myModifiers[i]
+                val = mymodifiers[i]
                 MOD_FRAME[addr] = val
                 i += 1
         self.ReconcileModifiers()
@@ -175,7 +176,3 @@ class syncPlayer(Process):
         if temp < loref:
             temp = loref
         return temp
-
-
-
-        
