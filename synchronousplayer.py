@@ -29,7 +29,7 @@ VOLATILITY = 3
 BASE_FRAME = DEFAULT_COLOR*LIGHTS_IN_USE
 MAX_FRAME = THRESHOLD_COLOR*LIGHTS_IN_USE
 BUSY_FRAME = THRESHOLD_COLOR*LIGHTS_IN_USE
-NIGHT_FRAME = NIGHT_IDLE_COLOR*30
+NIGHT_FRAME = NIGHT_IDLE_COLOR*LIGHTS_IN_USE
 
 CHANNELS_PER_SENSOR = 12
 RENDERMAP = {
@@ -122,7 +122,12 @@ class syncPlayer(Process):
         self.render()
 
     def playnightroutine(self):
-        """Play a slow fade between two colors"""
+        """Set it to the night color"""
+        #TODO ease into the night color instead of just popping over
+        for channel in range(0, len(CHANNELS_IN_USE)):
+            self.setChannel(channel+1, NIGHT_FRAME[channel])
+        self.render()
+        time.sleep(self.delay)
 
 
     def playlatestreadings(self):
