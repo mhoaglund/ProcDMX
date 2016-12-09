@@ -1,6 +1,7 @@
 #Create some fake choreography to flash through the lights.
 import logging
 import os
+import datetime
 from multiprocessing import Queue
 import RPi.GPIO as gpio
 import schedule
@@ -12,6 +13,8 @@ JOBQUEUE = Queue()
 SENSORS = 10
 COLLECTION_SPEED = 0.025
 SERIALPORT = '/dev/ttyUSB0'
+DAY_START_HOUR = 6 #6am
+DAY_END_HOUR = 21 #9pm
 
 IS_HARDWARE_CONNECTED = False #glorified debug flag
 Processes = []
@@ -50,9 +53,22 @@ def queuemorningjob():
     """Queue a message to the worker process to resume normal function"""
     JOBQUEUE.put("MORNING")
 
+def startuptimecheck():
+    """On startup, figure out what mode to be in. Couldve been shut down at a weird time."""
+    print 'Starting!'
+    now = datetime.datetime.now()
+    todaystart = now.replace(hour=DAY_START_HOUR, minute=0, second=0, microsecond=0)
+    todayend = now.replace(hour=DAY_END_HOUR, minute=0, second=0, microsecond=0)
+    if now >= todaystart and now <= todayend:
+        print 'Day Mode'
+        queuemorningjob()
+    else:
+        print 'Night Mode'
+        queuenightjob()
+
 schedule.every().day.at("21:30").do(queuenightjob)
 schedule.every().day.at("6:00").do(queuemorningjob)
-schedule.every().day.at("23:50").do(cleanreboot)
+schedule.every().day.at("5:50").do(cleanreboot)
 spinupworker()
 
 try:
