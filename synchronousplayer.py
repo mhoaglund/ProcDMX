@@ -139,7 +139,6 @@ class syncPlayer(Process):
                 self.busyframes += 1
             else:
                 self.busyframes = 0
-
             #if we are super busy, just lock at 1 on all channels
             if self.busyframes > self.maxbusyframes:
                 allreadings = [1] * self.arraysize
@@ -155,9 +154,9 @@ class syncPlayer(Process):
             mychannels = RENDERMAP[i] #get channels to work with
             myreading = allreadings[i-1] #get the reading
             if myreading > 0:
-                mymodifiers = INCREMENT*3
+                mymodifiers = INCREMENT*VOLATILITY
             else:
-                mymodifiers = COOLDOWN*3
+                mymodifiers = COOLDOWN
 
             i = 0
             for channel in mychannels:
