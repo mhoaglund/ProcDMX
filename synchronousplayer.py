@@ -70,6 +70,7 @@ class syncPlayer(Process):
         self.busyframes = 0
         self.maxbusyframes = 100
         self.isbusy = False
+        self.isnightmode = False
         self.busylimit = _arraysize -2
         self.blackout()
         self.render()
@@ -88,6 +89,7 @@ class syncPlayer(Process):
             self.dmxData[i] = chr(0)
 
     def render(self):
+        """Send off our DMX intensities to the hardware"""
         sdata = ''.join(self.dmxData)
         self.serial.write(DMXOPEN+DMXINTENSITY+sdata+DMXCLOSE)
 
@@ -96,12 +98,16 @@ class syncPlayer(Process):
             if not self.myqueue.empty():
                 currentjob = self.myqueue.get()
                 if currentjob == "NIGHT":
-                    print 'Going into night mode' #TODO this for real
+                    print 'Going into night mode'
+                    self.isnightmode = True
                     return
                 if currentjob == "MORNING":
-                    print 'Activating for the day' #TODO undo whatever night mode means
-            else:
+                    print 'Activating for the day'
+                    self.isnightmode = False
+            if not self.isnightmode:
                 self.playlatestreadings()
+            else:
+                self.playnightroutine()
         self.blackout()
         self.render()
 
