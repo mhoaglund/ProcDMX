@@ -10,7 +10,7 @@ from synchronousplayer import syncPlayer
 logging.basicConfig(format='%(asctime)s %(message)s', filename='logs.log', level=logging.DEBUG)
 JOBQUEUE = Queue()
 
-SENSORS = 10
+SENSORS = 18
 COLLECTION_SPEED = 0.025
 SERIALPORT = '/dev/ttyUSB0'
 DAY_START_HOUR = 6 #6am
