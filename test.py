@@ -14,7 +14,7 @@ SENSORS = 18
 COLLECTION_SPEED = 0.025
 SERIALPORT = '/dev/ttyUSB0'
 DAY_START_HOUR = 6 #6am
-DAY_END_HOUR = 21 #9pm
+DAY_END_HOUR = 22 #10pm
 
 IS_HARDWARE_CONNECTED = False #glorified debug flag
 Processes = []
@@ -34,8 +34,8 @@ def stopworkerthreads():
         print 'found worker'
         if proc.is_alive():
             print 'stopping worker'
-            proc.stop()
-            proc.join()
+            proc.terminate()
+            #proc.join()
 
 def cleanreboot():
     """Superstitious daily restart"""
@@ -66,10 +66,11 @@ def startuptimecheck():
         print 'Night Mode'
         queuenightjob()
 
-schedule.every().day.at("21:30").do(queuenightjob)
+schedule.every().day.at("22:00").do(queuenightjob)
 schedule.every().day.at("6:00").do(queuemorningjob)
 schedule.every().day.at("5:50").do(cleanreboot)
 spinupworker()
+startuptimecheck()
 
 try:
     while True:

@@ -28,7 +28,7 @@ VOLATILITY = 3
 
 BASE_FRAME = DEFAULT_COLOR*LIGHTS_IN_USE
 MAX_FRAME = THRESHOLD_COLOR*LIGHTS_IN_USE
-BUSY_FRAME = THRESHOLD_COLOR*LIGHTS_IN_USE
+BUSY_FRAME = BUSY_THRESHOLD_COLOR*LIGHTS_IN_USE
 NIGHT_FRAME = NIGHT_IDLE_COLOR*LIGHTS_IN_USE
 
 CHANNELS_PER_SENSOR = 8 #two lights per sensor in other words, about 3 feet of distance
@@ -94,7 +94,7 @@ class syncPlayer(Process):
         self.maxbusyframes = 100
         self.isbusy = False
         self.isnightmode = False
-        self.busylimit = _arraysize -2
+        self.busylimit = _arraysize -4
         self.blackout()
         self.render()
 
@@ -121,15 +121,14 @@ class syncPlayer(Process):
             if not self.myqueue.empty():
                 currentjob = self.myqueue.get()
                 if currentjob == "NIGHT":
-                    print 'Going into night mode'
+                    logging.info('Going into Night Mode')
                     self.isnightmode = True
-                    return
                 if currentjob == "MORNING":
-                    print 'Activating for the day'
+                    logging.info('Activating for the day')
                     self.isnightmode = False
             if not self.isnightmode:
                 self.playlatestreadings()
-            else:
+            if self.isnightmode:
                 self.playnightroutine()
         self.blackout()
         self.render()
@@ -147,7 +146,7 @@ class syncPlayer(Process):
     def playnightroutine(self):
         """Set it to the night color"""
         #TODO ease into the night color instead of just popping over
-        for channel in range(0, len(CHANNELS_IN_USE)):
+        for channel in range(0, CHANNELS_IN_USE):
             self.setChannel(channel+1, NIGHT_FRAME[channel])
         self.render()
         time.sleep(self.delay)
@@ -158,16 +157,19 @@ class syncPlayer(Process):
         try:
             allreadings = self.bus.read_i2c_block_data(self.internaddr, 0, self.arraysize)
             self.lastreadings = allreadings
-            if sum(allreadings) > self.busylimit:
-                self.busyframes += 1
-            else:
-                self.busyframes = 0
-            #if we are super busy, just lock at 1 on all channels
-            if self.busyframes > self.maxbusyframes:
-                allreadings = [1] * self.arraysize
         except IOError as e:
             logging.info('i2c encountered a problem. %s', e)
             allreadings = self.lastreadings
+        if sum(allreadings) > self.busylimit:
+            self.busyframes += 1
+        else:
+            self.busyframes = 0
+            self.isbusy = False
+        #if we are super busy, just lock at 1 on all channels
+        if self.busyframes > self.maxbusyframes:
+            self.isbusy = True
+            allreadings = [1] * self.arraysize
+                
         if self.cont != True:
             self.blackout()
             self.render()
