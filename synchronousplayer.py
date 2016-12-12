@@ -94,6 +94,7 @@ class syncPlayer(Process):
         self.maxbusyframes = 100
         self.isbusy = False
         self.isnightmode = False
+        self.flipreadings = False
         self.busylimit = _arraysize -4
         self.blackout()
         self.render()
@@ -169,7 +170,10 @@ class syncPlayer(Process):
         if self.busyframes > self.maxbusyframes:
             self.isbusy = True
             allreadings = [1] * self.arraysize
-                
+        
+        if self.flipreadings == True:
+            allreadings.reverse()
+            
         if self.cont != True:
             self.blackout()
             self.render()
