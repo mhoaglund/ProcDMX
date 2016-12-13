@@ -81,9 +81,13 @@ class syncPlayer(Process):
         self.isbusy = False
         self.isnightmode = False
         self.flipreadings = False
+        self.edgestatus = False #edge gating for noise reduction
+        self.edgeintervalmax = 100 #loop count for resetting edge gates
+        self.edgeinterval = 0
         self.busylimit = _arraysize -4
         self.blackout()
         self.render()
+        #TODO: lots of instance variables here. when project comes down, refactor
 
     def setChannel(self, chan, _intensity):
         intensity = int(_intensity)
@@ -156,10 +160,27 @@ class syncPlayer(Process):
         if self.busyframes > self.maxbusyframes:
             self.isbusy = True
             allreadings = [1] * self.arraysize
-        
-        if self.flipreadings == True:
+
+        if self.flipreadings is True:
             allreadings.reverse()
-            
+
+        if self.isbusy is False: #during busy times, edge gating doesn't matter
+            #If we have an edge hit, open the gates.
+            if allreadings[self.arraysize-1] is 1 or allreadings[self.arraysize-2] is 1 or allreadings[0] is 1 or allreadings[1] is 1:
+                self.edgestatus = True
+                self.edgeinterval = 0
+
+            if self.edgeinterval < self.edgeintervalmax:
+                #If edge gates are open but there's no activity, creep back toward gate closure
+                if sum(allreadings) == 0:
+                    self.edgeinterval += 1
+                else:
+                    if self.edgeinterval > 0:
+                        self.edgeinterval -= 1
+            else:
+                self.edgestatus = False
+                allreadings = [0] * self.arraysize
+
         if self.cont != True:
             self.blackout()
             self.render()
