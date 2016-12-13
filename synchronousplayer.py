@@ -18,10 +18,10 @@ INDICES = [x for x in range(0, CHANNELS_IN_USE)]
 
 #Sensor nodes register hits and this pushes our lights from default to threshold,
 #then they cool back down over time.
-DEFAULT_COLOR = [35, 0, 75, 0]
+DEFAULT_COLOR = [100, 0, 180, 0]
 THRESHOLD_COLOR = [125, 50, 255, 125]
-BUSY_THRESHOLD_COLOR = [150, 80, 255, 200]
-NIGHT_IDLE_COLOR = [0, 0, 120, 255]
+BUSY_THRESHOLD_COLOR = [150, 120, 255, 200]
+NIGHT_IDLE_COLOR = [125, 125, 0, 255]
 INCREMENT = [4, 2, 6, 2] #the core aesthetic
 COOLDOWN = [-2, -1, -2, -2]
 VOLATILITY = 3
@@ -31,41 +31,27 @@ MAX_FRAME = THRESHOLD_COLOR*LIGHTS_IN_USE
 BUSY_FRAME = BUSY_THRESHOLD_COLOR*LIGHTS_IN_USE
 NIGHT_FRAME = NIGHT_IDLE_COLOR*LIGHTS_IN_USE
 
-CHANNELS_PER_SENSOR = 8 #two lights per sensor in other words, about 3 feet of distance
-NARROW_BAND = 4 #if we have to alternate
+CHAN_PER_FIXTURE = 4 #if we have to alternate
 
 RENDERMAP = {
-    1: [x+1 for x in range(CHANNELS_PER_SENSOR * 1)],
-    2: [x+1 for x in range(CHANNELS_PER_SENSOR * 1, CHANNELS_PER_SENSOR * 2)],
-    3: [x+1 for x in range(CHANNELS_PER_SENSOR * 2, CHANNELS_PER_SENSOR * 3)],
-    4: [x+1 for x in range(CHANNELS_PER_SENSOR * 3, CHANNELS_PER_SENSOR * 4)],
-    5: [x+1 for x in range(CHANNELS_PER_SENSOR * 4, CHANNELS_PER_SENSOR * 5)],
-    6: [x+1 for x in range(CHANNELS_PER_SENSOR * 5, CHANNELS_PER_SENSOR * 6)],
-    7: [x+1 for x in range(CHANNELS_PER_SENSOR * 6, CHANNELS_PER_SENSOR * 7)],
-    8: [x+1 for x in range(CHANNELS_PER_SENSOR * 7, CHANNELS_PER_SENSOR * 8)],
-    9: [x+1 for x in range(CHANNELS_PER_SENSOR * 8, CHANNELS_PER_SENSOR * 9)],
-    10:[x+1 for x in range(CHANNELS_PER_SENSOR * 9, CHANNELS_PER_SENSOR * 10)]
-}
-
-NEWRENDERMAP = {
-    1: [x+1 for x in range(NARROW_BAND * 1)], #truncated
-    2: [x+1 for x in range(NARROW_BAND * 1, NARROW_BAND * 2)], #truncated
-    3: [x+1 for x in range(NARROW_BAND * 2, NARROW_BAND * 4)],
-    4: [x+1 for x in range(NARROW_BAND * 4, NARROW_BAND * 6)],
-    5: [x+1 for x in range(NARROW_BAND * 6, NARROW_BAND * 8)],
-    6: [x+1 for x in range(NARROW_BAND * 8, NARROW_BAND * 10)],
-    7: [x+1 for x in range(NARROW_BAND * 10, NARROW_BAND * 12)],
-    8: [x+1 for x in range(NARROW_BAND * 12, NARROW_BAND * 14)],
-    9: [x+1 for x in range(NARROW_BAND * 14, NARROW_BAND * 16)],
-    10: [x+1 for x in range(NARROW_BAND * 16, NARROW_BAND * 18)],
-    11: [x+1 for x in range(NARROW_BAND * 18, NARROW_BAND * 20)],
-    12: [x+1 for x in range(NARROW_BAND * 20, NARROW_BAND * 22)],
-    13: [x+1 for x in range(NARROW_BAND * 22, NARROW_BAND * 24)],
-    14: [x+1 for x in range(NARROW_BAND * 24, NARROW_BAND * 26)],
-    15: [x+1 for x in range(NARROW_BAND * 26, NARROW_BAND * 28)],
-    16: [x+1 for x in range(NARROW_BAND * 28, NARROW_BAND * 30)],
-    17: [x+1 for x in range(NARROW_BAND * 30, NARROW_BAND * 31)], #truncated
-    18: [x+1 for x in range(NARROW_BAND * 31, NARROW_BAND * 32)] #truncated
+    1: [x+1 for x in range(CHAN_PER_FIXTURE * 1)], #truncated
+    2: [x+1 for x in range(CHAN_PER_FIXTURE * 1, CHAN_PER_FIXTURE * 2)], #truncated
+    3: [x+1 for x in range(CHAN_PER_FIXTURE * 2, CHAN_PER_FIXTURE * 4)],
+    4: [x+1 for x in range(CHAN_PER_FIXTURE * 4, CHAN_PER_FIXTURE * 6)],
+    5: [x+1 for x in range(CHAN_PER_FIXTURE * 6, CHAN_PER_FIXTURE * 8)],
+    6: [x+1 for x in range(CHAN_PER_FIXTURE * 8, CHAN_PER_FIXTURE * 10)],
+    7: [x+1 for x in range(CHAN_PER_FIXTURE * 10, CHAN_PER_FIXTURE * 12)],
+    8: [x+1 for x in range(CHAN_PER_FIXTURE * 12, CHAN_PER_FIXTURE * 14)],
+    9: [x+1 for x in range(CHAN_PER_FIXTURE * 14, CHAN_PER_FIXTURE * 16)],
+    10: [x+1 for x in range(CHAN_PER_FIXTURE * 16, CHAN_PER_FIXTURE * 18)],
+    11: [x+1 for x in range(CHAN_PER_FIXTURE * 18, CHAN_PER_FIXTURE * 20)],
+    12: [x+1 for x in range(CHAN_PER_FIXTURE * 20, CHAN_PER_FIXTURE * 22)],
+    13: [x+1 for x in range(CHAN_PER_FIXTURE * 22, CHAN_PER_FIXTURE * 24)],
+    14: [x+1 for x in range(CHAN_PER_FIXTURE * 24, CHAN_PER_FIXTURE * 26)],
+    15: [x+1 for x in range(CHAN_PER_FIXTURE * 26, CHAN_PER_FIXTURE * 28)],
+    16: [x+1 for x in range(CHAN_PER_FIXTURE * 28, CHAN_PER_FIXTURE * 30)],
+    17: [x+1 for x in range(CHAN_PER_FIXTURE * 30, CHAN_PER_FIXTURE * 31)], #truncated
+    18: [x+1 for x in range(CHAN_PER_FIXTURE * 31, CHAN_PER_FIXTURE * 32)] #truncated
 }
 
 #The Synchronous Player is a simple implementation that just grabs a buffer from i2c
@@ -179,7 +165,7 @@ class syncPlayer(Process):
             self.render()
             return
         for i in range(1, len(allreadings)):
-            mychannels = NEWRENDERMAP[i] #get channels to work with
+            mychannels = RENDERMAP[i] #get channels to work with
             foundchannels = len(mychannels)
             foundlights = foundchannels/4 #either one or two
             mymodifiers = [0]*foundchannels #clean array
