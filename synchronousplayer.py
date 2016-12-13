@@ -50,22 +50,22 @@ RENDERMAP = {
 NEWRENDERMAP = {
     1: [x+1 for x in range(NARROW_BAND * 1)], #truncated
     2: [x+1 for x in range(NARROW_BAND * 1, NARROW_BAND * 2)], #truncated
-    3: [x+1 for x in range(NARROW_BAND * 2, NARROW_BAND * 3)], #truncated
-    4: [x+1 for x in range(NARROW_BAND * 3, NARROW_BAND * 5)],
-    5: [x+1 for x in range(NARROW_BAND * 5, NARROW_BAND * 7)],
-    6: [x+1 for x in range(NARROW_BAND * 7, NARROW_BAND * 9)],
-    7: [x+1 for x in range(NARROW_BAND * 9, NARROW_BAND * 11)],
-    8: [x+1 for x in range(NARROW_BAND * 11, NARROW_BAND * 13)],
-    9: [x+1 for x in range(NARROW_BAND * 13, NARROW_BAND * 15)],
-    10: [x+1 for x in range(NARROW_BAND * 15, NARROW_BAND * 17)],
-    11: [x+1 for x in range(NARROW_BAND * 17, NARROW_BAND * 19)],
-    12: [x+1 for x in range(NARROW_BAND * 19, NARROW_BAND * 21)],
-    13: [x+1 for x in range(NARROW_BAND * 21, NARROW_BAND * 23)],
-    14: [x+1 for x in range(NARROW_BAND * 23, NARROW_BAND * 25)],
-    15: [x+1 for x in range(NARROW_BAND * 25, NARROW_BAND * 27)],
-    16: [x+1 for x in range(NARROW_BAND * 27, NARROW_BAND * 28)], #truncated
-    17: [x+1 for x in range(NARROW_BAND * 28, NARROW_BAND * 29)], #truncated
-    18: [x+1 for x in range(NARROW_BAND * 29, NARROW_BAND * 30)] #truncated
+    3: [x+1 for x in range(NARROW_BAND * 2, NARROW_BAND * 4)],
+    4: [x+1 for x in range(NARROW_BAND * 4, NARROW_BAND * 6)],
+    5: [x+1 for x in range(NARROW_BAND * 6, NARROW_BAND * 8)],
+    6: [x+1 for x in range(NARROW_BAND * 8, NARROW_BAND * 10)],
+    7: [x+1 for x in range(NARROW_BAND * 10, NARROW_BAND * 12)],
+    8: [x+1 for x in range(NARROW_BAND * 12, NARROW_BAND * 14)],
+    9: [x+1 for x in range(NARROW_BAND * 14, NARROW_BAND * 16)],
+    10: [x+1 for x in range(NARROW_BAND * 16, NARROW_BAND * 18)],
+    11: [x+1 for x in range(NARROW_BAND * 18, NARROW_BAND * 20)],
+    12: [x+1 for x in range(NARROW_BAND * 20, NARROW_BAND * 22)],
+    13: [x+1 for x in range(NARROW_BAND * 22, NARROW_BAND * 24)],
+    14: [x+1 for x in range(NARROW_BAND * 24, NARROW_BAND * 26)],
+    15: [x+1 for x in range(NARROW_BAND * 26, NARROW_BAND * 28)],
+    16: [x+1 for x in range(NARROW_BAND * 28, NARROW_BAND * 30)],
+    17: [x+1 for x in range(NARROW_BAND * 30, NARROW_BAND * 31)], #truncated
+    18: [x+1 for x in range(NARROW_BAND * 31, NARROW_BAND * 32)] #truncated
 }
 
 #The Synchronous Player is a simple implementation that just grabs a buffer from i2c
