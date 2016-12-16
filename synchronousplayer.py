@@ -1,4 +1,8 @@
-import sys, serial, time, smbus, logging
+import sys
+import serial
+import time
+import smbus
+import logging
 from multiprocessing import Process, Queue
 from random import randint
 from operator import add
@@ -24,7 +28,7 @@ THRESHOLD_COLOR = [125, 50, 255, 125]
 BUSY_THRESHOLD_COLOR = [150, 120, 255, 200]
 NIGHT_IDLE_COLOR = [125, 125, 0, 255]
 INCREMENT = [4, 2, 6, 2] #the core aesthetic
-COOLDOWN = [-2, -1, -2, -2] #aka decrement
+COOLDOWN = [-2, -1, -2, -2]
 
 BASE_FRAME = DEFAULT_COLOR*LIGHTS_IN_USE
 MAX_FRAME = THRESHOLD_COLOR*LIGHTS_IN_USE
@@ -32,8 +36,8 @@ BUSY_FRAME = BUSY_THRESHOLD_COLOR*LIGHTS_IN_USE
 NIGHT_FRAME = NIGHT_IDLE_COLOR*LIGHTS_IN_USE
 
 RENDERMAP = {
-    1: [x+1 for x in range(CHAN_PER_FIXTURE * 1)], #truncated
-    2: [x+1 for x in range(CHAN_PER_FIXTURE * 1, CHAN_PER_FIXTURE * 2)], #truncated
+    1: [x+1 for x in range(CHAN_PER_FIXTURE * 1)],
+    2: [x+1 for x in range(CHAN_PER_FIXTURE * 1, CHAN_PER_FIXTURE * 2)],
     3: [x+1 for x in range(CHAN_PER_FIXTURE * 2, CHAN_PER_FIXTURE * 4)],
     4: [x+1 for x in range(CHAN_PER_FIXTURE * 4, CHAN_PER_FIXTURE * 6)],
     5: [x+1 for x in range(CHAN_PER_FIXTURE * 6, CHAN_PER_FIXTURE * 8)],
@@ -48,14 +52,14 @@ RENDERMAP = {
     14: [x+1 for x in range(CHAN_PER_FIXTURE * 24, CHAN_PER_FIXTURE * 26)],
     15: [x+1 for x in range(CHAN_PER_FIXTURE * 26, CHAN_PER_FIXTURE * 28)],
     16: [x+1 for x in range(CHAN_PER_FIXTURE * 28, CHAN_PER_FIXTURE * 30)],
-    17: [x+1 for x in range(CHAN_PER_FIXTURE * 30, CHAN_PER_FIXTURE * 31)], #truncated
-    18: [x+1 for x in range(CHAN_PER_FIXTURE * 31, CHAN_PER_FIXTURE * 32)] #truncated
+    17: [x+1 for x in range(CHAN_PER_FIXTURE * 30, CHAN_PER_FIXTURE * 31)],
+    18: [x+1 for x in range(CHAN_PER_FIXTURE * 31, CHAN_PER_FIXTURE * 32)]
 }
 
-class syncPlayer(Process):
+class SyncPlayer(Process):
     """Handles access to iic and rendering of readings"""
     def __init__(self, _serialPort, _queue, _delay, _internaddr, _arraysize):
-        super(syncPlayer, self).__init__()
+        super(SyncPlayer, self).__init__()
         print 'starting worker'
         try:
             self.serial = serial.Serial(_serialPort, baudrate=57600)
@@ -68,22 +72,22 @@ class syncPlayer(Process):
         self.delay = _delay
         self.arraysize = _arraysize
         self.bus = smbus.SMBus(1)
-        self.dmxData = [chr(0)]*513   #128 plus "spacer".
+        self.dmxData = [chr(0)]*513
         self.lastreadings = [1]*_arraysize
         self.busyframes = 0
         self.maxbusyframes = 100
         self.isbusy = False
         self.isnightmode = False
         self.flipreadings = False
-        self.edgestatus = False #edge gating for noise reduction
-        self.edgeintervalmax = 100 #loop count for resetting edge gates
+        self.edgestatus = False
+        self.edgeintervalmax = 100
         self.edgeinterval = 0
         self.busylimit = _arraysize -4
         self.blackout()
         self.render()
-        #TODO: lots of instance variables here. when project comes down, refactor
 
     def setChannel(self, chan, _intensity):
+        """Set intensity on channel"""
         intensity = int(_intensity)
         if chan > 512: chan = 512
         if chan < 0: chan = 0
@@ -92,6 +96,7 @@ class syncPlayer(Process):
         self.dmxData[chan] = chr(intensity)
 
     def blackout(self):
+        """Zero out intensity on all channels"""
         print 'blacking out'
         for i in xrange(1, 512, 1):
             self.dmxData[i] = chr(0)
@@ -158,9 +163,14 @@ class syncPlayer(Process):
         if self.flipreadings is True:
             allreadings.reverse()
 
-        if self.isbusy is False: #during busy times, edge gating doesn't matter
+        if self.isbusy is False:
             #If we have an edge hit, open the gates.
-            if allreadings[self.arraysize-1] is 1 or allreadings[self.arraysize-2] is 1 or allreadings[0] is 1 or allreadings[1] is 1:
+            if (
+                    allreadings[self.arraysize-1] is 1 or
+                    allreadings[self.arraysize-2] is 1 or
+                    allreadings[0] is 1 or
+                    allreadings[1] is 1
+                ):
                 self.edgestatus = True
                 self.edgeinterval = 0
 
@@ -180,18 +190,17 @@ class syncPlayer(Process):
             self.render()
             return
         for i in range(1, len(allreadings)):
-            mychannels = RENDERMAP[i] #get channels to work with
+            mychannels = RENDERMAP[i]
             foundchannels = len(mychannels)
-            foundlights = foundchannels/4 #either one or two
-            mymodifiers = [0]*foundchannels #clean array
-            myreading = allreadings[i-1] #get the reading
+            foundlights = foundchannels/4
+            mymodifiers = [0]*foundchannels
+            myreading = allreadings[i-1]
             if myreading > 0:
                 mymodifiers = INCREMENT*foundlights
             else:
                 mymodifiers = COOLDOWN*foundlights
             i = 0
             for channel in mychannels:
-                #addr = myChannelSet[i]
                 addr = channel
                 val = mymodifiers[i]
                 MOD_FRAME[addr] = val
