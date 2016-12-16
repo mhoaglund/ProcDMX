@@ -9,8 +9,9 @@ DMXINTENSITY = chr(6)+chr(1)+chr(2)
 DMXINIT1 = chr(03)+chr(02)+chr(0)+chr(0)+chr(0)
 DMXINIT2 = chr(10)+chr(02)+chr(0)+chr(0)+chr(0)
 
+CHAN_PER_FIXTURE = 4
 LIGHTS_IN_USE = 30
-CHANNELS_IN_USE = LIGHTS_IN_USE*4
+CHANNELS_IN_USE = LIGHTS_IN_USE*CHAN_PER_FIXTURE
 EMPTY_FRAME = [0]*CHANNELS_IN_USE
 MOD_FRAME = [0]*CHANNELS_IN_USE
 PREV_FRAME = [0]*CHANNELS_IN_USE
@@ -23,15 +24,12 @@ THRESHOLD_COLOR = [125, 50, 255, 125]
 BUSY_THRESHOLD_COLOR = [150, 120, 255, 200]
 NIGHT_IDLE_COLOR = [125, 125, 0, 255]
 INCREMENT = [4, 2, 6, 2] #the core aesthetic
-COOLDOWN = [-2, -1, -2, -2]
-VOLATILITY = 3
+COOLDOWN = [-2, -1, -2, -2] #aka decrement
 
 BASE_FRAME = DEFAULT_COLOR*LIGHTS_IN_USE
 MAX_FRAME = THRESHOLD_COLOR*LIGHTS_IN_USE
 BUSY_FRAME = BUSY_THRESHOLD_COLOR*LIGHTS_IN_USE
 NIGHT_FRAME = NIGHT_IDLE_COLOR*LIGHTS_IN_USE
-
-CHAN_PER_FIXTURE = 4 #if we have to alternate
 
 RENDERMAP = {
     1: [x+1 for x in range(CHAN_PER_FIXTURE * 1)], #truncated
@@ -54,13 +52,9 @@ RENDERMAP = {
     18: [x+1 for x in range(CHAN_PER_FIXTURE * 31, CHAN_PER_FIXTURE * 32)] #truncated
 }
 
-#The Synchronous Player is a simple implementation that just grabs a buffer from i2c
-#and throws it to the lights.
-#Can delay between frames, but mostly this is just being run as fast as possible.
-#Not really insulated against any i2c faults.
 class syncPlayer(Process):
     """Handles access to iic and rendering of readings"""
-    def __init__(self, _serialPort, _queue, _delay, _internaddr, _bus, _arraysize):
+    def __init__(self, _serialPort, _queue, _delay, _internaddr, _arraysize):
         super(syncPlayer, self).__init__()
         print 'starting worker'
         try:
@@ -73,7 +67,7 @@ class syncPlayer(Process):
         self.internaddr = _internaddr
         self.delay = _delay
         self.arraysize = _arraysize
-        self.bus = smbus.SMBus(_bus)
+        self.bus = smbus.SMBus(1)
         self.dmxData = [chr(0)]*513   #128 plus "spacer".
         self.lastreadings = [1]*_arraysize
         self.busyframes = 0

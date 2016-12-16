@@ -16,33 +16,28 @@ SERIALPORT = '/dev/ttyUSB0'
 DAY_START_HOUR = 6 #6am
 DAY_END_HOUR = 22 #10pm
 
-IS_HARDWARE_CONNECTED = False #glorified debug flag
-Processes = []
+PROCESSES = []
 
-#TODO: update this for process-based implementation
 def spinupworker():
     """Activate the worker thread that does our lighting work"""
     if __name__ == '__main__':
-        global _playthread
-        _playthread = syncPlayer(SERIALPORT, JOBQUEUE, COLLECTION_SPEED, 8, 1, SENSORS)
-        Processes.append(_playthread)
+        _playthread = syncPlayer(SERIALPORT, JOBQUEUE, COLLECTION_SPEED, 8, SENSORS)
+        PROCESSES.append(_playthread)
         _playthread.start()
 
 def stopworkerthreads():
     """Stop any currently running threads"""
-    for proc in Processes:
+    for proc in PROCESSES:
         print 'found worker'
         if proc.is_alive():
             print 'stopping worker'
             proc.terminate()
-            #proc.join()
 
 def cleanreboot():
     """Superstitious daily restart"""
     schedule.clear()
     stopworkerthreads()
-    if IS_HARDWARE_CONNECTED is True:
-        gpio.cleanup()
+    gpio.cleanup()
     os.system('sudo reboot now')
 
 def queuenightjob():
