@@ -58,7 +58,7 @@ RENDERMAP = {
 
 class SyncPlayer(Process):
     """Handles access to iic and rendering of readings"""
-    def __init__(self, _serialPort, _queue, _delay, _internaddr, _arraysize):
+    def __init__(self, _serialPort, _queue, _delay, _internaddr, _arraysize, _decay):
         super(SyncPlayer, self).__init__()
         print 'starting worker'
         try:
@@ -83,6 +83,8 @@ class SyncPlayer(Process):
         self.edgeintervalmax = 100
         self.edgeinterval = 0
         self.busylimit = _arraysize -4
+        self.channelheat = [0]*_arraysize
+        self.decayframes = _decay
         self.blackout()
         self.render()
 
@@ -147,9 +149,10 @@ class SyncPlayer(Process):
         try:
             allreadings = self.bus.read_i2c_block_data(self.internaddr, 0, self.arraysize)
             self.lastreadings = allreadings
-        except IOError as e:
-            logging.info('i2c encountered a problem. %s', e)
+        except IOError as err:
+            logging.info('i2c encountered a problem. %s', err)
             allreadings = self.lastreadings
+
         if sum(allreadings) > self.busylimit:
             self.busyframes += 1
         else:
@@ -185,6 +188,9 @@ class SyncPlayer(Process):
                 self.edgestatus = False
                 allreadings = [0] * self.arraysize
 
+        if self.decayframes > 0:
+            self.channelheat = [val * self.decayframes for val in allreadings] #set the decay
+
         if self.cont != True:
             self.blackout()
             self.render()
@@ -194,11 +200,16 @@ class SyncPlayer(Process):
             foundchannels = len(mychannels)
             foundlights = foundchannels/4
             mymodifiers = [0]*foundchannels
-            myreading = allreadings[i-1]
+            if self.decayframes == 0:
+                myreading = allreadings[i-1]
+            else:
+                myreading = self.channelheat[i-1]
+
             if myreading > 0:
                 mymodifiers = INCREMENT*foundlights
             else:
                 mymodifiers = COOLDOWN*foundlights
+
             i = 0
             for channel in mychannels:
                 addr = channel

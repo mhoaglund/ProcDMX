@@ -21,7 +21,7 @@ PROCESSES = []
 def spinupworker():
     """Activate the worker thread that does our lighting work"""
     if __name__ == '__main__':
-        _playthread = SyncPlayer(SERIALPORT, JOBQUEUE, COLLECTION_SPEED, 8, SENSORS)
+        _playthread = SyncPlayer(SERIALPORT, JOBQUEUE, COLLECTION_SPEED, 8, SENSORS, 25)
         PROCESSES.append(_playthread)
         _playthread.start()
 
