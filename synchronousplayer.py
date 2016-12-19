@@ -204,18 +204,20 @@ class SyncPlayer(Process):
                 myreading = allreadings[i-1]
             else:
                 myreading = self.channelheat[i-1]
+                if myreading is not 0:
+                    self.channelheat[i-1] -= 1
 
             if myreading > 0:
                 mymodifiers = INCREMENT*foundlights
             else:
                 mymodifiers = COOLDOWN*foundlights
 
-            i = 0
+            chval = 0
             for channel in mychannels:
                 addr = channel
-                val = mymodifiers[i]
+                val = mymodifiers[chval]
                 MOD_FRAME[addr] = val
-                i += 1
+                chval += 1
         self.reconcilemodifiers()
 
     def reconcilemodifiers(self):
