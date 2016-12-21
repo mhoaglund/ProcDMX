@@ -57,7 +57,21 @@ RENDERMAP = {
 }
 
 class SyncPlayer(Process):
-    """Handles access to iic and rendering of readings"""
+    """A Process which Handles access to iic and renders readings to DMX.
+        Args:
+            Serial Port (string),
+            Job Queue (multiprocessing Queue),
+            Delay (double, portion of a second),
+            InternAddress (int, IIC address of input device),
+            ArraySize (int),
+            Decay (int, minimum number of frames which run in response to a hit)
+
+        Will attempt to pull a buffer from IIC and hydrate it into a DMX
+        intensity array before sending it off. Framerate is determined by the
+        Delay arg. The Decay arg allows smoothing of data to reduce the appearance
+        of noise or latency in the input device by guaranteeing that any Sensor
+        input is shown for at least 25 frames.
+    """
     def __init__(self, _serialPort, _queue, _delay, _internaddr, _arraysize, _decay):
         super(SyncPlayer, self).__init__()
         print 'starting worker'
@@ -224,7 +238,7 @@ class SyncPlayer(Process):
         """Reconcile the current state of lights with the desired state, expressed by deltas"""
         global PREV_FRAME
 
-        newframe = map(self.recchannel, PREV_FRAME, MOD_FRAME, INDICES) #sweet
+        newframe = map(self.recchannel, PREV_FRAME, MOD_FRAME, INDICES)
         PREV_FRAME = newframe
         for channel in range(0, len(newframe)):
             self.setChannel(channel+1, newframe[channel])
