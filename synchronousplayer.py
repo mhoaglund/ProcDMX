@@ -78,7 +78,7 @@ class SyncPlayer(Process):
         self.maxbusyframes = 100
         self.isbusy = False
         self.isnightmode = False
-        self.flipreadings = False
+        self.flipreadings = True
         self.edgestatus = False
         self.edgeintervalmax = 100
         self.edgeinterval = 0
