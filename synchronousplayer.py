@@ -24,13 +24,16 @@ INDICES = [x for x in range(0, CHANNELS_IN_USE)]
 #Sensor nodes register hits and this pushes our lights from default to threshold,
 #then they cool back down over time.
 DEFAULT_COLOR = [100, 0, 180, 0]
+REDUCED_DEFAULT = [50, 0, 90, 0]
 THRESHOLD_COLOR = [125, 50, 255, 125]
 BUSY_THRESHOLD_COLOR = [150, 120, 255, 200]
 NIGHT_IDLE_COLOR = [125, 125, 0, 255]
 INCREMENT = [4, 2, 6, 2] #the core aesthetic
 COOLDOWN = [-2, -1, -2, -2]
+DIP = [-8, -1, -6, -1]
 
 BASE_FRAME = DEFAULT_COLOR*LIGHTS_IN_USE
+REDUCED_FRAME = REDUCED_DEFAULT*LIGHTS_IN_USE
 MAX_FRAME = THRESHOLD_COLOR*LIGHTS_IN_USE
 BUSY_FRAME = BUSY_THRESHOLD_COLOR*LIGHTS_IN_USE
 NIGHT_FRAME = NIGHT_IDLE_COLOR*LIGHTS_IN_USE
@@ -151,15 +154,16 @@ class SyncPlayer(Process):
 
     def playnightroutine(self):
         """Set it to the night color"""
-        #TODO ease into the night color instead of just popping over
         for channel in range(0, CHANNELS_IN_USE):
             self.setChannel(channel+1, NIGHT_FRAME[channel])
         self.render()
         time.sleep(self.delay)
 
 
+    #TODO: dim the channels that precede and follow hot channels to emphasize
     def playlatestreadings(self):
         """Main loop."""
+        mode = "THRESHOLD"
         try:
             allreadings = self.bus.read_i2c_block_data(self.internaddr, 0, self.arraysize)
             self.lastreadings = allreadings
@@ -177,6 +181,7 @@ class SyncPlayer(Process):
         if self.busyframes > self.maxbusyframes:
             self.isbusy = True
             allreadings = [1] * self.arraysize
+            mode = "BUSY"
 
         if self.flipreadings is True:
             allreadings.reverse()
@@ -226,11 +231,16 @@ class SyncPlayer(Process):
                 myreading = self.channelheat[i-1]
                 if myreading is not 0:
                     self.channelheat[i-1] -= 1
-
+            isdipreading = False #a dip reading is in immediate proximity to a high reading
+            #TODO: compute locations of dip readings.
             if myreading > 0:
                 mymodifiers = INCREMENT*foundlights
             else:
                 mymodifiers = COOLDOWN*foundlights
+
+            if isdipreading is True:
+                mymodifiers = DIP*foundlights
+                mode = "DIP"
 
             chval = 0
             for channel in mychannels:
@@ -238,28 +248,32 @@ class SyncPlayer(Process):
                 val = mymodifiers[chval]
                 MOD_FRAME[addr] = val
                 chval += 1
-        self.reconcilemodifiers()
+        self.reconcilemodifiers(mode)
 
-    def reconcilemodifiers(self):
+    def reconcilemodifiers(self, _mode):
         """Reconcile the current state of lights with the desired state, expressed by deltas"""
         global PREV_FRAME
 
-        newframe = map(self.recchannel, PREV_FRAME, MOD_FRAME, INDICES)
+        newframe = map(self.recchannel, PREV_FRAME, MOD_FRAME, INDICES, _mode)
         PREV_FRAME = newframe
         for channel in range(0, len(newframe)):
             self.setChannel(channel+1, newframe[channel])
         self.render()
         time.sleep(self.delay)
 
-    def recchannel(self, old, mod, i):
-        """Reconcile channel value with modifier, taking max and mins into account """
-        temp = old + mod
-        if self.isbusy:
-            hiref = BUSY_FRAME[i]
-            loref = BASE_FRAME[i]
-        else:
+    def recchannel(self, old, mod, i, _mode):
+        """Reconcile channel value with modifier, clamping values modally """
+        if _mode is "THRESHOLD":
             hiref = MAX_FRAME[i]
             loref = BASE_FRAME[i]
+        if _mode is "BUSY":
+            hiref = BUSY_FRAME[i]
+            loref = BASE_FRAME[i]
+        if _mode is "DIP":
+            hiref = BUSY_FRAME[i]
+            loref = REDUCED_FRAME[i]
+
+        temp = old + mod
         if temp > hiref:
             temp = hiref
         if temp < loref:
