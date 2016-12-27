@@ -89,8 +89,8 @@ class SyncPlayer(Process):
         self.delay = _delay
         self.arraysize = _arraysize
         self.bus = smbus.SMBus(1)
-        self.dmxData = [chr(0)]*513
-        self.lastreadings = [1]*_arraysize
+        self.dmxData = [chr(0)]* 513
+        self.lastreadings = [1]* _arraysize
         self.busyframes = 0
         self.maxbusyframes = 100
         self.isbusy = False
@@ -101,7 +101,10 @@ class SyncPlayer(Process):
         self.edgeinterval = 0
         self.busylimit = _arraysize -4
         self.channelheat = [0]*_arraysize
-        self.decayframes = _decay
+        if _decay < 5:
+            self.decayframes = 5
+        else:
+            self.decayframes = _decay
         self.blackout()
         self.render()
 
@@ -159,20 +162,18 @@ class SyncPlayer(Process):
         self.render()
         time.sleep(self.delay)
 
-
-    #TODO: dim the channels that precede and follow hot channels to emphasize
     def playlatestreadings(self):
         """Main loop."""
-        mode = "THRESHOLD"
+        mode = "NORMAL"
         try:
-            allreadings = self.bus.read_i2c_block_data(self.internaddr, 0, self.arraysize)
-            self.lastreadings = allreadings
-            allreadings[16] = 0 #muting a busted channel
+            rawinput = self.bus.read_i2c_block_data(self.internaddr, 0, self.arraysize)
+            self.lastreadings = rawinput
+            rawinput[16] = 0 #muting a busted channel
         except IOError as err:
             logging.info('i2c encountered a problem. %s', err)
-            allreadings = self.lastreadings
+            rawinput = self.lastreadings
 
-        if sum(allreadings) > self.busylimit:
+        if sum(rawinput) > self.busylimit:
             self.busyframes += 1
         else:
             self.busyframes = 0
@@ -180,21 +181,21 @@ class SyncPlayer(Process):
         #if we are super busy, just lock at 1 on all channels
         if self.busyframes > self.maxbusyframes:
             self.isbusy = True
-            allreadings = [1] * self.arraysize
+            rawinput = [1] * self.arraysize
             mode = "BUSY"
 
         if self.flipreadings is True:
-            allreadings.reverse()
+            rawinput.reverse()
 
         if self.isbusy is False:
             #If we have an edge hit, open the gates.
             if (
-                    allreadings[17] is 1 or
-                    allreadings[16] is 1 or
-                    allreadings[15] is 1 or
-                    allreadings[0] is 1 or
-                    allreadings[1] is 1 or
-				    allreadings[2] is 1
+                    rawinput[17] is 1 or
+                    rawinput[16] is 1 or
+                    rawinput[15] is 1 or
+                    rawinput[0] is 1 or
+                    rawinput[1] is 1 or
+                    rawinput[2] is 1
                 ):
                 #print 'edge gates open'
                 self.edgestatus = True
@@ -202,14 +203,14 @@ class SyncPlayer(Process):
 
             if self.edgeinterval < self.edgeintervalmax:
                 #If edge gates are open but there's no activity, creep back toward gate closure
-                if sum(allreadings) == 0:
+                if sum(rawinput) == 0:
                     self.edgeinterval += 1
                 else:
                     if self.edgeinterval > 0:
                         self.edgeinterval -= 1
             else:
                 self.edgestatus = False
-                allreadings = [0] * self.arraysize
+                rawinput = [0] * self.arraysize
 
         #if self.decayframes > 0:
         #    self.channelheat = [val * self.decayframes for val in allreadings] #set the decay
@@ -218,29 +219,29 @@ class SyncPlayer(Process):
             self.blackout()
             self.render()
             return
-        for i in range(1, len(allreadings)):
+        for i in range(1, len(rawinput)):
             mychannels = RENDERMAP[i]
             foundchannels = len(mychannels)
             foundlights = foundchannels/4
             mymodifiers = [0]*foundchannels
-            if self.decayframes == 0:
-                myreading = allreadings[i-1]
-            else:
-                if allreadings[i-1] is 1:
-                    self.channelheat[i-1] = self.decayframes
-                myreading = self.channelheat[i-1]
-                if myreading is not 0:
-                    self.channelheat[i-1] -= 1
-            isdipreading = False #a dip reading is in immediate proximity to a high reading
-            #TODO: compute locations of dip readings.
-            if myreading > 0:
-                mymodifiers = INCREMENT*foundlights
-            else:
-                mymodifiers = COOLDOWN*foundlights
 
-            if isdipreading is True:
+            if rawinput[i-1] is 1:
+                self.channelheat[i-1] = self.decayframes #refill the decay
+            myreading = self.channelheat[i-1]
+            if myreading is not 0:
+                self.channelheat[i-1] -= 1
+
+            heatprox = self.getproximitytoreading(self.channelheat, i-1)
+            readingprox = self.getproximitytoreading(rawinput, i-1)
+
+            if heatprox == 1 or readingprox == 1:
                 mymodifiers = DIP*foundlights
                 mode = "DIP"
+            else:
+                if myreading > 0 or readingprox == 2: #some opinionated deadspot removal here
+                    mymodifiers = INCREMENT*foundlights
+                else:
+                    mymodifiers = COOLDOWN*foundlights
 
             chval = 0
             for channel in mychannels:
@@ -249,6 +250,27 @@ class SyncPlayer(Process):
                 MOD_FRAME[addr] = val
                 chval += 1
         self.reconcilemodifiers(mode)
+
+    def getproximitytoreading(self, _list, _index):
+        """Given a list and an index, look up the item on either side of that index
+        Returns a bool indicating whether one item is zero or not"""
+        _listindices = len(_list)-1
+        value = 0
+        if _index == 0:
+            value = _list[1]
+        if _index == _listindices:
+            value = _list[_listindices-1]
+        if _index != 0 and _index != _listindices:
+            valleft = _list[_listindices-1]
+            valright = _list[_listindices+1]
+            count = 0
+            if valleft == 0:
+                count += 1
+            if valright == 0:
+                count += 1
+            value = count
+
+        return value
 
     def reconcilemodifiers(self, _mode):
         """Reconcile the current state of lights with the desired state, expressed by deltas"""
@@ -262,8 +284,8 @@ class SyncPlayer(Process):
         time.sleep(self.delay)
 
     def recchannel(self, old, mod, i, _mode):
-        """Reconcile channel value with modifier, clamping values modally """
-        if _mode is "THRESHOLD":
+        """Reconcile channel value with modifier, soft-clamping values modally """
+        if _mode is "NORMAL":
             hiref = MAX_FRAME[i]
             loref = BASE_FRAME[i]
         if _mode is "BUSY":
@@ -277,5 +299,9 @@ class SyncPlayer(Process):
         if temp > hiref:
             temp = hiref
         if temp < loref:
-            temp = loref
+            diff = loref-temp
+            if diff > 4:
+                temp += 4
+            else:
+                temp = loref
         return temp
