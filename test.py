@@ -14,14 +14,14 @@ SENSORS = 18
 COLLECTION_SPEED = 0.025
 SERIALPORT = '/dev/ttyUSB0'
 DAY_START_HOUR = 6 #6am
-DAY_END_HOUR = 22 #10pm
+DAY_END_HOUR = 19 #7pm
 
 PROCESSES = []
 
 def spinupworker():
     """Activate the worker thread that does our lighting work"""
     if __name__ == '__main__':
-        _playthread = SyncPlayer(SERIALPORT, JOBQUEUE, COLLECTION_SPEED, 8, SENSORS, 25)
+        _playthread = SyncPlayer(SERIALPORT, JOBQUEUE, COLLECTION_SPEED, 8, SENSORS, 150)
         PROCESSES.append(_playthread)
         _playthread.start()
 
@@ -61,7 +61,7 @@ def startuptimecheck():
         print 'Night Mode'
         queuenightjob()
 
-schedule.every().day.at("22:00").do(queuenightjob)
+schedule.every().day.at("19:00").do(queuenightjob)
 schedule.every().day.at("6:00").do(queuemorningjob)
 schedule.every().day.at("5:50").do(cleanreboot)
 spinupworker()

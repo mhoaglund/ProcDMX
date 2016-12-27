@@ -14,7 +14,7 @@ DMXINIT1 = chr(03)+chr(02)+chr(0)+chr(0)+chr(0)
 DMXINIT2 = chr(10)+chr(02)+chr(0)+chr(0)+chr(0)
 
 CHAN_PER_FIXTURE = 4
-LIGHTS_IN_USE = 30
+LIGHTS_IN_USE = 32
 CHANNELS_IN_USE = LIGHTS_IN_USE*CHAN_PER_FIXTURE
 EMPTY_FRAME = [0]*CHANNELS_IN_USE
 MOD_FRAME = [0]*CHANNELS_IN_USE
@@ -163,6 +163,7 @@ class SyncPlayer(Process):
         try:
             allreadings = self.bus.read_i2c_block_data(self.internaddr, 0, self.arraysize)
             self.lastreadings = allreadings
+            allreadings[16] = 0 #muting a busted channel
         except IOError as err:
             logging.info('i2c encountered a problem. %s', err)
             allreadings = self.lastreadings
@@ -183,11 +184,14 @@ class SyncPlayer(Process):
         if self.isbusy is False:
             #If we have an edge hit, open the gates.
             if (
-                    allreadings[self.arraysize-1] is 1 or
-                    allreadings[self.arraysize-2] is 1 or
+                    allreadings[17] is 1 or
+                    allreadings[16] is 1 or
+                    allreadings[15] is 1 or
                     allreadings[0] is 1 or
-                    allreadings[1] is 1
+                    allreadings[1] is 1 or
+				    allreadings[2] is 1
                 ):
+                #print 'edge gates open'
                 self.edgestatus = True
                 self.edgeinterval = 0
 
@@ -202,8 +206,8 @@ class SyncPlayer(Process):
                 self.edgestatus = False
                 allreadings = [0] * self.arraysize
 
-        if self.decayframes > 0:
-            self.channelheat = [val * self.decayframes for val in allreadings] #set the decay
+        #if self.decayframes > 0:
+        #    self.channelheat = [val * self.decayframes for val in allreadings] #set the decay
 
         if self.cont != True:
             self.blackout()
@@ -217,6 +221,8 @@ class SyncPlayer(Process):
             if self.decayframes == 0:
                 myreading = allreadings[i-1]
             else:
+                if allreadings[i-1] is 1:
+                    self.channelheat[i-1] = self.decayframes
                 myreading = self.channelheat[i-1]
                 if myreading is not 0:
                     self.channelheat[i-1] -= 1
