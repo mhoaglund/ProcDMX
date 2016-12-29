@@ -234,14 +234,14 @@ class SyncPlayer(Process):
             heatprox = self.getproximitytoreading(self.channelheat, i-1)
             readingprox = self.getproximitytoreading(rawinput, i-1)
 
-            if heatprox == 1 or readingprox == 1:
-                mymodifiers = DIP*foundlights
-                mode = "DIP"
+            #if heatprox == 1 or readingprox == 1:
+            #    mymodifiers = DIP*foundlights
+            #    mode = "DIP"
+            #else:
+            if myreading > 0 or readingprox == 2: #some opinionated deadspot removal here
+                mymodifiers = INCREMENT*foundlights
             else:
-                if myreading > 0 or readingprox == 2: #some opinionated deadspot removal here
-                    mymodifiers = INCREMENT*foundlights
-                else:
-                    mymodifiers = COOLDOWN*foundlights
+                mymodifiers = COOLDOWN*foundlights
 
             chval = 0
             for channel in mychannels:
@@ -257,16 +257,18 @@ class SyncPlayer(Process):
         _listindices = len(_list)-1
         value = 0
         if _index == 0:
-            value = _list[1]
+            if _list[1] > 0:
+                value = 1
         if _index == _listindices:
-            value = _list[_listindices-1]
+            if _list[_listindices-1] > 0:
+                value = 1
         if _index != 0 and _index != _listindices:
-            valleft = _list[_listindices-1]
-            valright = _list[_listindices+1]
+            valleft = _list[_index-1]
+            valright = _list[_index+1]
             count = 0
-            if valleft == 0:
+            if valleft > 0:
                 count += 1
-            if valright == 0:
+            if valright > 0:
                 count += 1
             value = count
 
@@ -285,13 +287,15 @@ class SyncPlayer(Process):
 
     def recchannel(self, old, mod, i, _mode):
         """Reconcile channel value with modifier, soft-clamping values modally """
-        if _mode is "NORMAL":
+        hiref = MAX_FRAME[i]
+        loref = BASE_FRAME[i]
+        if _mode == "NORMAL":
             hiref = MAX_FRAME[i]
             loref = BASE_FRAME[i]
-        if _mode is "BUSY":
+        if _mode == "BUSY":
             hiref = BUSY_FRAME[i]
             loref = BASE_FRAME[i]
-        if _mode is "DIP":
+        if _mode == "DIP":
             hiref = BUSY_FRAME[i]
             loref = REDUCED_FRAME[i]
 
