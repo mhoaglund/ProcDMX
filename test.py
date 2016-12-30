@@ -6,7 +6,8 @@ from multiprocessing import Queue
 import RPi.GPIO as gpio
 import schedule
 from synchronousplayer import SyncPlayer
-from synchronousplayer import PlayerSettings
+from playerutils import PlayerSettings
+from playerutils import ColorSettings 
 
 logging.basicConfig(format='%(asctime)s %(message)s', filename='logs.log', level=logging.DEBUG)
 JOBQUEUE = Queue()
@@ -41,19 +42,44 @@ RENDERMAP = {
     18: [x+1 for x in range(CHAN_PER_FIXTURE * 31, CHAN_PER_FIXTURE * 32)]
 }
 
+DEFAULT_COLOR = [100, 0, 180, 0]
+REDUCED_DEFAULT = [50, 0, 90, 0]
+THRESHOLD_COLOR = [125, 50, 255, 125]
+BUSY_THRESHOLD_COLOR = [150, 120, 255, 200]
+NIGHT_IDLE_COLOR = [125, 125, 0, 255]
+INCREMENT = [4, 2, 6, 2] #the core aesthetic
+DECREMENT = [-2, -1, -2, -2]
+ALTDECREMENT = [-8, -1, -6, -1]
+
+EDGE_GATES = [17, 16, 15, 2, 1, 0]
+
 PLAY_SETTINGS = PlayerSettings(
     SERIALPORT,
     COLLECTION_SPEED,
+    EDGE_GATES,
     8,
     SENSORS,
     150,
+    32,
+    CHAN_PER_FIXTURE,
     RENDERMAP
+)
+
+COLOR_SETTINGS = ColorSettings(
+    DEFAULT_COLOR,
+    REDUCED_DEFAULT,
+    THRESHOLD_COLOR,
+    BUSY_THRESHOLD_COLOR,
+    NIGHT_IDLE_COLOR,
+    INCREMENT,
+    DECREMENT,
+    ALTDECREMENT
 )
 
 def spinupworker():
     """Activate the worker thread that does our lighting work"""
     if __name__ == '__main__':
-        _playthread = SyncPlayer(PLAY_SETTINGS, JOBQUEUE)
+        _playthread = SyncPlayer(PLAY_SETTINGS, COLOR_SETTINGS, JOBQUEUE)
         PROCESSES.append(_playthread)
         _playthread.start()
 

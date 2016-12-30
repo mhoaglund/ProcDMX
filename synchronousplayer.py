@@ -13,72 +13,36 @@ DMXINTENSITY = chr(6)+chr(1)+chr(2)
 DMXINIT1 = chr(03)+chr(02)+chr(0)+chr(0)+chr(0)
 DMXINIT2 = chr(10)+chr(02)+chr(0)+chr(0)+chr(0)
 
-CHAN_PER_FIXTURE = 4
-LIGHTS_IN_USE = 32
-CHANNELS_IN_USE = LIGHTS_IN_USE*CHAN_PER_FIXTURE
-EMPTY_FRAME = [0]*CHANNELS_IN_USE
-MOD_FRAME = [0]*CHANNELS_IN_USE
-PREV_FRAME = [0]*CHANNELS_IN_USE
-INDICES = [x for x in range(0, CHANNELS_IN_USE)]
-
 #Sensor nodes register hits and this pushes our lights from default to threshold,
 #then they cool back down over time.
-DEFAULT_COLOR = [100, 0, 180, 0]
-REDUCED_DEFAULT = [50, 0, 90, 0]
-THRESHOLD_COLOR = [125, 50, 255, 125]
-BUSY_THRESHOLD_COLOR = [150, 120, 255, 200]
-NIGHT_IDLE_COLOR = [125, 125, 0, 255]
-INCREMENT = [4, 2, 6, 2] #the core aesthetic
-COOLDOWN = [-2, -1, -2, -2]
-DIP = [-8, -1, -6, -1]
 
-BASE_FRAME = DEFAULT_COLOR*LIGHTS_IN_USE
-REDUCED_FRAME = REDUCED_DEFAULT*LIGHTS_IN_USE
-MAX_FRAME = THRESHOLD_COLOR*LIGHTS_IN_USE
-BUSY_FRAME = BUSY_THRESHOLD_COLOR*LIGHTS_IN_USE
-NIGHT_FRAME = NIGHT_IDLE_COLOR*LIGHTS_IN_USE
-
-class PlayerSettings(object):
-    """
-        Args:
-        Serialport (string)
-        Delay (double, portion of a second),
-        InternAddress (int, IIC address of input device),
-        ArraySize (int),
-        Decay (int, minimum number of frames which run in response to a hit),
-        Map (dictionary matching inputs to channel sets)
-    """
-    def __init__(self, _serialport, _delay, _internaddr, _arraysize, _decay, _map):
-        self.serialport = _serialport
-        self.delay = _delay
-        self.internaddr = _internaddr
-        self.arraysize = _arraysize
-        self.decay = _decay
-        self.rendermap = _map
 
 class SyncPlayer(Process):
     """A Process which Handles access to iic and renders readings to DMX.
         Args:
-            Settings (PlayerSettings),
+            Player Settings (playerutils.PlayerSettings),
+            Color Settings (playerutils.ColorSettings)
             Job Queue (multiprocessing Queue)
     """
-    def __init__(self, _settings, _queue):
+    def __init__(self, _playersettings, _colorsettings, _queue):
         super(SyncPlayer, self).__init__()
         print 'starting worker'
         try:
-            self.serial = serial.Serial(_settings.serialPort, baudrate=57600)
+            self.serial = serial.Serial(_playersettings.serialPort, baudrate=57600)
         except:
             print "Error: could not open Serial Port"
             sys.exit(0)
         self.cont = True
         self.myqueue = _queue
-        self.internaddr = _settings.internaddr
-        self.delay = _settings.delay
-        self.arraysize = _settings.arraysize
-        self.rendermap = _settings.rendermap
+        self.colors = _colorsettings
+        self.internaddr = _playersettings.internaddr
+        self.delay = _playersettings.delay
+        self.gates = _playersettings.edgegates
+        self.arraysize = _playersettings.arraysize
+        self.rendermap = _playersettings.rendermap
         self.bus = smbus.SMBus(1)
         self.dmxData = [chr(0)]* 513
-        self.lastreadings = [1]* _settings.arraysize
+        self.lastreadings = [1]* _playersettings.arraysize
         self.busyframes = 0
         self.maxbusyframes = 100
         self.isbusy = False
@@ -87,12 +51,29 @@ class SyncPlayer(Process):
         self.edgestatus = False
         self.edgeintervalmax = 100
         self.edgeinterval = 0
-        self.busylimit = _settings.arraysize -4
-        self.channelheat = [0]*_settings.arraysize
-        if _settings.decay < 5:
+        self.busylimit = _playersettings.arraysize -4
+        self.channelheat = [0]*_playersettings.arraysize
+        if _playersettings.decay < 5:
             self.decayframes = 5
         else:
-            self.decayframes = _settings.decay
+            self.decayframes = _playersettings.decay
+
+        self.channelsinuse = _playersettings.lights * _playersettings.channelsperlight
+
+        self.baseframe = self.colors.base*_playersettings.lights
+        self.dimframe = self.colors.dimmed*_playersettings.lights
+        self.peakframe = self.colors.peak*_playersettings.lights
+        self.busyframe = self.colors.busy*_playersettings.lights
+        self.nightframe = self.colors.night*_playersettings.lights
+
+        self.increment = self.colors.increment
+        self.decrement = self.colors.decrement
+        self.altdecrement = self.colors.altdecrement
+
+        self.prev_frame = [0]*self.channelsinuse
+        self.mod_frame = [0]*self.channelsinuse
+        self.allindices = [x for x in range(0, self.channelsinuse)]
+
         self.blackout()
         self.render()
 
@@ -145,8 +126,8 @@ class SyncPlayer(Process):
 
     def playnightroutine(self):
         """Set it to the night color"""
-        for channel in range(0, CHANNELS_IN_USE):
-            self.setChannel(channel+1, NIGHT_FRAME[channel])
+        for channel in range(0, self.channelsinuse):
+            self.setChannel(channel+1, self.nightframe[channel])
         self.render()
         time.sleep(self.delay)
 
@@ -177,17 +158,12 @@ class SyncPlayer(Process):
 
         if self.isbusy is False:
             #If we have an edge hit, open the gates.
-            if (
-                    rawinput[17] is 1 or
-                    rawinput[16] is 1 or
-                    rawinput[15] is 1 or
-                    rawinput[0] is 1 or
-                    rawinput[1] is 1 or
-                    rawinput[2] is 1
-                ):
-                #print 'edge gates open'
-                self.edgestatus = True
-                self.edgeinterval = 0
+            if len(self.gates) > 0:
+                for edgegate in self.gates:
+                    if rawinput[edgegate] > 0:
+                        self.edgestatus = True
+                        self.edgeinterval = 0
+                        continue
 
             if self.edgeinterval < self.edgeintervalmax:
                 #If edge gates are open but there's no activity, creep back toward gate closure
@@ -219,7 +195,7 @@ class SyncPlayer(Process):
             if myreading is not 0:
                 self.channelheat[i-1] -= 1
 
-            heatprox = self.getproximitytoreading(self.channelheat, i-1)
+            #heatprox = self.getproximitytoreading(self.channelheat, i-1)
             readingprox = self.getproximitytoreading(rawinput, i-1)
 
             #if heatprox == 1 or readingprox == 1:
@@ -227,15 +203,15 @@ class SyncPlayer(Process):
             #    mode = "DIP"
             #else:
             if myreading > 0 or readingprox == 2: #some opinionated deadspot removal here
-                mymodifiers = INCREMENT*foundlights
+                mymodifiers = self.increment*foundlights
             else:
-                mymodifiers = COOLDOWN*foundlights
+                mymodifiers = self.decrement*foundlights
 
             chval = 0
             for channel in mychannels:
                 addr = channel
                 val = mymodifiers[chval]
-                MOD_FRAME[addr] = val
+                self.mod_frame[addr] = val
                 chval += 1
         self.reconcilemodifiers(mode)
 
@@ -264,10 +240,8 @@ class SyncPlayer(Process):
 
     def reconcilemodifiers(self, _mode):
         """Reconcile the current state of lights with the desired state, expressed by deltas"""
-        global PREV_FRAME
-
-        newframe = map(self.recchannel, PREV_FRAME, MOD_FRAME, INDICES, _mode)
-        PREV_FRAME = newframe
+        newframe = map(self.recchannel, self.prev_frame, self.mod_frame, self.allindices, _mode)
+        self.prev_frame = newframe
         for channel in range(0, len(newframe)):
             self.setChannel(channel+1, newframe[channel])
         self.render()
@@ -275,17 +249,17 @@ class SyncPlayer(Process):
 
     def recchannel(self, old, mod, i, _mode):
         """Reconcile channel value with modifier, soft-clamping values modally """
-        hiref = MAX_FRAME[i]
-        loref = BASE_FRAME[i]
+        hiref = self.peakframe[i]
+        loref = self.baseframe[i]
         if _mode == "NORMAL":
-            hiref = MAX_FRAME[i]
-            loref = BASE_FRAME[i]
+            hiref = self.peakframe[i]
+            loref = self.baseframe[i]
         if _mode == "BUSY":
-            hiref = BUSY_FRAME[i]
-            loref = BASE_FRAME[i]
+            hiref = self.busyframe[i]
+            loref = self.baseframe[i]
         if _mode == "DIP":
-            hiref = BUSY_FRAME[i]
-            loref = REDUCED_FRAME[i]
+            hiref = self.peakframe[i]
+            loref = self.dimframe[i]
 
         temp = old + mod
         if temp > hiref:
