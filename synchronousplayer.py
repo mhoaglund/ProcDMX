@@ -38,59 +38,47 @@ MAX_FRAME = THRESHOLD_COLOR*LIGHTS_IN_USE
 BUSY_FRAME = BUSY_THRESHOLD_COLOR*LIGHTS_IN_USE
 NIGHT_FRAME = NIGHT_IDLE_COLOR*LIGHTS_IN_USE
 
-RENDERMAP = {
-    1: [x+1 for x in range(CHAN_PER_FIXTURE * 1)],
-    2: [x+1 for x in range(CHAN_PER_FIXTURE * 1, CHAN_PER_FIXTURE * 2)],
-    3: [x+1 for x in range(CHAN_PER_FIXTURE * 2, CHAN_PER_FIXTURE * 4)],
-    4: [x+1 for x in range(CHAN_PER_FIXTURE * 4, CHAN_PER_FIXTURE * 6)],
-    5: [x+1 for x in range(CHAN_PER_FIXTURE * 6, CHAN_PER_FIXTURE * 8)],
-    6: [x+1 for x in range(CHAN_PER_FIXTURE * 8, CHAN_PER_FIXTURE * 10)],
-    7: [x+1 for x in range(CHAN_PER_FIXTURE * 10, CHAN_PER_FIXTURE * 12)],
-    8: [x+1 for x in range(CHAN_PER_FIXTURE * 12, CHAN_PER_FIXTURE * 14)],
-    9: [x+1 for x in range(CHAN_PER_FIXTURE * 14, CHAN_PER_FIXTURE * 16)],
-    10: [x+1 for x in range(CHAN_PER_FIXTURE * 16, CHAN_PER_FIXTURE * 18)],
-    11: [x+1 for x in range(CHAN_PER_FIXTURE * 18, CHAN_PER_FIXTURE * 20)],
-    12: [x+1 for x in range(CHAN_PER_FIXTURE * 20, CHAN_PER_FIXTURE * 22)],
-    13: [x+1 for x in range(CHAN_PER_FIXTURE * 22, CHAN_PER_FIXTURE * 24)],
-    14: [x+1 for x in range(CHAN_PER_FIXTURE * 24, CHAN_PER_FIXTURE * 26)],
-    15: [x+1 for x in range(CHAN_PER_FIXTURE * 26, CHAN_PER_FIXTURE * 28)],
-    16: [x+1 for x in range(CHAN_PER_FIXTURE * 28, CHAN_PER_FIXTURE * 30)],
-    17: [x+1 for x in range(CHAN_PER_FIXTURE * 30, CHAN_PER_FIXTURE * 31)],
-    18: [x+1 for x in range(CHAN_PER_FIXTURE * 31, CHAN_PER_FIXTURE * 32)]
-}
+class PlayerSettings(object):
+    """
+        Args:
+        Serialport (string)
+        Delay (double, portion of a second),
+        InternAddress (int, IIC address of input device),
+        ArraySize (int),
+        Decay (int, minimum number of frames which run in response to a hit),
+        Map (dictionary matching inputs to channel sets)
+    """
+    def __init__(self, _serialport, _delay, _internaddr, _arraysize, _decay, _map):
+        self.serialport = _serialport
+        self.delay = _delay
+        self.internaddr = _internaddr
+        self.arraysize = _arraysize
+        self.decay = _decay
+        self.rendermap = _map
 
 class SyncPlayer(Process):
     """A Process which Handles access to iic and renders readings to DMX.
         Args:
-            Serial Port (string),
-            Job Queue (multiprocessing Queue),
-            Delay (double, portion of a second),
-            InternAddress (int, IIC address of input device),
-            ArraySize (int),
-            Decay (int, minimum number of frames which run in response to a hit)
-
-        Will attempt to pull a buffer from IIC and hydrate it into a DMX
-        intensity array before sending it off. Framerate is determined by the
-        Delay arg. The Decay arg allows smoothing of data to reduce the appearance
-        of noise or latency in the input device by guaranteeing that any Sensor
-        input is shown for at least 25 frames.
+            Settings (PlayerSettings),
+            Job Queue (multiprocessing Queue)
     """
-    def __init__(self, _serialPort, _queue, _delay, _internaddr, _arraysize, _decay):
+    def __init__(self, _settings, _queue):
         super(SyncPlayer, self).__init__()
         print 'starting worker'
         try:
-            self.serial = serial.Serial(_serialPort, baudrate=57600)
+            self.serial = serial.Serial(_settings.serialPort, baudrate=57600)
         except:
             print "Error: could not open Serial Port"
             sys.exit(0)
         self.cont = True
         self.myqueue = _queue
-        self.internaddr = _internaddr
-        self.delay = _delay
-        self.arraysize = _arraysize
+        self.internaddr = _settings.internaddr
+        self.delay = _settings.delay
+        self.arraysize = _settings.arraysize
+        self.rendermap = _settings.rendermap
         self.bus = smbus.SMBus(1)
         self.dmxData = [chr(0)]* 513
-        self.lastreadings = [1]* _arraysize
+        self.lastreadings = [1]* _settings.arraysize
         self.busyframes = 0
         self.maxbusyframes = 100
         self.isbusy = False
@@ -99,12 +87,12 @@ class SyncPlayer(Process):
         self.edgestatus = False
         self.edgeintervalmax = 100
         self.edgeinterval = 0
-        self.busylimit = _arraysize -4
-        self.channelheat = [0]*_arraysize
-        if _decay < 5:
+        self.busylimit = _settings.arraysize -4
+        self.channelheat = [0]*_settings.arraysize
+        if _settings.decay < 5:
             self.decayframes = 5
         else:
-            self.decayframes = _decay
+            self.decayframes = _settings.decay
         self.blackout()
         self.render()
 
@@ -220,7 +208,7 @@ class SyncPlayer(Process):
             self.render()
             return
         for i in range(1, len(rawinput)):
-            mychannels = RENDERMAP[i]
+            mychannels = self.rendermap[i]
             foundchannels = len(mychannels)
             foundlights = foundchannels/4
             mymodifiers = [0]*foundchannels
