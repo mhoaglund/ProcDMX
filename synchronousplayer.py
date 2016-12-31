@@ -257,9 +257,9 @@ class SyncPlayer(Process):
         #find contiguous regions of positive values and log them by index
         #TODO filling in single zeros
         for value in range(0, listsz):
-            if listsz[value] == 0 and len(curr) == 0:
+            if _list[value] == 0 and len(curr) == 0:
                 continue
-            elif listsz[value] == 0 and len(curr) > 0:
+            elif _list[value] == 0 and len(curr) > 0:
                 if len(curr) > 1:
                     contigs.append(curr)
                     edgepair = []
@@ -272,9 +272,9 @@ class SyncPlayer(Process):
                 else:
                     islands.append(curr)
                 curr = []
-            elif listsz[value] > 0 and len(curr) > 0:
+            elif _list[value] > 0 and len(curr) > 0:
                 curr.append(value)
-            elif listsz[value] > 0 and len(curr) == 0:
+            elif _list[value] > 0 and len(curr) == 0:
                 #start a new contiguous region
                 curr = [] #superstition
                 curr.append(value)
