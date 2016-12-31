@@ -247,6 +247,38 @@ class SyncPlayer(Process):
         self.render()
         time.sleep(self.delay)
 
+    def groom(self, _list):
+        """Given an array of readings, fill in obvious gaps and spot edges"""
+        listsz = len(_list)-1
+        islands = []
+        edges = []
+        contigs = []
+        curr = []
+        #find contiguous regions of positive values and log them by index
+        #TODO filling in single zeros
+        for value in range(0, listsz):
+            if listsz[value] == 0 and len(curr) == 0:
+                continue
+            elif listsz[value] == 0 and len(curr) > 0:
+                if len(curr) > 1:
+                    contigs.append(curr)
+                    edgepair = []
+                    if curr[0] > 0:
+                        edgepair.append(curr[0]-1)
+                    if curr[len(curr)-1] < listsz:
+                        edgepair.append(curr[len(curr)-1]+1)
+                    if len(edgepair) > 1:
+                        edges.append(edgepair)
+                else:
+                    islands.append(curr)
+                curr = []
+            elif listsz[value] > 0 and len(curr) > 0:
+                curr.append(value)
+            elif listsz[value] > 0 and len(curr) == 0:
+                #start a new contiguous region
+                curr = [] #superstition
+                curr.append(value)
+
     def recchannel(self, old, mod, i, _mode):
         """Reconcile channel value with modifier, soft-clamping values modally """
         hiref = self.peakframe[i]
