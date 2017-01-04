@@ -30,7 +30,8 @@ def groom(_list):
                     if curr[len(curr)-1] < listsz:
                         edgepair.append(curr[len(curr)-1]+1)
                     if len(edgepair) > 1:
-                        edges.append(edgepair)
+                        for singleedge in edgepair:
+                            edges.append(singleedge)
                 else:
                     islands.append(curr)
                 curr = []
@@ -45,7 +46,7 @@ def groom(_list):
                 if len(currpits) > 1:
                     pits.append(currpits)
                 else:
-                    holes.append(currpits)
+                    holes.append(currpits[0])
                 currpits = []
 
     if len(currpits) > 0:

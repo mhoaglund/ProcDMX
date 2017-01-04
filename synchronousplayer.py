@@ -97,6 +97,76 @@ class SyncPlayer(Process):
         sdata = ''.join(self.dmxData)
         self.serial.write(DMXOPEN+DMXINTENSITY+sdata+DMXCLOSE)
 
+    def groom(self, _list):
+        """Given an array of readings, fill in obvious gaps and spot edges"""
+        listsz = len(_list)
+        islands = []
+        pits = []
+        holes = []
+        edges = []
+        contigs = []
+        curr = []
+        currpits = []
+        #find contiguous regions of positive values and log them by index
+        for value in range(0, listsz):
+            if _list[value] == 0:
+                if len(currpits) > 0:
+                    currpits.append(value)
+                if len(currpits) == 0:
+                    currpits = []
+                    currpits.append(value)
+                if len(curr) == 0:
+                    continue
+                if len(curr) > 0:
+                    if len(curr) > 1:
+                        contigs.append(curr)
+                        edgepair = []
+                        if curr[0] > 0:
+                            edgepair.append(curr[0]-1)
+                        if curr[len(curr)-1] < listsz:
+                            edgepair.append(curr[len(curr)-1]+1)
+                        if len(edgepair) > 1:
+                            for singleedge in edgepair:
+                                edges.append(singleedge)
+                    else:
+                        islands.append(curr)
+                    curr = []
+
+            if _list[value] > 0:
+                if len(curr) > 0:
+                    curr.append(value)
+                if len(curr) == 0:
+                    curr.append(value)
+
+                if len(currpits) > 0:
+                    if len(currpits) > 1:
+                        pits.append(currpits)
+                    else:
+                        holes.append(currpits[0])
+                    currpits = []
+
+        if len(currpits) > 0:
+            if len(currpits) > 1:
+                pits.append(currpits)
+            else:
+                holes.append(currpits)
+            currpits = []
+
+        if len(curr) > 0:
+            if len(curr) > 1:
+                contigs.append(curr)
+            else:
+                islands.append(curr)
+            curr = []
+
+        for hole in holes:
+            _list[hole] = 1
+
+        for edge in edges:
+            _list[edge] = -1
+
+        return _list
+
     def run(self):
         while self.cont:
             if not self.myqueue.empty():
@@ -176,8 +246,7 @@ class SyncPlayer(Process):
                 self.edgestatus = False
                 rawinput = [0] * self.arraysize
 
-        #if self.decayframes > 0:
-        #    self.channelheat = [val * self.decayframes for val in allreadings] #set the decay
+            rawinput = self.groom(rawinput)
 
         if self.cont != True:
             self.blackout()
@@ -189,23 +258,19 @@ class SyncPlayer(Process):
             foundlights = foundchannels/4
             mymodifiers = [0]*foundchannels
 
-            if rawinput[i-1] is 1:
-                self.channelheat[i-1] = self.decayframes #refill the decay
+            if rawinput[i-1] == 1:
+                self.channelheat[i-1] = self.decayframes
             myreading = self.channelheat[i-1]
-            if myreading is not 0:
+            if myreading > 0:
                 self.channelheat[i-1] -= 1
 
-            #heatprox = self.getproximitytoreading(self.channelheat, i-1)
-            readingprox = self.getproximitytoreading(rawinput, i-1)
-
-            #if heatprox == 1 or readingprox == 1:
-            #    mymodifiers = DIP*foundlights
-            #    mode = "DIP"
-            #else:
-            if myreading > 0 or readingprox == 2: #some opinionated deadspot removal here
+            if myreading > 0:
                 mymodifiers = self.increment*foundlights
-            else:
+            if myreading == 0:
                 mymodifiers = self.decrement*foundlights
+            if rawinput[i-1] < 0:
+                mymodifiers = self.altdecrement*foundlights
+            #TODO pass an array of 'modes' into the reconciliation code so we can dynamically clamp
 
             chval = 0
             for channel in mychannels:
@@ -215,29 +280,6 @@ class SyncPlayer(Process):
                 chval += 1
         self.reconcilemodifiers(mode)
 
-    def getproximitytoreading(self, _list, _index):
-        """Given a list and an index, look up the item on either side of that index
-        Returns a bool indicating whether one item is zero or not"""
-        _listindices = len(_list)-1
-        value = 0
-        if _index == 0:
-            if _list[1] > 0:
-                value = 1
-        if _index == _listindices:
-            if _list[_listindices-1] > 0:
-                value = 1
-        if _index != 0 and _index != _listindices:
-            valleft = _list[_index-1]
-            valright = _list[_index+1]
-            count = 0
-            if valleft > 0:
-                count += 1
-            if valright > 0:
-                count += 1
-            value = count
-
-        return value
-
     def reconcilemodifiers(self, _mode):
         """Reconcile the current state of lights with the desired state, expressed by deltas"""
         newframe = map(self.recchannel, self.prev_frame, self.mod_frame, self.allindices, _mode)
@@ -246,69 +288,6 @@ class SyncPlayer(Process):
             self.setChannel(channel+1, newframe[channel])
         self.render()
         time.sleep(self.delay)
-
-    def groom(self, _list):
-        """Given an array of readings, fill in obvious gaps, spot edges, spot contiguous regions"""
-        listsz = len(_list)
-        islands = []
-        pits = []
-        holes = []
-        edges = []
-        contigs = []
-        curr = []
-        currpits = []
-        for value in range(0, listsz):
-            if _list[value] == 0:
-                if len(currpits) > 0:
-                    currpits.append(value)
-                if len(currpits) == 0:
-                    currpits = []
-                    currpits.append(value)
-                if len(curr) == 0:
-                    continue
-                if len(curr) > 0:
-                    if len(curr) > 1:
-                        contigs.append(curr)
-                        edgepair = []
-                        if curr[0] > 0:
-                            edgepair.append(curr[0]-1)
-                        if curr[len(curr)-1] < listsz:
-                            edgepair.append(curr[len(curr)-1]+1)
-                        if len(edgepair) > 1:
-                            edges.append(edgepair)
-                    else:
-                        islands.append(curr)
-                    curr = []
-
-            if _list[value] > 0:
-                if len(curr) > 0:
-                    curr.append(value)
-                if len(curr) == 0:
-                    curr.append(value)
-
-                if len(currpits) > 0:
-                    if len(currpits) > 1:
-                        pits.append(currpits)
-                    else:
-                        holes.append(currpits)
-                    currpits = []
-
-        if len(currpits) > 0:
-            if len(currpits) > 1:
-                pits.append(currpits)
-            else:
-                holes.append(currpits)
-            currpits = []
-
-        if len(curr) > 0:
-            if len(curr) > 1:
-                contigs.append(curr)
-            else:
-                islands.append(curr)
-            curr = []
-
-        for hole in holes:
-            _list[hole[0]] = 1
 
     def recchannel(self, old, mod, i, _mode):
         """Reconcile channel value with modifier, soft-clamping values modally """
