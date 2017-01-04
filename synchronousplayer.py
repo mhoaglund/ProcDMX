@@ -203,7 +203,6 @@ class SyncPlayer(Process):
 
     def playlatestreadings(self):
         """Main loop."""
-        mode = "NORMAL"
         try:
             rawinput = self.bus.read_i2c_block_data(self.internaddr, 0, self.arraysize)
             self.lastreadings = rawinput
@@ -221,7 +220,6 @@ class SyncPlayer(Process):
         if self.busyframes > self.maxbusyframes:
             self.isbusy = True
             rawinput = [1] * self.arraysize
-            mode = "BUSY"
 
         if self.flipreadings is True:
             rawinput.reverse()
@@ -252,12 +250,13 @@ class SyncPlayer(Process):
             self.blackout()
             self.render()
             return
+        dimchannels = []
         for i in range(1, len(rawinput)):
             mychannels = self.rendermap[i]
             foundchannels = len(mychannels)
             foundlights = foundchannels/4
             mymodifiers = [0]*foundchannels
-
+            shoulddim = False
             if rawinput[i-1] == 1:
                 self.channelheat[i-1] = self.decayframes
             myreading = self.channelheat[i-1]
@@ -270,6 +269,7 @@ class SyncPlayer(Process):
                 mymodifiers = self.decrement*foundlights
             if rawinput[i-1] < 0:
                 mymodifiers = self.altdecrement*foundlights
+                shoulddim = True
             #TODO pass an array of 'modes' into the reconciliation code so we can dynamically clamp
 
             chval = 0
@@ -277,29 +277,25 @@ class SyncPlayer(Process):
                 addr = channel
                 val = mymodifiers[chval]
                 self.mod_frame[addr] = val
+                if shoulddim is True:
+                    dimchannels.append(addr)
                 chval += 1
-        self.reconcilemodifiers(mode)
+        self.reconcilemodifiers(dimchannels)
 
-    def reconcilemodifiers(self, _mode):
+    def reconcilemodifiers(self, _dim):
         """Reconcile the current state of lights with the desired state, expressed by deltas"""
-        newframe = map(self.recchannel, self.prev_frame, self.mod_frame, self.allindices, _mode)
+        newframe = map(self.recchannel, self.prev_frame, self.mod_frame, self.allindices, _dim)
         self.prev_frame = newframe
         for channel in range(0, len(newframe)):
             self.setChannel(channel+1, newframe[channel])
         self.render()
         time.sleep(self.delay)
 
-    def recchannel(self, old, mod, i, _mode):
+    def recchannel(self, old, mod, i, _dim):
         """Reconcile channel value with modifier, soft-clamping values modally """
         hiref = self.peakframe[i]
         loref = self.baseframe[i]
-        if _mode == "NORMAL":
-            hiref = self.peakframe[i]
-            loref = self.baseframe[i]
-        if _mode == "BUSY":
-            hiref = self.busyframe[i]
-            loref = self.baseframe[i]
-        if _mode == "DIP":
+        if i in _dim:
             hiref = self.peakframe[i]
             loref = self.dimframe[i]
 
