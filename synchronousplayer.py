@@ -16,7 +16,6 @@ DMXINIT2 = chr(10)+chr(02)+chr(0)+chr(0)+chr(0)
 #Sensor nodes register hits and this pushes our lights from default to threshold,
 #then they cool back down over time.
 
-
 class SyncPlayer(Process):
     """A Process which Handles access to iic and renders readings to DMX.
         Args:
@@ -77,13 +76,17 @@ class SyncPlayer(Process):
         self.blackout()
         self.render()
 
-    def setChannel(self, chan, _intensity):
+    def setchannel(self, chan, _intensity):
         """Set intensity on channel"""
         intensity = int(_intensity)
-        if chan > 512: chan = 512
-        if chan < 0: chan = 0
-        if intensity > 255: intensity = 255
-        if intensity < 0: intensity = 0
+        if chan > 512:
+            chan = 512
+        if chan < 0:
+            chan = 0
+        if intensity > 255:
+            intensity = 255
+        if intensity < 0:
+            intensity = 0
         self.dmxData[chan] = chr(intensity)
 
     def blackout(self):
@@ -107,7 +110,7 @@ class SyncPlayer(Process):
         contigs = []
         curr = []
         currpits = []
-        #find contiguous regions of positive values and log them by index
+
         for value in range(0, listsz):
             if _list[value] == 0:
                 if len(currpits) > 0:
@@ -184,10 +187,6 @@ class SyncPlayer(Process):
         self.blackout()
         self.render()
 
-    def stop(self):
-        print 'Stopping...'
-        self.cont = False
-
     def terminate(self):
         print 'Terminating...'
         self.cont = False
@@ -197,7 +196,7 @@ class SyncPlayer(Process):
     def playnightroutine(self):
         """Set it to the night color"""
         for channel in range(0, self.channelsinuse):
-            self.setChannel(channel+1, self.nightframe[channel])
+            self.setchannel(channel+1, self.nightframe[channel])
         self.render()
         time.sleep(self.delay)
 
@@ -270,7 +269,6 @@ class SyncPlayer(Process):
             if rawinput[i-1] < 0:
                 mymodifiers = self.altdecrement*foundlights
                 shoulddim = True
-            #TODO pass an array of 'modes' into the reconciliation code so we can dynamically clamp
 
             chval = 0
             for channel in mychannels:
@@ -287,7 +285,7 @@ class SyncPlayer(Process):
         newframe = map(self.recchannel, self.prev_frame, self.mod_frame, self.allindices, _dim)
         self.prev_frame = newframe
         for channel in range(0, len(newframe)):
-            self.setChannel(channel+1, newframe[channel])
+            self.setchannel(channel+1, newframe[channel])
         self.render()
         time.sleep(self.delay)
 
