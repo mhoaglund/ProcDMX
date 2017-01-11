@@ -73,7 +73,7 @@ COLOR_SETTINGS = ColorSettings(
     NIGHT_IDLE_COLOR,
     INCREMENT,
     DECREMENT,
-    ALTDECREMENT
+    ALTDECREMENT #TODO refactor this out and just double the main DECREMENT
 )
 
 def spinupworker():

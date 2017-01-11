@@ -256,6 +256,7 @@ class SyncPlayer(Process):
             foundlights = foundchannels/4
             mymodifiers = [0]*foundchannels
             shoulddim = False
+            
             if rawinput[i-1] == 1:
                 self.channelheat[i-1] = self.decayframes
             myreading = self.channelheat[i-1]
