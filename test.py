@@ -1,4 +1,3 @@
-#Create some fake choreography to flash through the lights.
 import logging
 import os
 import datetime
@@ -6,7 +5,7 @@ from multiprocessing import Queue
 import RPi.GPIO as gpio
 import schedule
 from synchronousplayer import SyncPlayer
-from playerutils import PlayerSettings
+from playerutils import SensorArrayPlayerSettings
 from playerutils import ColorSettings 
 
 logging.basicConfig(format='%(asctime)s %(message)s', filename='logs.log', level=logging.DEBUG)
@@ -49,11 +48,12 @@ BUSY_THRESHOLD_COLOR = [150, 120, 255, 200]
 NIGHT_IDLE_COLOR = [125, 125, 0, 255]
 INCREMENT = [4, 2, 6, 2] #the core aesthetic
 DECREMENT = [-2, -1, -2, -2]
-ALTDECREMENT = [-8, -1, -6, -1]
 
+#TODO: un-hardcode this, it sucks. Should just determine edge gate depth and get it from
+#this proper place.
 EDGE_GATES = [17, 16, 15, 2, 1, 0]
 
-PLAY_SETTINGS = PlayerSettings(
+PLAY_SETTINGS = SensorArrayPlayerSettings(
     SERIALPORT,
     COLLECTION_SPEED,
     EDGE_GATES,
@@ -72,8 +72,7 @@ COLOR_SETTINGS = ColorSettings(
     BUSY_THRESHOLD_COLOR,
     NIGHT_IDLE_COLOR,
     INCREMENT,
-    DECREMENT,
-    ALTDECREMENT #TODO refactor this out and just double the main DECREMENT
+    DECREMENT
 )
 
 def spinupworker():

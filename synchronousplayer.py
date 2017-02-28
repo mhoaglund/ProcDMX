@@ -1,3 +1,5 @@
+#TODO: in what way is this player synchronous? really this is a sensor array player.
+
 import sys
 import serial
 import time
@@ -17,9 +19,9 @@ DMXINIT2 = chr(10)+chr(02)+chr(0)+chr(0)+chr(0)
 #then they cool back down over time.
 
 class SyncPlayer(Process):
-    """A Process which Handles access to iic and renders readings to DMX.
+    """A Process which Handles access to iic and renders readings to DMX. Handles its own data lifecycle.
         Args:
-            Player Settings (playerutils.PlayerSettings),
+            Player Settings (playerutils.SensorArrayPlayerSettings),
             Color Settings (playerutils.ColorSettings)
             Job Queue (multiprocessing Queue)
     """
@@ -27,7 +29,7 @@ class SyncPlayer(Process):
         super(SyncPlayer, self).__init__()
         print 'starting worker'
         try:
-            self.serial = serial.Serial(_playersettings.serialPort, baudrate=57600)
+            self.serial = serial.Serial(_playersettings.serialport, baudrate=57600)
         except:
             print "Error: could not open Serial Port"
             sys.exit(0)
@@ -67,7 +69,6 @@ class SyncPlayer(Process):
 
         self.increment = self.colors.increment
         self.decrement = self.colors.decrement
-        self.altdecrement = self.colors.altdecrement
 
         self.prev_frame = [0]*self.channelsinuse
         self.mod_frame = [0]*self.channelsinuse
@@ -152,7 +153,7 @@ class SyncPlayer(Process):
             if len(currpits) > 1:
                 pits.append(currpits)
             else:
-                holes.append(currpits)
+                holes.append(currpits[0])
             currpits = []
 
         if len(curr) > 0:
@@ -205,7 +206,6 @@ class SyncPlayer(Process):
         try:
             rawinput = self.bus.read_i2c_block_data(self.internaddr, 0, self.arraysize)
             self.lastreadings = rawinput
-            rawinput[16] = 0 #muting a busted channel
         except IOError as err:
             logging.info('i2c encountered a problem. %s', err)
             rawinput = self.lastreadings
@@ -250,6 +250,8 @@ class SyncPlayer(Process):
             self.render()
             return
         dimchannels = []
+        dimchannels.append(-1)
+        dimchannels.append(-1)
         for i in range(1, len(rawinput)):
             mychannels = self.rendermap[i]
             foundchannels = len(mychannels)
@@ -268,7 +270,7 @@ class SyncPlayer(Process):
             if myreading == 0:
                 mymodifiers = self.decrement*foundlights
             if rawinput[i-1] < 0:
-                mymodifiers = self.altdecrement*foundlights
+                mymodifiers = self.decrement*foundlights
                 shoulddim = True
 
             chval = 0
@@ -294,9 +296,9 @@ class SyncPlayer(Process):
         """Reconcile channel value with modifier, soft-clamping values modally """
         hiref = self.peakframe[i]
         loref = self.baseframe[i]
-        if i in _dim:
-            hiref = self.peakframe[i]
-            loref = self.dimframe[i]
+        #if len(_dim) > 0 and i in _dim:
+        #    hiref = self.peakframe[i]
+        #    loref = self.dimframe[i]
 
         temp = old + mod
         if temp > hiref:
