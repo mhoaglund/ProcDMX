@@ -34,6 +34,7 @@ class ImmediatePlayer(Process):
         self.colors = _colorsettings
         self.dmxData = [chr(0)]* 513
         self.channelsinuse = _playersettings.lights * _playersettings.channelsperlight
+        self.lightsinuse = _playersettings.lights
 
         self.baseframe = self.colors.base*_playersettings.lights
         self.dimframe = self.colors.dimmed*_playersettings.lights
@@ -43,12 +44,13 @@ class ImmediatePlayer(Process):
 
         self.increment = self.colors.increment
         self.decrement = self.colors.decrement
+        self.blanklight = [chr(0)]*_playersettings.channelsperlight
 
         self.prev_frame = [0]*self.channelsinuse
         self.mod_frame = [0]*self.channelsinuse
         self.allindices = [x for x in range(0, self.channelsinuse)]
 
-        self.SHAPE = []
+        self.SHAPE = [0,0]
         self.blackout()
         self.render()
 
@@ -80,10 +82,12 @@ class ImmediatePlayer(Process):
         while self.cont:
             if not self.jobqueue.empty():
                 currentjob = self.jobqueue.get()
+                if currentjob.job == "TERM":
+                    self.cont = False;
                 if currentjob.job == "SET_SHAPE":
-                    logging.info('Setting video shape %s', currentjob.data)
-                    self.SHAPE[0] = currentjob.data[1]
-                    self.SHAPE[1] = currentjob.data[0]
+                    logging.info('Setting video shape %s', currentjob.payload)
+                    self.SHAPE[0] = currentjob.payload[1]
+                    self.SHAPE[1] = currentjob.payload[0]
                     print self.SHAPE
                 if currentjob.job == "NIGHT":
                     logging.info('Going into Night Mode')
@@ -109,25 +113,57 @@ class ImmediatePlayer(Process):
         self.render()
         time.sleep(2)
 
+    def warmChannels(self, _channelrange):
+        i = 0;
+        for channel in range(_channelrange[0], _channelrange[1]):
+            self.mod_frame[channel] = self.colors.increment[i]
+            i +=1
+
     def playlatestcontours(self, _contours):
         """When we get a set of contours from a frame, process here
            Data comes in the form of a collection of points which mark the centers of
            Contour areas. That will need to change later.
         """
+        #print _contours
         if len(self.SHAPE) < 2:
             self.blackout()
             return
-        for c in _contours:
-            c_ratio = (c[0]/self.SHAPE[0], c[1]/self.SHAPE[1])
-            target = (0, 0)
-            if c_ratio < 0.25:
-                target = (0, 3)
-            if c_ratio > 0.25 and c_ratio < 0.5:
-                target = (4, 7)
-            if c_ratio > 0.5 and c_ratio < 0.75:
-                target = (8, 11)
-            if c_ratio < 0.75:
-                target = (12, 15)
-            for channel in range(target[0], target[1]):
-                self.setchannel(channel+1, 125)
+        self.mod_frame = self.colors.decrement*self.lightsinuse
+        if len(_contours) > 0:
+            for c in _contours:
+                c_ratio = (float(c[0])/self.SHAPE[0], float(c[1])/self.SHAPE[1])
+                target = (0, 0)
+                if c_ratio[0] < 0.25:
+                    target = (0, 4)
+                elif c_ratio[0] > 0.25 and c_ratio[0] < 0.5:
+                    target = (4, 8)
+                elif c_ratio[0] > 0.5 and c_ratio[0] < 0.75:
+                    target = (8, 12)
+                elif c_ratio[0] > 0.75:
+                    target = (12, 16)
+                self.warmChannels(target)
+        self.reconcilemodifiers()
+
+    def reconcilemodifiers(self):
+        """Reconcile the current state of lights with the desired state, expressed by deltas"""
+        newframe = map(self.recchannel, self.prev_frame, self.mod_frame, self.allindices)
+        self.prev_frame = newframe
+        for channel in range(0, len(newframe)):
+            self.setchannel(channel+1, newframe[channel])
         self.render()
+
+    def recchannel(self, old, mod, i):
+        """Reconcile channel value with modifier, soft-clamping values modally """
+        hiref = self.peakframe[i]
+        loref = self.baseframe[i]
+
+        temp = old + mod
+        if temp > hiref:
+            temp = hiref
+        if temp < loref:
+            diff = loref-temp
+            if diff > 4:
+                temp += 4
+            else:
+                temp = loref
+        return temp
