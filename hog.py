@@ -37,3 +37,5 @@ try:
         # show the output images
         cv2.imshow("HOG", orig)
         cv2.waitKey(1)
+except (KeyboardInterrupt, SystemExit):
+    print("Interrupted")
