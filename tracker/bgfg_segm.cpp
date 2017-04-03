@@ -78,6 +78,18 @@ int main(int argc, const char** argv)
 
     bg_model(d_img, d_fgmask, update_bg_model ? -1 : 0);
 	bg_model.getBackgroundImage(d_bgimg);
+    int maxCorners = 10;
+    double qualityLevel = 0.01;
+    double minDistance = 20.;
+    int blockSize = 3;
+    bool useHarrisDetector = false;
+    double k = 0.04;
+    GoodFeaturesToTrackDetector_GPU( d_img, corners, maxCorners, qualityLevel, minDistance, blockSize, useHarrisDetector, k );
+
+    for( size_t i = 0; i < corners.size(); i++ )
+    {
+        cv::circle( image, corners[i], 10, cv::Scalar( 255. ), -1 );
+    }
 
         d_fgimg = Scalar::all(0);
         d_img.copyTo(d_fgimg, d_fgmask);
