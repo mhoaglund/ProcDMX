@@ -37,7 +37,7 @@ DECREMENT = [-4, -2, -2, -4]
 
 PLAYER_SETTINGS = OpenCVPlayerSettings(
     SERIALPORT,
-    50,
+    25,
     4,
     CHAN_PER_FIXTURE,
     CONTOURQUEUE,
