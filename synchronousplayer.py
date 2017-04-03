@@ -296,9 +296,6 @@ class SyncPlayer(Process):
         """Reconcile channel value with modifier, soft-clamping values modally """
         hiref = self.peakframe[i]
         loref = self.baseframe[i]
-        #if len(_dim) > 0 and i in _dim:
-        #    hiref = self.peakframe[i]
-        #    loref = self.dimframe[i]
 
         temp = old + mod
         if temp > hiref:
