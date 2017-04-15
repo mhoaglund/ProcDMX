@@ -95,7 +95,8 @@ int MultiTrackStereoManager::run(){
         vector<Vec4i> hierarchy2;
         findContours( fgimg1, contours1, hierarchy1, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE, Point(0, 0) );
         findContours( fgimg2, contours2, hierarchy2, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE, Point(0, 0) );
-
+        contours1_prev = contours1;
+        contours2_prev = contours2;
         for(int i = 0; i<contours1.size(); i++){
             drawContours( gsimg1, contours1, i, (0,255,0), 2, 8, hierarchy1, 0, Point() );
         }
