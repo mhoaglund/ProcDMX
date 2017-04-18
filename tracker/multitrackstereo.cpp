@@ -23,7 +23,7 @@ MultiTrackStereoManager::MultiTrackStereoManager(const std::string& src1, const 
 int MultiTrackStereoManager::init(){
 	cap1.open(Source1);
 	cap2.open(Source2);
-    bool update_bg_model = true;
+    //bool update_bg_model = true;
 
     if( !cap1.isOpened() | !cap2.isOpened())
     {
@@ -35,6 +35,9 @@ int MultiTrackStereoManager::init(){
 
 int MultiTrackStereoManager::run(){
     isRunning = true;
+
+    bool update_bg_model1 = true;
+    bool update_bg_model2 = true;
 
     namedWindow("image1", WINDOW_NORMAL);
     namedWindow("foreground1", WINDOW_NORMAL);
@@ -75,9 +78,9 @@ int MultiTrackStereoManager::run(){
         if( fgimg2.empty() )
             fgimg2.create(img2.size(), gsimg2.type());
 
-        bg_model1(d_img1, d_fgmask1, update_bg_model ? -1 : 0);
+        bg_model1(d_img1, d_fgmask1, update_bg_model1 ? -1 : 0);
 	    bg_model1.getBackgroundImage(d_bgimg1);
-        bg_model2(d_img2, d_fgmask2, update_bg_model ? -1 : 0);
+        bg_model2(d_img2, d_fgmask2, update_bg_model2 ? -1 : 0);
 	    bg_model2.getBackgroundImage(d_bgimg2);
 
         gpu::blur(d_fgimg1, d_fgimg1, cv::Size(7, 7));
