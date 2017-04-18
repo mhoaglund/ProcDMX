@@ -16,7 +16,7 @@ TrackedObj::TrackedObj(int _x, int _y){
 	loc[1] = _y;
 }
 
-MultiTrackStereoManager::MultiTrackStereoManager(const std::string& src1, const std::string& src2){
+MultiTrackStereoManager::MultiTrackStereoManager(std::string src1, std::string src2){
     Source1 = src1;
     Source2 = src2;
 }

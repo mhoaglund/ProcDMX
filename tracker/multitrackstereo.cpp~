@@ -12,7 +12,8 @@ using namespace cv;
 using namespace cv::gpu;
 
 TrackedObj::TrackedObj(int _x, int _y){
-
+	loc[0] = _x;
+	loc[1] = _y;
 }
 
 MultiTrackStereoManager::MultiTrackStereoManager(const std::string& src1, const std::string& src2){
@@ -129,4 +130,8 @@ void MultiTrackStereoManager::stop_capture(){
     isRunning = false;
     cap1.release();
     cap2.release();
+}
+
+void MultiTrackStereoManager::updateparam(std::string _param){
+    
 }

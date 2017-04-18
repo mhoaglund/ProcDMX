@@ -7,7 +7,7 @@
 class MultiTrackStereoManager
 {
     public:
-        MultiTrackStereoManager(const std::string& src1, const std::string& src2);
+        MultiTrackStereoManager(std::string src1, std::string src2);
         int init();
         void updateparam(std::string param);
         int run();
