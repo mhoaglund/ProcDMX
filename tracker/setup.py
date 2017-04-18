@@ -1,4 +1,4 @@
-!#/usr/bin/env python
+#!/usr/bin/env python
 
 """
 Setup.py for multitrackstereo module
