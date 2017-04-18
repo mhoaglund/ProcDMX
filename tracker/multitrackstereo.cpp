@@ -131,3 +131,7 @@ void MultiTrackStereoManager::stop_capture(){
     cap1.release();
     cap2.release();
 }
+
+void MultiTrackStereoManager::updateparam(std::string _param){
+    
+}

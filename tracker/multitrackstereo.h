@@ -9,7 +9,7 @@ class MultiTrackStereoManager
     public:
         MultiTrackStereoManager(const std::string& src1, const std::string& src2);
         int init();
-        void updateparam(const std::string& param);
+        void updateparam(std::string param);
         int run();
         void stop_capture();
         //std::vector<TrackedObj> hits;
