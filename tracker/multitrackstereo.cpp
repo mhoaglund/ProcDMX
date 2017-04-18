@@ -11,8 +11,9 @@ using namespace std;
 using namespace cv;
 using namespace cv::gpu;
 
-TrackedObj::TrackedObj(){
-
+TrackedObj::TrackedObj(int _x, int _y){
+	loc[0] = _x;
+	loc[1] = _y;
 }
 
 MultiTrackStereoManager::MultiTrackStereoManager(const std::string& src1, const std::string& src2){

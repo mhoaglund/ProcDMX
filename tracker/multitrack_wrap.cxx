@@ -2937,9 +2937,10 @@ SWIG_Python_NonDynamicSetAttr(PyObject *obj, PyObject *name, PyObject *value) {
 #define SWIGTYPE_p_MultiTrackStereoManager swig_types[0]
 #define SWIGTYPE_p_TrackedObj swig_types[1]
 #define SWIGTYPE_p_char swig_types[2]
-#define SWIGTYPE_p_std__string swig_types[3]
-static swig_type_info *swig_types[5];
-static swig_module_info swig_module = {swig_types, 4, 0, 0, 0, 0};
+#define SWIGTYPE_p_int swig_types[3]
+#define SWIGTYPE_p_std__string swig_types[4]
+static swig_type_info *swig_types[6];
+static swig_module_info swig_module = {swig_types, 5, 0, 0, 0, 0};
 #define SWIG_TypeQuery(name) SWIG_TypeQueryModule(&swig_module, &swig_module, name)
 #define SWIG_MangledTypeQuery(name) SWIG_MangledTypeQueryModule(&swig_module, &swig_module, name)
 
@@ -3325,20 +3326,20 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_MultiTrackStereoManager_stop(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_MultiTrackStereoManager_stop_capture(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   MultiTrackStereoManager *arg1 = (MultiTrackStereoManager *) 0 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
   PyObject * obj0 = 0 ;
   
-  if (!PyArg_ParseTuple(args,(char *)"O:MultiTrackStereoManager_stop",&obj0)) SWIG_fail;
+  if (!PyArg_ParseTuple(args,(char *)"O:MultiTrackStereoManager_stop_capture",&obj0)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_MultiTrackStereoManager, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "MultiTrackStereoManager_stop" "', argument " "1"" of type '" "MultiTrackStereoManager *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "MultiTrackStereoManager_stop_capture" "', argument " "1"" of type '" "MultiTrackStereoManager *""'"); 
   }
   arg1 = reinterpret_cast< MultiTrackStereoManager * >(argp1);
-  (arg1)->stop();
+  (arg1)->stop_capture();
   resultobj = SWIG_Py_Void();
   return resultobj;
 fail:
@@ -3426,14 +3427,45 @@ SWIGINTERN PyObject *MultiTrackStereoManager_swigregister(PyObject *SWIGUNUSEDPA
   return SWIG_Py_Void();
 }
 
+SWIGINTERN PyObject *_wrap_new_TrackedObj(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  int arg1 ;
+  int arg2 ;
+  int val1 ;
+  int ecode1 = 0 ;
+  int val2 ;
+  int ecode2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  TrackedObj *result = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:new_TrackedObj",&obj0,&obj1)) SWIG_fail;
+  ecode1 = SWIG_AsVal_int(obj0, &val1);
+  if (!SWIG_IsOK(ecode1)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "new_TrackedObj" "', argument " "1"" of type '" "int""'");
+  } 
+  arg1 = static_cast< int >(val1);
+  ecode2 = SWIG_AsVal_int(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "new_TrackedObj" "', argument " "2"" of type '" "int""'");
+  } 
+  arg2 = static_cast< int >(val2);
+  result = (TrackedObj *)new TrackedObj(arg1,arg2);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_TrackedObj, SWIG_POINTER_NEW |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_TrackedObj_loc_set(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   TrackedObj *arg1 = (TrackedObj *) 0 ;
-  int arg2 ;
+  int *arg2 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
-  int val2 ;
-  int ecode2 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   
@@ -3443,12 +3475,19 @@ SWIGINTERN PyObject *_wrap_TrackedObj_loc_set(PyObject *SWIGUNUSEDPARM(self), Py
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "TrackedObj_loc_set" "', argument " "1"" of type '" "TrackedObj *""'"); 
   }
   arg1 = reinterpret_cast< TrackedObj * >(argp1);
-  ecode2 = SWIG_AsVal_int(obj1, &val2);
-  if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "TrackedObj_loc_set" "', argument " "2"" of type '" "int""'");
+  res2 = SWIG_ConvertPtr(obj1, &argp2,SWIGTYPE_p_int, 0 |  0 );
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "TrackedObj_loc_set" "', argument " "2"" of type '" "int [2]""'"); 
   } 
-  arg2 = static_cast< int >(val2);
-  if (arg1) (arg1)->loc = arg2;
+  arg2 = reinterpret_cast< int * >(argp2);
+  {
+    if (arg2) {
+      size_t ii = 0;
+      for (; ii < (size_t)2; ++ii) arg1->loc[ii] = arg2[ii];
+    } else {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in variable '""loc""' of type '""int [2]""'");
+    }
+  }
   resultobj = SWIG_Py_Void();
   return resultobj;
 fail:
@@ -3462,7 +3501,7 @@ SWIGINTERN PyObject *_wrap_TrackedObj_loc_get(PyObject *SWIGUNUSEDPARM(self), Py
   void *argp1 = 0 ;
   int res1 = 0 ;
   PyObject * obj0 = 0 ;
-  int result;
+  int *result = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)"O:TrackedObj_loc_get",&obj0)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_TrackedObj, 0 |  0 );
@@ -3470,8 +3509,8 @@ SWIGINTERN PyObject *_wrap_TrackedObj_loc_get(PyObject *SWIGUNUSEDPARM(self), Py
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "TrackedObj_loc_get" "', argument " "1"" of type '" "TrackedObj *""'"); 
   }
   arg1 = reinterpret_cast< TrackedObj * >(argp1);
-  result = (int) ((arg1)->loc);
-  resultobj = SWIG_From_int(static_cast< int >(result));
+  result = (int *)(int *) ((arg1)->loc);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_int, 0 |  0 );
   return resultobj;
 fail:
   return NULL;
@@ -3530,19 +3569,6 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_new_TrackedObj(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  TrackedObj *result = 0 ;
-  
-  if (!PyArg_ParseTuple(args,(char *)":new_TrackedObj")) SWIG_fail;
-  result = (TrackedObj *)new TrackedObj();
-  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_TrackedObj, SWIG_POINTER_NEW |  0 );
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
 SWIGINTERN PyObject *_wrap_delete_TrackedObj(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   TrackedObj *arg1 = (TrackedObj *) 0 ;
@@ -3577,16 +3603,16 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"MultiTrackStereoManager_init", _wrap_MultiTrackStereoManager_init, METH_VARARGS, NULL},
 	 { (char *)"MultiTrackStereoManager_updateparam", _wrap_MultiTrackStereoManager_updateparam, METH_VARARGS, NULL},
 	 { (char *)"MultiTrackStereoManager_run", _wrap_MultiTrackStereoManager_run, METH_VARARGS, NULL},
-	 { (char *)"MultiTrackStereoManager_stop", _wrap_MultiTrackStereoManager_stop, METH_VARARGS, NULL},
+	 { (char *)"MultiTrackStereoManager_stop_capture", _wrap_MultiTrackStereoManager_stop_capture, METH_VARARGS, NULL},
 	 { (char *)"MultiTrackStereoManager_isRunning_set", _wrap_MultiTrackStereoManager_isRunning_set, METH_VARARGS, NULL},
 	 { (char *)"MultiTrackStereoManager_isRunning_get", _wrap_MultiTrackStereoManager_isRunning_get, METH_VARARGS, NULL},
 	 { (char *)"delete_MultiTrackStereoManager", _wrap_delete_MultiTrackStereoManager, METH_VARARGS, NULL},
 	 { (char *)"MultiTrackStereoManager_swigregister", MultiTrackStereoManager_swigregister, METH_VARARGS, NULL},
+	 { (char *)"new_TrackedObj", _wrap_new_TrackedObj, METH_VARARGS, NULL},
 	 { (char *)"TrackedObj_loc_set", _wrap_TrackedObj_loc_set, METH_VARARGS, NULL},
 	 { (char *)"TrackedObj_loc_get", _wrap_TrackedObj_loc_get, METH_VARARGS, NULL},
 	 { (char *)"TrackedObj_spd_set", _wrap_TrackedObj_spd_set, METH_VARARGS, NULL},
 	 { (char *)"TrackedObj_spd_get", _wrap_TrackedObj_spd_get, METH_VARARGS, NULL},
-	 { (char *)"new_TrackedObj", _wrap_new_TrackedObj, METH_VARARGS, NULL},
 	 { (char *)"delete_TrackedObj", _wrap_delete_TrackedObj, METH_VARARGS, NULL},
 	 { (char *)"TrackedObj_swigregister", TrackedObj_swigregister, METH_VARARGS, NULL},
 	 { NULL, NULL, 0, NULL }
@@ -3598,24 +3624,28 @@ static PyMethodDef SwigMethods[] = {
 static swig_type_info _swigt__p_MultiTrackStereoManager = {"_p_MultiTrackStereoManager", "MultiTrackStereoManager *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_TrackedObj = {"_p_TrackedObj", "TrackedObj *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_char = {"_p_char", "char *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_int = {"_p_int", "int *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_std__string = {"_p_std__string", "std::string *", 0, 0, (void*)0, 0};
 
 static swig_type_info *swig_type_initial[] = {
   &_swigt__p_MultiTrackStereoManager,
   &_swigt__p_TrackedObj,
   &_swigt__p_char,
+  &_swigt__p_int,
   &_swigt__p_std__string,
 };
 
 static swig_cast_info _swigc__p_MultiTrackStereoManager[] = {  {&_swigt__p_MultiTrackStereoManager, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_TrackedObj[] = {  {&_swigt__p_TrackedObj, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_char[] = {  {&_swigt__p_char, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_int[] = {  {&_swigt__p_int, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_std__string[] = {  {&_swigt__p_std__string, 0, 0, 0},{0, 0, 0, 0}};
 
 static swig_cast_info *swig_cast_initial[] = {
   _swigc__p_MultiTrackStereoManager,
   _swigc__p_TrackedObj,
   _swigc__p_char,
+  _swigc__p_int,
   _swigc__p_std__string,
 };
 

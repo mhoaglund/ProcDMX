@@ -15,8 +15,8 @@ class MultiTrackStereoManager
         //std::vector<TrackedObj> hits;
         bool isRunning;
     private:
-        const std::string& Source1;
-        const std::string& Source2;
+        std::string Source1;
+        std::string Source2;
         cv::VideoCapture cap1;
         cv::VideoCapture cap2;
         std::vector<std::vector<cv::Point> > contours1_prev; //saving last set of contours to do tracking on
@@ -27,7 +27,8 @@ class MultiTrackStereoManager
 class TrackedObj
 {
     public:
-        int loc;
+	TrackedObj(int _x, int _y);
+        int loc[2];
         int spd;
     private:
         int id;

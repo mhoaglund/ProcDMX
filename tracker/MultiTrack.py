@@ -82,7 +82,7 @@ class MultiTrackStereoManager(_object):
     def init(self): return _MultiTrack.MultiTrackStereoManager_init(self)
     def updateparam(self, *args): return _MultiTrack.MultiTrackStereoManager_updateparam(self, *args)
     def run(self): return _MultiTrack.MultiTrackStereoManager_run(self)
-    def stop(self): return _MultiTrack.MultiTrackStereoManager_stop(self)
+    def stop_capture(self): return _MultiTrack.MultiTrackStereoManager_stop_capture(self)
     __swig_setmethods__["isRunning"] = _MultiTrack.MultiTrackStereoManager_isRunning_set
     __swig_getmethods__["isRunning"] = _MultiTrack.MultiTrackStereoManager_isRunning_get
     if _newclass:isRunning = _swig_property(_MultiTrack.MultiTrackStereoManager_isRunning_get, _MultiTrack.MultiTrackStereoManager_isRunning_set)
@@ -97,16 +97,16 @@ class TrackedObj(_object):
     __swig_getmethods__ = {}
     __getattr__ = lambda self, name: _swig_getattr(self, TrackedObj, name)
     __repr__ = _swig_repr
+    def __init__(self, *args): 
+        this = _MultiTrack.new_TrackedObj(*args)
+        try: self.this.append(this)
+        except: self.this = this
     __swig_setmethods__["loc"] = _MultiTrack.TrackedObj_loc_set
     __swig_getmethods__["loc"] = _MultiTrack.TrackedObj_loc_get
     if _newclass:loc = _swig_property(_MultiTrack.TrackedObj_loc_get, _MultiTrack.TrackedObj_loc_set)
     __swig_setmethods__["spd"] = _MultiTrack.TrackedObj_spd_set
     __swig_getmethods__["spd"] = _MultiTrack.TrackedObj_spd_get
     if _newclass:spd = _swig_property(_MultiTrack.TrackedObj_spd_get, _MultiTrack.TrackedObj_spd_set)
-    def __init__(self): 
-        this = _MultiTrack.new_TrackedObj()
-        try: self.this.append(this)
-        except: self.this = this
     __swig_destroy__ = _MultiTrack.delete_TrackedObj
     __del__ = lambda self : None;
 TrackedObj_swigregister = _MultiTrack.TrackedObj_swigregister
