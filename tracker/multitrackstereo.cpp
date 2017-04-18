@@ -117,12 +117,11 @@ int MultiTrackStereoManager::run(){
             imshow("image2", gsimg2);
             imshow("foreground2", fgimg2);
         }
-    }
-    return 0;
+        return 0;
 }
 
 int MultiTrackStereoManager::runFrame(VideoCapture _cap){
-
+    return 1;
 }
 
 ///Release streams and stop run loop
