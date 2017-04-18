@@ -11,7 +11,7 @@ class MultiTrackStereoManager
         int init();
         void updateparam(const std::string& param);
         int run();
-        void stop();
+        void stop_capture();
         //std::vector<TrackedObj> hits;
         bool isRunning;
     private:
@@ -21,6 +21,7 @@ class MultiTrackStereoManager
         cv::VideoCapture cap2;
         std::vector<std::vector<cv::Point> > contours1_prev; //saving last set of contours to do tracking on
         std::vector<std::vector<cv::Point> > contours2_prev;
+        int runFrame(cv::VideoCapture _capture);
 };
 
 class TrackedObj
