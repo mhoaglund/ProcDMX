@@ -125,7 +125,7 @@ int MultiTrackStereoManager::runFrame(VideoCapture _cap){
 }
 
 ///Release streams and stop run loop
-MultiTrackStereoManager::stop(){
+MultiTrackStereoManager::stop_capture(){
     isRunning = false;
     cap1.release();
     cap2.release();
