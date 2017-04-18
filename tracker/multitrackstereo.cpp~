@@ -4,7 +4,6 @@
 #include "opencv2/highgui/highgui.hpp"
 #include <stdio.h>
 #include "multitrackstereo.h"
-
 //A glorified opencv sample here. This doesn't actually have to do much- it just has to track pedestrians and spit out metrics
 //that get fed to python through a wrapper.
 using namespace std;

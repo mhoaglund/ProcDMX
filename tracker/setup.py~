@@ -6,7 +6,7 @@ Setup.py for multitrackstereo module
 
 from distutils.core import setup, Extension
 
-multitrackstereo_module = Extension('_multitrackstereo', sources=['multitrack_wrap.cxx','multitrackstereo.cpp'])
+multitrackstereo_module = Extension('_multitrackstereo', sources=['multitrack_wrap.cpp','multitrackstereo.cpp'])
 
 setup (
     name = 'multitrackstereo',

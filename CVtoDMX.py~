@@ -14,7 +14,7 @@ logging.basicConfig(format='%(asctime)s %(message)s', filename='logs.log', level
 
 STREAM_HOST = "rtsp://10.254.239.9"
 PORT = "554"
-STREAM_SELECT = "11"
+STREAM_SELECT = "12"
 STREAM_ADDRESS = STREAM_HOST + ":" + PORT + "/" + STREAM_SELECT
 
 CHAN_PER_FIXTURE = 4

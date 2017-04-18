@@ -73,10 +73,10 @@ int main(int argc, const char** argv)
 
 	d_img.upload(gsimg);
 	
-        if( fgimg.empty() )
-	    fgimg.create(img.size(), gsimg.type());
+    if( fgimg.empty() )
+        fgimg.create(img.size(), gsimg.type());
 
-        bg_model(d_img, d_fgmask, update_bg_model ? -1 : 0);
+    bg_model(d_img, d_fgmask, update_bg_model ? -1 : 0);
 	bg_model.getBackgroundImage(d_bgimg);
 
         d_fgimg = Scalar::all(0);
