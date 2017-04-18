@@ -4,12 +4,17 @@ In this installation, the jetson has an extra LAN card for SSH access. The main 
 
 Running isc-dhcp-server on eth0.
 See included dhcpd.conf for meaningful config and reservations.
-Run sudo update-rc.d isc-dhcp-server enable to include it in the boot process.
+Run sudo update-rc.d isc-dhcp-server enable to include it in the boot process.'
 
 Configure NetworkManager on Ubuntu:
 Add a static ipv4 address to the interface the dhcp server is running on.
 The static address for this interface should make sense in relation to the range that its dhcp will give out, but not be included in that range.
 I chose 10.254.239.1 to match the {option routers} item in dhcpd.conf.
+
+Also, see: https://ubuntuforums.org/showthread.php?t=2068111
+I had this issue with the tk1. When isc-dhcp attempted to start on boot, the interface wasn't ready yet.
+I followed the idea in that thread- added a dependency check to the first line of isc-dhcp-server.conf in init.d
+Worked great.
 
 Configure the cameras:
 With a brand new camera, hook it up to a network you can use to access it. Determine the IP the camera was given, and browse to that.
