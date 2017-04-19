@@ -78,8 +78,8 @@ class CVStream(Process):
             (cnts, _) = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
             current_contours = []
             for c in cnts:
-                #if cv2.contourArea(c) < 5:
-                #    continue
+                if cv2.contourArea(c) < 5:
+                    continue
                 (x, y, w, h) = cv2.boundingRect(c)
                 #CURR_CONTOURS.append((x, y, w, h))
                 current_contours.append((x+(w/2), y+(h/2)))
