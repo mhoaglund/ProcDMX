@@ -77,12 +77,14 @@ class CVInputSettings(object):
     """
         Settings object for setting a stream and tracking motion.
         _stream_host (string, address of stream to open)
+        _stream_id (internal distinction)
         _resize (target size for resizing frames)
         _thresh_sensitivity (threshold value for the delta that removes the background)
         _blur_radius (self exp)
     """
-    def __init__(self, _stream_location, _resize, _thresh_sensitivity, _blur_radius, _contour_queue, _job_queue):
+    def __init__(self, _stream_location, _stream_id, _resize, _thresh_sensitivity, _blur_radius, _contour_queue, _job_queue):
         self.stream_location = _stream_location
+        self.stream_id = _stream_id
         self.resize = _resize
         self.thresh_sensitivity = _thresh_sensitivity
         self.blur_radius = _blur_radius
@@ -94,6 +96,7 @@ class PlayerJob(object):
         _job (string, ex. 'resize' or 'adjust' etc.)
         _data (payload pertaining to chosen job)
     """
-    def __init__(self, _job, _payload):
+    def __init__(self, _job, _payload, _frompid):
+        self.frompid = _frompid
         self.job = _job
         self.payload = _payload
