@@ -45,6 +45,7 @@ class CVStream(Process):
 
             (grabbed, frame) = self.vcap.read()
             if not grabbed:
+                self.cont = False
                 break #TODO: reboot stream here
 
             frame = imutils.resize(frame, width=self.settings)

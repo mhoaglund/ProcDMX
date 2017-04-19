@@ -56,7 +56,7 @@ COLOR_SETTINGS = ColorSettings(
 
 
 OPENCV_STREAM_RIVER = CVInputSettings(
-    "rtps://10.254.239.9:554/11.cgi",
+    "rtsp://10.254.239.9:554/11.cgi",
     STREAM_PIDS[0],
     500,
     75,
@@ -66,7 +66,7 @@ OPENCV_STREAM_RIVER = CVInputSettings(
 )
 
 OPENCV_STREAM_CITY = CVInputSettings(
-    "rtps://10.254.239.8:554/11.cgi",
+    "rtsp://10.254.239.8:554/11.cgi",
     STREAM_PIDS[1],
     500,
     75,
