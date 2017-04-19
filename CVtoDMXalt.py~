@@ -12,7 +12,7 @@ from playerutils import OpenCVPlayerSettings, ColorSettings, CVInputSettings, Pl
 
 logging.basicConfig(format='%(asctime)s %(message)s', filename='logs.log', level=logging.DEBUG)
 
-STREAM_HOST = "rtsp://10.254.239.9"
+STREAM_HOST = "rtsp://10.254.239.8"
 PORT = "554"
 STREAM_SELECT = "11.cgi"
 STREAM_ADDRESS = STREAM_HOST + ":" + PORT + "/" + STREAM_SELECT
@@ -63,6 +63,8 @@ OPENCV_SETTINGS = CVInputSettings(
 
 #TODO: determine if this needs to be in its own thread.
 vcap = cv2.VideoCapture(STREAM_ADDRESS)
+thing = vcap.get(9) 
+print "Mode: ", thing
 
 CAPTURE_W = vcap.get(3)
 CAPTURE_H = vcap.get(4)
@@ -86,7 +88,7 @@ def stopworkerthreads():
             print 'stopping worker'
             proc.terminate()
 
-spinupplayer()
+#spinupplayer()
 avg = None
 IS_SHAPE_SET = False
 try:
@@ -133,8 +135,8 @@ try:
         #if len(CURR_CONTOURS) > 0:
         CONTOURQUEUE.put(CURR_CONTOURS)
         cv2.imshow('VIDEO', frame)
-        cv2.imshow('GRAY', gray)
-        cv2.imshow('AVG', avgres)
+        #cv2.imshow('GRAY', gray)
+        #cv2.imshow('AVG', avgres)
         cv2.waitKey(1)
         if hasattr(schedule, 'run_pending'):
             schedule.run_pending()

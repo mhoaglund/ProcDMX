@@ -84,10 +84,10 @@ int MultiTrackStereoManager::run(){
         bg_model2(d_img2, d_fgmask2, update_bg_model2 ? -1 : 0);
 	    bg_model2.getBackgroundImage(d_bgimg2);
 
-        gpu::blur(d_fgimg1, d_fgimg1, cv::Size(7, 7));
-        gpu::blur(d_fgimg2, d_fgimg2, cv::Size(7, 7));
-        gpu::threshold( d_fgimg1, d_fgimg1, threshold_value, max_BINARY_value,threshold_type );
-        gpu::threshold( d_fgimg2, d_fgimg2, threshold_value, max_BINARY_value,threshold_type );
+        //gpu::blur(d_fgimg1, d_fgimg1, cv::Size(7, 7));
+        //gpu::blur(d_fgimg2, d_fgimg2, cv::Size(7, 7));
+        //gpu::threshold( d_fgimg1, d_fgimg1, threshold_value, max_BINARY_value,threshold_type );
+        //gpu::threshold( d_fgimg2, d_fgimg2, threshold_value, max_BINARY_value,threshold_type );
 
         d_fgmask1.download(fgmask1);
         d_fgimg1.download(fgimg1);
@@ -98,16 +98,16 @@ int MultiTrackStereoManager::run(){
         vector<Vec4i> hierarchy1;
         vector<vector<Point> > contours2;
         vector<Vec4i> hierarchy2;
-        findContours( fgimg1, contours1, hierarchy1, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE, Point(0, 0) );
-        findContours( fgimg2, contours2, hierarchy2, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE, Point(0, 0) );
-        contours1_prev = contours1;
-        contours2_prev = contours2;
-        for(int i = 0; i<contours1.size(); i++){
-            drawContours( gsimg1, contours1, i, (0,255,0), 2, 8, hierarchy1, 0, Point() );
-        }
-        for(int j = 0; j<contours1.size(); j++){
-            drawContours( gsimg2, contours2, j, (0,255,0), 2, 8, hierarchy2, 0, Point() );
-        }
+        //findContours( fgimg1, contours1, hierarchy1, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE, Point(0, 0) );
+        //findContours( fgimg2, contours2, hierarchy2, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE, Point(0, 0) );
+        //contours1_prev = contours1;
+        //contours2_prev = contours2;
+        //for(int i = 0; i<contours1.size(); i++){
+        //    drawContours( gsimg1, contours1, i, (0,255,0), 2, 8, hierarchy1, 0, Point() );
+        //}
+        //for(int j = 0; j<contours1.size(); j++){
+        //    drawContours( gsimg2, contours2, j, (0,255,0), 2, 8, hierarchy2, 0, Point() );
+        //}
 
         if(!d_bgimg1.empty() & !d_bgimg2.empty())
             d_bgimg1.download(bgimg1);
