@@ -81,11 +81,13 @@ class CVInputSettings(object):
         _thresh_sensitivity (threshold value for the delta that removes the background)
         _blur_radius (self exp)
     """
-    def __init__(self, _stream_host, _resize, _thresh_sensitivity, _blur_radius):
-        self.stream_host = _stream_host
+    def __init__(self, _stream_location, _resize, _thresh_sensitivity, _blur_radius, _contour_queue, _job_queue):
+        self.stream_location = _stream_location
         self.resize = _resize
         self.thresh_sensitivity = _thresh_sensitivity
         self.blur_radius = _blur_radius
+        self.contour_queue = _contour_queue
+        self.job_queue = _job_queue
 
 class PlayerJob(object):
     """
