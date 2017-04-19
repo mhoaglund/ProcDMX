@@ -101,6 +101,8 @@ def stopworkerthreads():
             print 'stopping worker'
             proc.terminate()
 
+spinupCVstreams()
+spinupplayer()
 
 try:
     while True:
