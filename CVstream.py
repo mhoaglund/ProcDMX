@@ -31,7 +31,7 @@ class ImmediatePlayer(Process):
         while self.cont:
             (grabbed, frame) = self.vcap.read()
             if not grabbed:
-                break
+                break #TODO: reboot stream here
 
             frame = imutils.resize(frame, width=self.settings)
             gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
