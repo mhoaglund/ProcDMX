@@ -28,7 +28,7 @@ class CVStream(Process):
         self.IS_SHAPE_SET = False
         self.cont = True
         self.isnightmode = False
-        self.output = cv2.namedWindow(str(self.stream_id))
+        self.output = cv2.namedWindow(str(self.stream_id), cv2.WINDOW_NORMAL)
 
     def run(self):
         while self.cont:
