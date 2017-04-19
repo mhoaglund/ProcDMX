@@ -11,6 +11,8 @@ from immediateplayer import ImmediatePlayer
 from CVstream import CVStream
 from playerutils import OpenCVPlayerSettings, ColorSettings, CVInputSettings, PlayerJob
 
+logging.basicConfig(format='%(asctime)s %(message)s', filename='logs.log', level=logging.DEBUG)
+
 STREAM_PIDS = [000,111]
 
 PROCESSES = []
@@ -89,8 +91,8 @@ def spinupCVstreams():
         PROCESSES.append(_riverprocess)
         _cityprocess = CVStream(OPENCV_STREAM_CITY)
         PROCESSES.append(_cityprocess)
-        _riverprocess.start()
-        _cityprocess.start()
+        #_riverprocess.start()
+        #_cityprocess.start()
 
 
 def stopworkerthreads():
