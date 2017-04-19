@@ -26,9 +26,23 @@ class ImmediatePlayer(Process):
         self.firstFrame = None
         self.avg = None
         self.IS_SHAPE_SET = False
+        self.cont = True
+        self.isnightmode = False
 
     def run(self):
         while self.cont:
+            if not self.job_queue.empty():
+                currentjob = self.job_queue.get()
+                if currentjob.job == "TERM":
+                    self.cont = False
+                    self.vcap.release()
+                if currentjob.job == "NIGHT":
+                    logging.info('Going into Night Mode')
+                    self.isnightmode = True
+                if currentjob.job == "MORNING":
+                    logging.info('Activating for the day')
+                    self.isnightmode = False
+
             (grabbed, frame) = self.vcap.read()
             if not grabbed:
                 break #TODO: reboot stream here

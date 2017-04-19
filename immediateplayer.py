@@ -83,7 +83,7 @@ class ImmediatePlayer(Process):
             if not self.jobqueue.empty():
                 currentjob = self.jobqueue.get()
                 if currentjob.job == "TERM":
-                    self.cont = False;
+                    self.cont = False
                 if currentjob.job == "SET_SHAPE":
                     logging.info('Setting video shape %s', currentjob.payload)
                     self.SHAPE[0] = currentjob.payload[1]
@@ -114,7 +114,7 @@ class ImmediatePlayer(Process):
         time.sleep(2)
 
     def warmChannels(self, _channelrange):
-        i = 0;
+        i = 0
         for channel in range(_channelrange[0], _channelrange[1]):
             self.mod_frame[channel] = self.colors.increment[i]
             i +=1
