@@ -28,6 +28,7 @@ class CVStream(Process):
         self.IS_SHAPE_SET = False
         self.cont = True
         self.isnightmode = False
+        self.output = cv2.namedWindow(str(self.stream_id))
 
     def run(self):
         while self.cont:
@@ -83,7 +84,7 @@ class CVStream(Process):
                 IS_SHAPE_SET = True
 
             self.contour_queue.put(current_contours)
-            cv2.imshow('VIDEO', frame)
+            cv2.imshow(self.output, frame)
             cv2.waitKey(1)
 
     def terminate(self):
