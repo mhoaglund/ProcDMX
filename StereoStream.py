@@ -8,6 +8,7 @@ import cv2
 import imutils
 import numpy
 from immediateplayer import ImmediatePlayer
+from CVstream import CVStream
 from playerutils import OpenCVPlayerSettings, ColorSettings, CVInputSettings, PlayerJob
 
 STREAM_PIDS = [000,111]
@@ -80,6 +81,16 @@ def spinupplayer():
         _playthread = ImmediatePlayer(PLAYER_SETTINGS, COLOR_SETTINGS)
         PROCESSES.append(_playthread)
         _playthread.start()
+
+def spinupCVstreams():
+    """Set up the two opencv stream processes"""
+    if __name__ == "__main__":
+        _riverprocess = CVStream(OPENCV_STREAM_RIVER)
+        PROCESSES.append(_riverprocess)
+        _cityprocess = CVStream(OPENCV_STREAM_CITY)
+        PROCESSES.append(_cityprocess)
+        _riverprocess.start()
+        _cityprocess.start()
 
 
 def stopworkerthreads():

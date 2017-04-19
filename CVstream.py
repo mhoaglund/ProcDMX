@@ -11,7 +11,7 @@ from multiprocessing import Process, Queue
 from random import randint
 from operator import add
 
-class ImmediatePlayer(Process):
+class CVStream(Process):
     """Process to handle an individual opencv video stream.
         Args:
     """
