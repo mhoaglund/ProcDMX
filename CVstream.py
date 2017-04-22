@@ -38,15 +38,15 @@ class CVStream(Process):
             self.vcap = cv2.VideoCapture(self.settings.stream_location)
             cv2.startWindowThread()
             self.output = cv2.namedWindow(str(self.stream_id), cv2.WINDOW_NORMAL)
-
+            self.CAPTURE_W = self.vcap.get(3)
+            self.CAPTURE_H = self.vcap.get(4)
             temp = self.vcap.read()
             nonrels = [[20, 50], [150, 50], [150, 150], [20, 150]]
             mask_points = np.array([nonrels], dtype=np.uint8)
-            self.mask = np.ones(temp.shape[:2], dtype="uint8") * 255
+            self.mask = np.ones((self.CAPTURE_W, self.CAPTURE_H), dtype="uint8") * 255
             cv2.fillConvexPoly(self.mask, mask_points, 0)
 
-            self.CAPTURE_W = self.vcap.get(3)
-            self.CAPTURE_H = self.vcap.get(4)
+            
             self.shouldmask = self.GenerateMask()
             self.hasStarted = True
         while self.cont:
