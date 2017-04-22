@@ -67,7 +67,7 @@ class CVStream(Process):
             #gray = cv2.GaussianBlur(gray, (self.settings.blur_radius, self.settings.blur_radius), 0)
             if self.avg == None:
                 self.avg = numpy.float32(gray)
-            cv2.accumulateWeighted(gray, self.avg, 0.05)
+            cv2.accumulateWeighted(gray, self.avg, self.settings.accumulation)
             if self.firstFrame is None:
                 self.firstFrame = gray
                 continue
@@ -83,8 +83,9 @@ class CVStream(Process):
             for c in cnts:
                 #if cv2.contourArea(c) < 5:
                 #    continue
+                #TODO: location-based size culling
+                #TODO: merging of small contours
                 (x, y, w, h) = cv2.boundingRect(c)
-                #CURR_CONTOURS.append((x, y, w, h))
                 current_contours.append((x+(w/2), y+(h/2)))
                 cv2.rectangle(thresh, (x, y), (x+w, y+h), (0, 255, 0), 2)
             if self.IS_SHAPE_SET is not True:
