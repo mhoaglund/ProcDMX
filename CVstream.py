@@ -31,6 +31,8 @@ class CVStream(Process):
         self.cont = True
         self.isnightmode = False
         self.hasStarted = False
+        self.hasMasked = False
+        self.shouldmask = False
         
 
     def run(self):
@@ -40,14 +42,7 @@ class CVStream(Process):
             self.output = cv2.namedWindow(str(self.stream_id), cv2.WINDOW_NORMAL)
             self.CAPTURE_W = self.vcap.get(3)
             self.CAPTURE_H = self.vcap.get(4)
-            temp = self.vcap.read()
-            nonrels = [[20, 50], [150, 50], [150, 150], [20, 150]]
-            mask_points = np.array([nonrels], dtype=np.uint8)
-            self.mask = np.ones((self.CAPTURE_W, self.CAPTURE_H), dtype="uint8") * 255
-            cv2.fillConvexPoly(self.mask, mask_points, 0)
-
             
-            self.shouldmask = self.GenerateMask()
             self.hasStarted = True
         while self.cont:
             if not self.job_queue.empty():
@@ -69,6 +64,8 @@ class CVStream(Process):
                 self.hasStarted = False
                 continue
                 #break #TODO: reboot stream here
+            if not self.hasMasked:
+                self.shouldmask = self.GenerateMask()
 
             if self.shouldmask:
                 frame = cv2.bitwise_and(frame, frame, mask = self.mask)
@@ -115,26 +112,27 @@ class CVStream(Process):
             cv2.imshow(str(self.stream_id), gray)
             cv2.waitKey(1)
 
-    def GenerateMask(self):
+    def GenerateMask(self, _frame):
         """
            Generate a proper mask from the set of proportional coordinates passed in.
            This gets called once as a setup function.
         """
         print self.CAPTURE_W
         print self.CAPTURE_H
-        self.mask = np.zeros((self.CAPTURE_W, self.CAPTURE_H), dtype=np.uint8)
+        self.mask = np.zeros(_frame.shape[:2], dtype=np.uint8)
         nonrels = [[20, 50], [150, 50], [150, 150], [20, 150]]
-        if len(self.settings.maskc) > 3:
+        return True
+        #if len(self.settings.maskc) > 3:
             #for relative_coordinate in self.settings.maskc:
             #    nonrels.append(
             #        [int(relative_coordinate[0]*self.CAPTURE_W),
             #         int(relative_coordinate[1]*self.CAPTURE_H)]
             #        )
-            mask_points = np.array([nonrels], dtype=np.uint8)
-            cv2.fillConvexPoly(self.mask, mask_points, 1)
-            return True
-        else:
-            return False
+            #mask_points = np.array([nonrels], dtype=np.uint8)
+            #cv2.fillConvexPoly(self.mask, mask_points, 1)
+            #return True
+        #else:
+            #return False
 
 
     def terminate(self):
