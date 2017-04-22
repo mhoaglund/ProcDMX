@@ -64,6 +64,7 @@ class CVStream(Process):
 
             frame = imutils.resize(frame, width=self.settings.resize)
             gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+            gray = cv2.equalizeHist(gray)
             #gray = cv2.GaussianBlur(gray, (self.settings.blur_radius, self.settings.blur_radius), 0)
             if self.avg == None:
                 self.avg = numpy.float32(gray)
