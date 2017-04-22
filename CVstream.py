@@ -40,7 +40,7 @@ class CVStream(Process):
             self.output = cv2.namedWindow(str(self.stream_id), cv2.WINDOW_NORMAL)
             self.CAPTURE_W = self.vcap.get(3)
             self.CAPTURE_H = self.vcap.get(4)
-            self.shouldmask = self.GenerateMask()
+            self.shouldmask = self.GenerateMask(self.vcap.image)
             self.hasStarted = True
         while self.cont:
             if not self.job_queue.empty():
@@ -107,12 +107,13 @@ class CVStream(Process):
             cv2.imshow(str(self.stream_id), gray)
             cv2.waitKey(1)
 
-    def GenerateMask(self):
+    def GenerateMask(self, opencv_image):
         """
            Generate a proper mask from the set of proportional coordinates passed in.
            This gets called once as a setup function.
         """
-        self.mask = np.zeros((self.CAPTURE_W, self.CAPTURE_H))
+        self.mask = np.zeros(opencv_image, dtype=np.uint8)
+        print opencv_image
         nonrels = []
         if len(self.settings.maskc) > 3:
             for relative_coordinate in self.settings.maskc:
@@ -120,7 +121,7 @@ class CVStream(Process):
                     [relative_coordinate[0]*self.CAPTURE_W,
                      relative_coordinate[1]*self.CAPTURE_H]
                     )
-            mask_points = np.array([nonrels], dtype=np.int32)
+            mask_points = np.array([nonrels], dtype=np.uint8)
             cv2.fillConvexPoly(self.mask, mask_points, 1)
             return True
         else:
