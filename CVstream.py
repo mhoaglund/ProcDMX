@@ -63,12 +63,13 @@ class CVStream(Process):
                 continue
                 #break #TODO: reboot stream here
 
+            if self.shouldmask:
+                frame = cv2.bitwise_and(frame, frame, mask = self.mask)
             frame = imutils.resize(frame, width=self.settings.resize)
             gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
             gray = cv2.equalizeHist(gray)
             #gray = cv2.GaussianBlur(gray, (self.settings.blur_radius, self.settings.blur_radius), 0)
-            if self.shouldmask:
-                frame = cv2.bitwise_and(frame, frame, mask = self.mask)
+            
             if self.avg == None:
                 self.avg = np.float32(gray)
             cv2.accumulateWeighted(gray, self.avg, self.settings.accumulation)
