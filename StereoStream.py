@@ -60,7 +60,9 @@ STREAM_WIDTH = 600
 STREAM_ACCUMULATION = 0.10
 STREAM_THRESH = 35
 STREAM_BLUR = 5
-MASK_PTS = [(0.0, 0.6), (0.0, 0.4),(1.0,0.2),(1.0,0.8)]
+#Bottom left, top left, bottom right, top right. Makes perfect sense.
+MASK_PTS_RIVER = [(0.0, 0.6), (0.0, 0.4), (1.0, 0.0), (1.0, 1.0)]
+MASK_PTS_CITY = [(1.0, 1.0), (1.0, 0.0), (0.0, 0.4), (0.0, 0.6)]
 OPENCV_STREAM_RIVER = CVInputSettings(
     "rtsp://10.254.239.7:554/11.cgi",
     STREAM_PIDS[0],
@@ -69,7 +71,7 @@ OPENCV_STREAM_RIVER = CVInputSettings(
     STREAM_THRESH,
     STREAM_ACCUMULATION,
     STREAM_BLUR,
-    MASK_PTS,
+    MASK_PTS_RIVER,
     RIVER_CONTOURQUEUE,
     RIVER_JOBQUEUE
 )
@@ -82,7 +84,7 @@ OPENCV_STREAM_CITY = CVInputSettings(
     STREAM_THRESH,
     STREAM_ACCUMULATION,
     STREAM_BLUR,
-    MASK_PTS,
+    MASK_PTS_CITY,
     CITY_CONTOURQUEUE,
     CITY_JOBQUEUE
 )
