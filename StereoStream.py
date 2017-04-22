@@ -56,11 +56,11 @@ COLOR_SETTINGS = ColorSettings(
     DECREMENT
 )
 
-
+STREAM_WIDTH = 600
 OPENCV_STREAM_RIVER = CVInputSettings(
     "rtsp://10.254.239.9:554/11.cgi",
     STREAM_PIDS[0],
-    500,
+    STREAM_WIDTH,
     75,
     5,
     RIVER_CONTOURQUEUE,
@@ -70,7 +70,7 @@ OPENCV_STREAM_RIVER = CVInputSettings(
 OPENCV_STREAM_CITY = CVInputSettings(
     "rtsp://10.254.239.8:554/11.cgi",
     STREAM_PIDS[1],
-    500,
+    STREAM_WIDTH,
     75,
     5,
     CITY_CONTOURQUEUE,

@@ -23,8 +23,6 @@ class CVStream(Process):
         self.stream_id = _CVInputSettings.stream_id
         self.contour_queue = _CVInputSettings.contour_queue
         self.job_queue = _CVInputSettings.job_queue
-        #self.CAPTURE_W = self.vcap.get(3)
-        #self.CAPTURE_H = self.vcap.get(4)
         self.CAPTURE_W = 0
         self.CAPTURE_H = 0
         self.firstFrame = None
@@ -40,6 +38,8 @@ class CVStream(Process):
             self.vcap = cv2.VideoCapture(self.settings.stream_location)
             cv2.startWindowThread()
             self.output = cv2.namedWindow(str(self.stream_id), cv2.WINDOW_NORMAL)
+            self.CAPTURE_W = self.vcap.get(3)
+            self.CAPTURE_H = self.vcap.get(4)
             self.hasStarted = True
         while self.cont:
             if not self.job_queue.empty():
@@ -56,8 +56,11 @@ class CVStream(Process):
 
             (grabbed, frame) = self.vcap.read()
             if not grabbed:
-                self.cont = False
-                break #TODO: reboot stream here
+                #self.cont = False
+                self.vcap.release()
+                self.hasStarted = False
+                continue
+                #break #TODO: reboot stream here
 
             frame = imutils.resize(frame, width=self.settings.resize)
             gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -75,7 +78,7 @@ class CVStream(Process):
                                    255,
                                    cv2.THRESH_BINARY)[1]
             thresh = cv2.dilate(thresh, None, iterations=2)
-            (cnts, _) = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+            (cnts, _) = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
             current_contours = []
             for c in cnts:
                 #if cv2.contourArea(c) < 5:
@@ -94,7 +97,7 @@ class CVStream(Process):
                 IS_SHAPE_SET = True
 
             self.contour_queue.put(current_contours)
-            cv2.imshow(str(self.stream_id), frame)
+            cv2.imshow(str(self.stream_id), thresh)
             cv2.waitKey(1)
 
     def terminate(self):
