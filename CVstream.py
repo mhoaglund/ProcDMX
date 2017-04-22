@@ -80,6 +80,7 @@ class CVStream(Process):
             thresh = cv2.dilate(thresh, None, iterations=2)
             (cnts, _) = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
             current_contours = []
+            toshow = thresh.copy()
             for c in cnts:
                 #if cv2.contourArea(c) < 5:
                 #    continue
@@ -87,7 +88,7 @@ class CVStream(Process):
                 #TODO: merging of small contours
                 (x, y, w, h) = cv2.boundingRect(c)
                 current_contours.append((x+(w/2), y+(h/2)))
-                cv2.rectangle(thresh, (x, y), (x+w, y+h), (0, 255, 0), 2)
+                cv2.rectangle(toshow, (x, y), (x+w, y+h), (0, 255, 0), 2)
             if self.IS_SHAPE_SET is not True:
                 SHAPE_SETUP = playerutils.PlayerJob(
                     self.stream_id,
@@ -98,7 +99,7 @@ class CVStream(Process):
                 IS_SHAPE_SET = True
 
             self.contour_queue.put(current_contours)
-            cv2.imshow(str(self.stream_id), thresh)
+            cv2.imshow(str(self.stream_id), toshow)
             cv2.waitKey(1)
 
     def terminate(self):
