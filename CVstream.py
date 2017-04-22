@@ -112,6 +112,8 @@ class CVStream(Process):
            Generate a proper mask from the set of proportional coordinates passed in.
            This gets called once as a setup function.
         """
+        print self.CAPTURE_W
+        print self.CAPTURE_H
         self.mask = np.zeros((self.CAPTURE_W, self.CAPTURE_H), dtype=np.uint8)
         nonrels = [[20, 50], [150, 50], [150, 150], [20, 150]]
         if len(self.settings.maskc) > 3:
