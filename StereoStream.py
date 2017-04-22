@@ -60,7 +60,7 @@ STREAM_WIDTH = 600
 STREAM_ACCUMULATION = 0.10
 STREAM_THRESH = 35
 STREAM_BLUR = 5
-MASK_POINTS_REL = [(0.0, 0.3), (1.0, 0.8), (1.0, 0.2), (0.0, 0.7)] #tall horizontal trapezoid (supposedly)
+MASK_POINTS_REL = [(0.0, 0.4), (0.0, 0.6), (1.0, 0.2), (1.0, 0.8)] #tall horizontal trapezoid (supposedly)
 
 OPENCV_STREAM_RIVER = CVInputSettings(
     "rtsp://10.254.239.7:554/11.cgi",
