@@ -120,13 +120,13 @@ class CVStream(Process):
         print self.CAPTURE_W
         print self.CAPTURE_H
         self.mask = np.zeros(_frame.shape[:2], dtype=np.uint8)
-        nonrels = [[20, 50], [150, 50], [150, 150], [20, 150]]
+        nonrels = []
         if len(self.settings.maskc) > 3:
-            #for relative_coordinate in self.settings.maskc:
-            #    nonrels.append(
-            #        [int(relative_coordinate[0]*self.CAPTURE_W),
-            #         int(relative_coordinate[1]*self.CAPTURE_H)]
-            #        )
+            for relative_coordinate in self.settings.maskc:
+                nonrels.append(
+                    [int(relative_coordinate[0]*self.CAPTURE_W),
+                     int(relative_coordinate[1]*self.CAPTURE_H)]
+                    )
             mask_points = np.array(nonrels, dtype=np.int32)
             cv2.fillConvexPoly(self.mask, mask_points, 1)
             return True
