@@ -128,7 +128,7 @@ class CVStream(Process):
                     [int(relative_coordinate[0]*self.CAPTURE_W),
                      int(relative_coordinate[1]*self.CAPTURE_H)]
                     )
-            mask_points = np.array(reversed(nonrels), dtype=np.int32)
+            mask_points = np.array(nonrels[::-1], dtype=np.int32)
             cv2.fillConvexPoly(self.mask, mask_points, 1)
             return True
         else:
