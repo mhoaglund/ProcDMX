@@ -9,15 +9,17 @@ class ColorSettings(object):
         Base Color (int[4])
         Dimmed Color (int[4])
         Peak Color (int[4])
+        Backfill Color (int[4])
         Busy Color (int[4])
         Night Color (int[4])
         Increment (int[4])
         Decrement (int[4])
     """
-    def __init__(self, _base, _dimmed, _peak, _busy, _night, _inc, _dec):
+    def __init__(self, _base, _dimmed, _peak, _backfill, _busy, _night, _inc, _dec):
         self.base = _base
         self.dimmed = _dimmed
         self.peak = _peak
+        self.backfill = _backfill
         self.busy = _busy
         self.night = _night
         self.increment = _inc
@@ -107,3 +109,13 @@ class PlayerJob(object):
         self.frompid = _frompid
         self.job = _job
         self.payload = _payload
+
+class CalcdContour(object):
+    """
+        Simple deal for tracking what we need from opencv contours.
+    """
+    def __init__(self, _x, _y, _h, _w):
+        self.pos = (_x, _y)
+        self.a_ratio = _w/_h
+        self.spatialindex = 0
+        self.center = (_x+(_w/2), _y+(_h/2))
