@@ -25,7 +25,8 @@ RIVER_JOBQUEUE = Queue()
 CITY_JOBQUEUE = Queue()
 
 CHAN_PER_FIXTURE = 4
-SERIALPORT = '/dev/ttyUSB0'
+SERIAL_U1 = '/dev/ttyUSB0'
+SERIAL_U2 = '/dev/ttyUSB1'
 DAY_START_HOUR = 6 #6am
 DAY_END_HOUR = 5 #5am
 
@@ -39,7 +40,7 @@ INCREMENT = [5, 3, 7, 3] #the core aesthetic
 DECREMENT = [-4, -2, -2, -4]
 
 PLAYER_SETTINGS = OpenCVPlayerSettings(
-    SERIALPORT,
+    [SERIAL_U1, SERIAL_U2],
     25,
     4,
     CHAN_PER_FIXTURE,

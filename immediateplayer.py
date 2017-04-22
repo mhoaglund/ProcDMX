@@ -23,11 +23,14 @@ class ImmediatePlayer(Process):
     def __init__(self, _playersettings, _colorsettings):
         super(ImmediatePlayer, self).__init__()
         print 'starting worker'
-        try:
-            self.serial = serial.Serial(_playersettings.serialport, baudrate=57600)
-        except:
-            print "Error: could not open Serial Port"
-            sys.exit(0)
+        if type(_playersettings.serialport) is str:
+            try:
+                self.serial = serial.Serial(_playersettings.serialport, baudrate=57600)
+            except:
+                print "Error: could not open Serial Port"
+                sys.exit(0)
+        else:
+            print 'what do we do with multiple serial outputs?'
         self.cont = True
         self.dataqueue = _playersettings.dataqueue
         self.jobqueue = _playersettings.jobqueue
