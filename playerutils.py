@@ -82,10 +82,11 @@ class CVInputSettings(object):
         _thresh_sensitivity (threshold value for the delta that removes the background)
         _accumulation (float, alpha for background segmentation accumulation algo)
         _blur_radius (self exp)
+        _maskc (mask coordinates, array of proportional coords expressed as tuples of floats)
         _contour_queue (Queue for outputting detected contours)
         _job_queue (Queue for responding to directives from the main process)
     """
-    def __init__(self, _stream_location, _stream_id, _resize, _thresh_op, _thresh_sensitivity, _accumulation, _blur_radius, _contour_queue, _job_queue):
+    def __init__(self, _stream_location, _stream_id, _resize, _thresh_op, _thresh_sensitivity, _accumulation, _blur_radius, _maskc, _contour_queue, _job_queue):
         self.stream_location = _stream_location
         self.stream_id = _stream_id
         self.resize = _resize
@@ -93,6 +94,7 @@ class CVInputSettings(object):
         self.thresh_sensitivity = _thresh_sensitivity
         self.accumulation = _accumulation
         self.blur_radius = _blur_radius
+        self.maskc = _maskc
         self.contour_queue = _contour_queue
         self.job_queue = _job_queue
 
