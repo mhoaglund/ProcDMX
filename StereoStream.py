@@ -62,7 +62,7 @@ STREAM_THRESH = 35
 STREAM_BLUR = 5
 #Bottom left, top left, bottom right, top right. Makes perfect sense.
 MASK_PTS_RIVER = [(0.0, 0.6), (0.0, 0.4), (1.0, 0.0), (1.0, 1.0)]
-MASK_PTS_CITY = [(1.0, 0.0), (1.0, 1.0), (0.0, 0.6), (0.0, 0.4)]
+MASK_PTS_CITY = [(0.0, 0.4), (0.0, 0.6), (1.0, 1.0), (1.0, 0.0)]
 OPENCV_STREAM_RIVER = CVInputSettings(
     "rtsp://10.254.239.7:554/11.cgi",
     STREAM_PIDS[0],

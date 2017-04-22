@@ -120,7 +120,6 @@ class CVStream(Process):
         print self.CAPTURE_W
         print self.CAPTURE_H
         self.mask = np.zeros(_frame.shape[:2], dtype=np.uint8)
-        #nonrels = [[20, 50], [150, 50], [150, 150], [20, 150]]
         nonrels = []
         if len(self.settings.maskc) > 3:
             for relative_coordinate in self.settings.maskc:
