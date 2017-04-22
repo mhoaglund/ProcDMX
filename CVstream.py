@@ -65,7 +65,7 @@ class CVStream(Process):
                 continue
                 #break #TODO: reboot stream here
             if not self.hasMasked:
-                self.shouldmask = self.GenerateMask()
+                self.shouldmask = self.GenerateMask(frame)
 
             if self.shouldmask:
                 frame = cv2.bitwise_and(frame, frame, mask = self.mask)
