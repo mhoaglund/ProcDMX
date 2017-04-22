@@ -86,7 +86,7 @@ class CVStream(Process):
                 (x, y, w, h) = cv2.boundingRect(c)
                 #CURR_CONTOURS.append((x, y, w, h))
                 current_contours.append((x+(w/2), y+(h/2)))
-                cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
+                cv2.rectangle(thresh, (x, y), (x+w, y+h), (0, 255, 0), 2)
             if self.IS_SHAPE_SET is not True:
                 SHAPE_SETUP = playerutils.PlayerJob(
                     self.stream_id,
