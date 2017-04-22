@@ -89,7 +89,7 @@ class CVStream(Process):
                 #TODO: merging of small contours
                 (x, y, w, h) = cv2.boundingRect(c)
                 current_contours.append((x+(w/2), y+(h/2)))
-                cv2.rectangle(toshow, (x, y), (x+w, y+h), (0, 255, 0), 2)
+                cv2.rectangle(gray, (x, y), (x+w, y+h), (0, 255, 0), 2)
             if self.IS_SHAPE_SET is not True:
                 SHAPE_SETUP = playerutils.PlayerJob(
                     self.stream_id,
@@ -100,7 +100,7 @@ class CVStream(Process):
                 IS_SHAPE_SET = True
 
             self.contour_queue.put(current_contours)
-            cv2.imshow(str(self.stream_id), toshow)
+            cv2.imshow(str(self.stream_id), gray)
             cv2.waitKey(1)
 
     def terminate(self):
