@@ -27,7 +27,7 @@ CITY_JOBQUEUE = Queue()
 CHAN_PER_FIXTURE = 4
 SERIALPORT = '/dev/ttyUSB0'
 DAY_START_HOUR = 6 #6am
-DAY_END_HOUR = 19 #7pm
+DAY_END_HOUR = 5 #5am
 
 DEFAULT_COLOR = [0, 0, 90, 10]
 REDUCED_DEFAULT = [0, 0, 90, 0]
@@ -58,7 +58,7 @@ COLOR_SETTINGS = ColorSettings(
 
 STREAM_WIDTH = 600
 OPENCV_STREAM_RIVER = CVInputSettings(
-    "rtsp://10.254.239.9:554/11.cgi",
+    "rtsp://10.254.239.7:554/11.cgi",
     STREAM_PIDS[0],
     STREAM_WIDTH,
     75,
@@ -68,7 +68,7 @@ OPENCV_STREAM_RIVER = CVInputSettings(
 )
 
 OPENCV_STREAM_CITY = CVInputSettings(
-    "rtsp://10.254.239.8:554/11.cgi",
+    "rtsp://10.254.239.6:554/11.cgi",
     STREAM_PIDS[1],
     STREAM_WIDTH,
     75,
