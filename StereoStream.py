@@ -143,7 +143,7 @@ def generatecullmap():
     _res = []
     _a = -0.001389
     _b = 0.1889
-    _c = 2
+    _c = 2 #tweaking this changes the outer reaches of the cull map
     for f in range(0, FIXTURES):
         minsize = (_a * (f * f)) + (_b * f) + _c
         if minsize < 0:
