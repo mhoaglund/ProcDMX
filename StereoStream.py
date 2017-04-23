@@ -23,6 +23,7 @@ STREAM_PIDS = [0,1]
 PROCESSES = []
 
 STRIPES = []
+CULL_MINIMUMS = []
 CONTOURQUEUE = Queue()
 JOBQUEUE = Queue()
 RIVER_CONTOURQUEUE = Queue()
@@ -137,6 +138,19 @@ def locate(_x):
         if _x >= STRIPES[st][0] and _x < STRIPES[st][1]:
             return st
 
+def generatecullmap():
+    global CULL_MINIMUMS
+    _res = []
+    _a = -0.001389
+    _b = 0.1889
+    _c = 2
+    for f in range(0, FIXTURES):
+        minsize = (_a * (f * f)) + (_b * f) + _c
+        if minsize < 0:
+            minsize = 0
+        _res.append(minsize)
+    CULL_MINIMUMS = _res
+
 def spinupplayer():
     """Activate the DMX player thread that does our lighting work"""
     if __name__ == '__main__':
@@ -154,6 +168,13 @@ def spinupcvstreams():
         _riverprocess.start()
         _cityprocess.start()
 
+def contextualcull(cnts):
+    """Cull contours based on size and index"""
+    temp = []
+    for cnt in cnts:
+        if cnt.area > CULL_MINIMUMS[cnt.spatialindex]:
+            temp.append(cnt)
+    return temp
 
 def stopworkerthreads():
     """Stop any currently running threads"""
@@ -163,6 +184,7 @@ def stopworkerthreads():
             print 'stopping worker'
             proc.terminate()
 
+generatecullmap()
 generatedistortionmap()
 spinupcvstreams()
 #spinupplayer()
@@ -174,13 +196,11 @@ try:
         """Gathering readings from both processes"""
         riverlatest = []
         citylatest = []
-        #TODO: location-based size culling
         if not RIVER_CONTOURQUEUE.empty():
             riverlatest = RIVER_CONTOURQUEUE.get()
             if len(riverlatest) > 0:
                 for cc in riverlatest:
                     cc.spatialindex = locate(cc.x) #assign real world x position
-                    print 'Located contour at ', cc.x, ' for stripe', cc.spatialindex
         if not CITY_CONTOURQUEUE.empty():
             citylatest = CITY_CONTOURQUEUE.get()
             if len(citylatest) > 0:
@@ -188,10 +208,9 @@ try:
                     #reversing the x indices for this stream
                     cc.x = STREAM_WIDTH - cc.x
                     cc.spatialindex = (FIXTURES/2) + locate(cc.x) #assign real world x position
-                    print 'Located contour at ', cc.x, ' for stripe', cc.spatialindex
         if len(riverlatest+citylatest) > 1:
-            #print len(riverlatest+citylatest)
-            CONTOURQUEUE.put(riverlatest+citylatest)
+            #_all = riverlatest+citylatest
+            CONTOURQUEUE.put(contextualcull(riverlatest+citylatest))
 
         if not RIVER_JOBQUEUE.empty():
             JOBQUEUE.put(RIVER_JOBQUEUE.get())
