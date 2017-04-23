@@ -175,6 +175,7 @@ try:
         """Gathering readings from both processes"""
         riverlatest = []
         citylatest = []
+        #TODO: location-based size culling
         if not RIVER_CONTOURQUEUE.empty():
             riverlatest = RIVER_CONTOURQUEUE.get()
             print 'Got something from river: ', len(riverlatest)

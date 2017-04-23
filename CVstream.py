@@ -92,10 +92,6 @@ class CVStream(Process):
             current_contours = []
             toshow = thresh.copy()
             for c in cnts:
-                #if cv2.contourArea(c) < 5:
-                #    continue
-                #TODO: location-based size culling
-                #TODO: mapping pixel location to fixture
                 (x, y, w, h) = cv2.boundingRect(c)
                 cdc = playerutils.CalcdContour(x, y, w, h, self.stream_id)
                 cdc.area = cv2.contourArea(c)
