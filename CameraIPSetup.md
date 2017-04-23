@@ -7,6 +7,7 @@ See included dhcpd.conf for meaningful config and reservations.
 Run sudo update-rc.d isc-dhcp-server enable to include it in the boot process.'
 
 Configure NetworkManager on Ubuntu:
+Open nm with "sudo nm-connection-editor" or it won't let you save.
 Add a static ipv4 address to the interface the dhcp server is running on.
 The static address for this interface should make sense in relation to the range that its dhcp will give out, but not be included in that range.
 I chose 10.254.239.1 to match the {option routers} item in dhcpd.conf.

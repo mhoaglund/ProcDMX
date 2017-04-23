@@ -98,8 +98,7 @@ class CVStream(Process):
                 #TODO: mapping pixel location to fixture
                 (x, y, w, h) = cv2.boundingRect(c)
                 cdc = playerutils.CalcdContour(x, y, w, h, self.stream_id)
-                self.AddSpatialIndex(cdc)
-                current_contours.append((x+(w/2), y+(h/2)))
+                current_contours.append(cdc)
                 cv2.rectangle(gray, (x, y), (x+w, y+h), (0, 255, 0), 2)
             if self.IS_SHAPE_SET is not True:
                 SHAPE_SETUP = playerutils.PlayerJob(
@@ -113,14 +112,6 @@ class CVStream(Process):
             self.contour_queue.put(current_contours)
             cv2.imshow(str(self.stream_id), gray)
             cv2.waitKey(1)
-
-    def AddSpatialIndex(self, ccontour):
-        """
-           Given a calcdcontour object,
-           look at our matrix for marrying locations in image to locations in space,
-           and add it to the passed in object.
-        """
-        ccontour.spatialindex = 0
 
     def GenerateMask(self, _frame):
         """

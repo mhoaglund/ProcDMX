@@ -11,12 +11,18 @@ from immediateplayer import ImmediatePlayer
 from CVstream import CVStream
 from playerutils import OpenCVPlayerSettings, ColorSettings, CVInputSettings, PlayerJob
 
+#Context:
+#This code spawns two opencv streaming processes which spit out contour data.
+#This code spawns a single immediateplayer instance which wrangles a bunch of DMX lights.
+#This file doesn't need to know anything about opencv or DMX. This file knows about utilites and real space.
+
 logging.basicConfig(format='%(asctime)s %(message)s', filename='logs.log', level=logging.DEBUG)
 
 STREAM_PIDS = [0,1]
 
 PROCESSES = []
 
+STRIPES = []
 CONTOURQUEUE = Queue()
 JOBQUEUE = Queue()
 RIVER_CONTOURQUEUE = Queue()
@@ -28,6 +34,7 @@ UNI1 = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 2
 UNI2 = [23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 51, 52, 53, 54, 55, 56, 57, 58]
 #BACKFILL = [51, 52, 53, 54, 55, 56, 57, 58]
 
+FIXTURES = 136
 CHAN_PER_FIXTURE = 4
 SERIAL_U1 = '/dev/ttyUSB0'
 SERIAL_U2 = '/dev/ttyUSB1'
@@ -64,7 +71,7 @@ COLOR_SETTINGS = ColorSettings(
     DECREMENT
 )
 
-STREAM_WIDTH = 600
+STREAM_WIDTH = 685
 STREAM_ACCUMULATION = 0.10
 STREAM_THRESH = 35
 STREAM_BLUR = 5
@@ -84,6 +91,7 @@ OPENCV_STREAM_RIVER = CVInputSettings(
     RIVER_JOBQUEUE
 )
 
+#TODO reverse locations from this feed on the distmap
 OPENCV_STREAM_CITY = CVInputSettings(
     "rtsp://10.254.239.6:554/11.cgi",
     STREAM_PIDS[1],
@@ -96,6 +104,39 @@ OPENCV_STREAM_CITY = CVInputSettings(
     CITY_CONTOURQUEUE,
     CITY_JOBQUEUE
 )
+
+def generatedistortionmap():
+    """
+       Using a quadratic equation to build a list of pixel ranges
+       which correspond to 1ft sections of flat ground captured
+       in the camera's image.
+    """
+    _res = []
+    _a = 0.005392
+    _b = -0.7637
+    _c = 28.00
+    for f in range(0, FIXTURES/2):
+        size = (_a * (f * f)) + (_b * f) + _c
+        if size < 1:
+            size = 1
+        _res.append(int(size))
+    print "Sum:", sum(_res) #This sum shouldn't exceed STREAM_WIDTH
+    _running = 0
+    for m in range(0, FIXTURES/2):
+        _start = _running
+        _end = _running+_res[m]
+        _running += _res[m]
+        STRIPES.append((_start, _end))
+    print STRIPES
+
+def locate(_x):
+    """
+       Given an x pixel value, find the appropriate stripe so the player can use that index to find a fixture.
+    """
+    for st in range(0, 68):
+        if _x >= STRIPES[st][0] and _x < STRIPES[st][1]:
+            print "Locating ", _x, " at stripe ", st
+            return st
 
 def spinupplayer():
     """Activate the DMX player thread that does our lighting work"""
@@ -136,10 +177,16 @@ try:
         if not RIVER_CONTOURQUEUE.empty():
             riverlatest = RIVER_CONTOURQUEUE.get()
             if len(riverlatest) > 1:
+                for cc in citylatest:
+                    cc.spatialindex = locate(cc.x) #assign real world x position
                 print 'Got something from river...'
         if not CITY_CONTOURQUEUE.empty():
             citylatest = CITY_CONTOURQUEUE.get()
             if len(citylatest) > 1:
+                for cc in citylatest:
+                    #reversing the x indices for this stream
+                    cc.x = STREAM_WIDTH - cc.x
+                    cc.spatialindex = (FIXTURES/2) + locate(cc.x) #assign real world x position
                 print 'Got something from city...'
         if len(riverlatest+citylatest) > 1:
             #print len(riverlatest+citylatest)
