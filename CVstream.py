@@ -65,12 +65,13 @@ class CVStream(Process):
                 self.hasStarted = False
                 continue
                 #break #TODO: reboot stream here
+
+            frame = imutils.resize(frame, width=self.settings.resize)
             if not self.hasMasked:
                 self.shouldmask = self.GenerateMask(frame)
                 self.hasMasked = True
             if self.shouldmask:
                 frame = cv2.bitwise_and(frame, frame, mask = self.mask)
-            frame = imutils.resize(frame, width=self.settings.resize)
             print frame.shape
             gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
             gray = cv2.equalizeHist(gray)
