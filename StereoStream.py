@@ -180,6 +180,7 @@ try:
             if len(riverlatest) > 0:
                 for cc in riverlatest:
                     cc.spatialindex = locate(cc.x) #assign real world x position
+                    print 'Located contour at ', cc.x, ' for stripe', cc.spatialindex
         if not CITY_CONTOURQUEUE.empty():
             citylatest = CITY_CONTOURQUEUE.get()
             if len(citylatest) > 0:
@@ -187,9 +188,9 @@ try:
                     #reversing the x indices for this stream
                     cc.x = STREAM_WIDTH - cc.x
                     cc.spatialindex = (FIXTURES/2) + locate(cc.x) #assign real world x position
+                    print 'Located contour at ', cc.x, ' for stripe', cc.spatialindex
         if len(riverlatest+citylatest) > 1:
             #print len(riverlatest+citylatest)
-            logging.info('Contours and locations: %s', riverlatest+citylatest)
             CONTOURQUEUE.put(riverlatest+citylatest)
 
         if not RIVER_JOBQUEUE.empty():
