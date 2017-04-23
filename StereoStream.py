@@ -176,15 +176,15 @@ try:
         riverlatest = []
         citylatest = []
         if not RIVER_CONTOURQUEUE.empty():
-            print 'Got something from river...'
             riverlatest = RIVER_CONTOURQUEUE.get()
-            if len(riverlatest) > 1:
+            print 'Got something from river: ', len(riverlatest)
+            if len(riverlatest[0]) > 1:
                 for cc in citylatest:
                     cc.spatialindex = locate(cc.x) #assign real world x position
         if not CITY_CONTOURQUEUE.empty():
-            print 'Got something from city...'
             citylatest = CITY_CONTOURQUEUE.get()
-            if len(citylatest) > 1:
+            print 'Got something from city: ', len(citylatest)
+            if len(citylatest[0]) > 1:
                 for cc in citylatest:
                     #reversing the x indices for this stream
                     cc.x = STREAM_WIDTH - cc.x
