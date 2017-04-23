@@ -116,6 +116,7 @@ class CalcdContour(object):
         Simple deal for tracking what we need from opencv contours.
     """
     def __init__(self, _x, _y, _h, _w, _from):
+        self.x = _x
         self.detectedby = _from
         self.pos = (_x, _y)
         self.a_ratio = _w/_h
