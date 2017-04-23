@@ -39,8 +39,8 @@ class CVStream(Process):
     def run(self):
         if self.hasStarted is False:
             self.vcap = cv2.VideoCapture(self.settings.stream_location)
-            #cv2.startWindowThread()
-            #self.output = cv2.namedWindow(str(self.stream_id), cv2.WINDOW_NORMAL)
+            cv2.startWindowThread()
+            self.output = cv2.namedWindow(str(self.stream_id), cv2.WINDOW_NORMAL)
             self.CAPTURE_W = self.vcap.get(3)
             self.CAPTURE_H = self.vcap.get(4)
             
@@ -108,8 +108,8 @@ class CVStream(Process):
                 self.job_queue.put(SHAPE_SETUP)
                 IS_SHAPE_SET = True
             self.my_contour_queue.put(current_contours)
-            #cv2.imshow(str(self.stream_id), gray)
-            #cv2.waitKey(1)
+            cv2.imshow(str(self.stream_id), gray)
+            cv2.waitKey(1)
 
     def GenerateMask(self, _frame):
         """
@@ -123,8 +123,8 @@ class CVStream(Process):
         if len(self.settings.maskc) > 3:
             for relative_coordinate in self.settings.maskc:
                 nonrels.append(
-                    [int(relative_coordinate[0]*self.CAPTURE_W),
-                     int(relative_coordinate[1]*self.CAPTURE_H)]
+                    [int(relative_coordinate[0]*_frame.shape[1]),
+                     int(relative_coordinate[1]*_frame.shape[0])]
                     )
             mask_points = np.array(nonrels, dtype=np.int32)
             cv2.fillConvexPoly(self.mask, mask_points, 1)
