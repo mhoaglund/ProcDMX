@@ -164,6 +164,7 @@ def stopworkerthreads():
             print 'stopping worker'
             proc.terminate()
 
+generatedistortionmap()
 spinupcvstreams()
 spinupplayer()
 
