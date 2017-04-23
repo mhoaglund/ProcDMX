@@ -174,6 +174,7 @@ def contextualcull(cnts):
     for cnt in cnts:
         if cnt.area > CULL_MINIMUMS[cnt.spatialindex]:
             temp.append(cnt)
+    print len(cnts) - len(temp), ' items culled'
     return temp
 
 def stopworkerthreads():
@@ -209,7 +210,6 @@ try:
                     cc.x = STREAM_WIDTH - cc.x
                     cc.spatialindex = (FIXTURES/2) + locate(cc.x) #assign real world x position
         if len(riverlatest+citylatest) > 1:
-            #_all = riverlatest+citylatest
             CONTOURQUEUE.put(contextualcull(riverlatest+citylatest))
 
         if not RIVER_JOBQUEUE.empty():
