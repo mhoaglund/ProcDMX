@@ -65,10 +65,11 @@ class OpenCVPlayerSettings(object):
         Data Queue (queue for contour locations from OpenCV),
         Job Queue (queue for any directives that aren't data)
     """
-    def __init__(self, _serialport, _decay, _lightcount, _channelsper, _dataqueue, _jobqueue
+    def __init__(self, _serialports, _universes, _decay, _lightcount, _channelsper, _dataqueue, _jobqueue
                 ):
 
-        self.serialport = _serialport
+        self.serialports = _serialports
+        self.universes = _universes
         self.decay = _decay
         self.lights = _lightcount
         self.channelsperlight = _channelsper
@@ -114,7 +115,8 @@ class CalcdContour(object):
     """
         Simple deal for tracking what we need from opencv contours.
     """
-    def __init__(self, _x, _y, _h, _w):
+    def __init__(self, _x, _y, _h, _w, _from):
+        self.detectedby = _from
         self.pos = (_x, _y)
         self.a_ratio = _w/_h
         self.spatialindex = 0

@@ -95,8 +95,9 @@ class CVStream(Process):
                 #if cv2.contourArea(c) < 5:
                 #    continue
                 #TODO: location-based size culling
+                #TODO: mapping pixel location to fixture
                 (x, y, w, h) = cv2.boundingRect(c)
-                cdc = playerutils.CalcdContour(x, y, w, h)
+                cdc = playerutils.CalcdContour(x, y, w, h, self.stream_id)
                 self.AddSpatialIndex(cdc)
                 current_contours.append((x+(w/2), y+(h/2)))
                 cv2.rectangle(gray, (x, y), (x+w, y+h), (0, 255, 0), 2)

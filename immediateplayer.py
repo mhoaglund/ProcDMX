@@ -1,4 +1,5 @@
-#TODO: is the name right? it matches the settings object for this but...
+#TODO: introduce abstraction layer above Serials so we can loop over all the channels
+#at once and then let the Serial render layer chunk it all up
 
 import sys
 import serial
@@ -23,19 +24,29 @@ class ImmediatePlayer(Process):
     def __init__(self, _playersettings, _colorsettings):
         super(ImmediatePlayer, self).__init__()
         print 'starting worker'
-        if type(_playersettings.serialport) is str:
+        self.dmxData = []
+        if type(_playersettings.serialports) is list:
+            self.serials = [] #multiple unis
+            for i in range(0, len(_playersettings.serialports)):
+                try:
+                    self.serials.append(serial.Serial(_playersettings.serialports[i], baudrate=57600))
+                    self.dmxData.append([chr(0)]* 513) #add a universe for this port
+                except:
+                    print "Error: could not open Serial Port: " + _playersettings.serialports[i]
+                    sys.exit(0)
+            if len(_playersettings.serialports) != len(_playersettings.universes):
+                print "Warning: # of serial devices and # of dmx universes do not match."
+        else:
             try:
                 self.serial = serial.Serial(_playersettings.serialport, baudrate=57600)
+                self.dmxData.append([chr(0)]* 513) #add a universe for this port
             except:
                 print "Error: could not open Serial Port"
                 sys.exit(0)
-        else:
-            print 'what do we do with multiple serial outputs?'
         self.cont = True
         self.dataqueue = _playersettings.dataqueue
         self.jobqueue = _playersettings.jobqueue
         self.colors = _colorsettings
-        self.dmxData = [chr(0)]* 513
         self.channelsinuse = _playersettings.lights * _playersettings.channelsperlight
         self.lightsinuse = _playersettings.lights
 
@@ -57,7 +68,7 @@ class ImmediatePlayer(Process):
         self.blackout()
         self.render()
 
-    def setchannel(self, chan, _intensity):
+    def setchannel(self, chan, _intensity, universe=0):
         """Set intensity on channel"""
         intensity = int(_intensity)
         if chan > 512:
@@ -68,17 +79,24 @@ class ImmediatePlayer(Process):
             intensity = 255
         if intensity < 0:
             intensity = 0
-        self.dmxData[chan] = chr(intensity)
+        self.dmxData[universe][chan] = chr(intensity)
+        #self.dmxData[chan] = chr(intensity)
 
-    def blackout(self):
+    def blackout(self, universe=0):
         """Zero out intensity on all channels"""
         print 'blacking out'
         for i in xrange(1, 512, 1):
-            self.dmxData[i] = chr(0)
+            self.dmxData[universe][i] = chr(0)
+            #self.dmxData[i] = chr(0)
 
-    def render(self):
+    def render(self, universe=0):
         """Send off our DMX intensities to the hardware"""
-        sdata = ''.join(self.dmxData)
+        sdata = ''.join(self.dmxData[universe])
+        self.serial.write(DMXOPEN+DMXINTENSITY+sdata+DMXCLOSE)
+
+    def renderAll(self, universe=0):
+        """Intelligently divide up universes and render all intensities"""
+        sdata = ''.join(self.dmxData[universe])
         self.serial.write(DMXOPEN+DMXINTENSITY+sdata+DMXCLOSE)
 
     def run(self):

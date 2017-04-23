@@ -13,7 +13,7 @@ from playerutils import OpenCVPlayerSettings, ColorSettings, CVInputSettings, Pl
 
 logging.basicConfig(format='%(asctime)s %(message)s', filename='logs.log', level=logging.DEBUG)
 
-STREAM_PIDS = [222,111]
+STREAM_PIDS = [0,1]
 
 PROCESSES = []
 
@@ -23,6 +23,10 @@ RIVER_CONTOURQUEUE = Queue()
 CITY_CONTOURQUEUE = Queue()
 RIVER_JOBQUEUE = Queue()
 CITY_JOBQUEUE = Queue()
+
+UNI1 = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22]
+UNI2 = [23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 51, 52, 53, 54, 55, 56, 57, 58]
+#BACKFILL = [51, 52, 53, 54, 55, 56, 57, 58]
 
 CHAN_PER_FIXTURE = 4
 SERIAL_U1 = '/dev/ttyUSB0'
@@ -41,6 +45,7 @@ DECREMENT = [-4, -2, -2, -4]
 
 PLAYER_SETTINGS = OpenCVPlayerSettings(
     [SERIAL_U1, SERIAL_U2],
+    [UNI1, UNI2],
     25,
     4,
     CHAN_PER_FIXTURE,
@@ -99,7 +104,7 @@ def spinupplayer():
         PROCESSES.append(_playthread)
         _playthread.start()
 
-def spinupCVstreams():
+def spinupcvstreams():
     """Set up the two opencv stream processes"""
     if __name__ == "__main__":
         _riverprocess = CVStream(OPENCV_STREAM_RIVER)
@@ -118,7 +123,7 @@ def stopworkerthreads():
             print 'stopping worker'
             proc.terminate()
 
-spinupCVstreams()
+spinupcvstreams()
 spinupplayer()
 
 try:
