@@ -180,9 +180,10 @@ def stopworkerthreads():
     """Stop any currently running threads"""
     for proc in PROCESSES:
         print 'found worker'
-        if proc.is_alive():
-            print 'stopping worker'
-            proc.stop()
+        proc.stop()
+        #if proc.is_alive():
+        #    print 'stopping worker'
+        #    proc.stop()
 
 generatecullmap()
 generatedistortionmap()
