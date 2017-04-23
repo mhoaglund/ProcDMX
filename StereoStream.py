@@ -211,6 +211,7 @@ try:
                     cc.spatialindex = (FIXTURES/2) + locate(cc.x) #assign real world x position
         if len(riverlatest+citylatest) > 1:
             _all = riverlatest+citylatest
+            print 'Saw: ', len(_all)
             CONTOURQUEUE.put(contextualcull(_all))
 
         if not RIVER_JOBQUEUE.empty():
