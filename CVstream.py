@@ -56,8 +56,12 @@ class CVStream(Process):
                 if currentjob.job == "MORNING":
                     logging.info('Activating for the day')
                     self.isnightmode = False
-
+            
+            if not self.vcap.isOpened:
+                print 'capture closed'
+                continue
             (grabbed, frame) = self.vcap.read()
+            
             if not grabbed:
                 #self.cont = False
                 self.vcap.release()
@@ -107,7 +111,7 @@ class CVStream(Process):
                 self.job_queue.put(SHAPE_SETUP)
                 IS_SHAPE_SET = True
             self.my_contour_queue.put(current_contours)
-            #cv2.imshow(str(self.stream_id), gray)
+            cv2.imshow(str(self.stream_id), gray)
             cv2.waitKey(1)
 
     def GenerateMask(self, _frame):
