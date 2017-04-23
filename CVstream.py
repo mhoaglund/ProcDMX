@@ -112,7 +112,7 @@ class CVStream(Process):
                 IS_SHAPE_SET = True
             self.my_contour_queue.put(current_contours)
             cv2.imshow(str(self.stream_id), gray)
-            cv2.waitKey(15)
+            cv2.waitKey(10)
 
     def GenerateMask(self, _frame):
         """
