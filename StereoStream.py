@@ -166,7 +166,7 @@ def stopworkerthreads():
 
 generatedistortionmap()
 spinupcvstreams()
-spinupplayer()
+#spinupplayer()
 
 try:
     while True:
@@ -176,19 +176,19 @@ try:
         riverlatest = []
         citylatest = []
         if not RIVER_CONTOURQUEUE.empty():
+            print 'Got something from river...'
             riverlatest = RIVER_CONTOURQUEUE.get()
             if len(riverlatest) > 1:
                 for cc in citylatest:
                     cc.spatialindex = locate(cc.x) #assign real world x position
-                print 'Got something from river...'
         if not CITY_CONTOURQUEUE.empty():
+            print 'Got something from city...'
             citylatest = CITY_CONTOURQUEUE.get()
             if len(citylatest) > 1:
                 for cc in citylatest:
                     #reversing the x indices for this stream
                     cc.x = STREAM_WIDTH - cc.x
                     cc.spatialindex = (FIXTURES/2) + locate(cc.x) #assign real world x position
-                print 'Got something from city...'
         if len(riverlatest+citylatest) > 1:
             #print len(riverlatest+citylatest)
             CONTOURQUEUE.put(riverlatest+citylatest)

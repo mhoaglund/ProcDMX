@@ -21,7 +21,7 @@ class CVStream(Process):
         self.settings = _CVInputSettings
         self.vcap = cv2.VideoCapture()
         self.stream_id = _CVInputSettings.stream_id
-        self.contour_queue = _CVInputSettings.contour_queue
+        self.my_contour_queue = _CVInputSettings.contour_queue
         self.job_queue = _CVInputSettings.job_queue
         self.CAPTURE_W = 0
         self.CAPTURE_H = 0
@@ -108,7 +108,7 @@ class CVStream(Process):
                 )
                 self.job_queue.put(SHAPE_SETUP)
                 IS_SHAPE_SET = True
-            self.contour_queue.put(current_contours)
+            self.my_contour_queue.put(current_contours)
             cv2.imshow(str(self.stream_id), gray)
             cv2.waitKey(1)
 
