@@ -135,7 +135,6 @@ def locate(_x):
     """
     for st in range(0, 68):
         if _x >= STRIPES[st][0] and _x < STRIPES[st][1]:
-            print "Locating ", _x, " at stripe ", st
             return st
 
 def spinupplayer():
@@ -178,13 +177,11 @@ try:
         #TODO: location-based size culling
         if not RIVER_CONTOURQUEUE.empty():
             riverlatest = RIVER_CONTOURQUEUE.get()
-            print 'Got something from river: ', len(riverlatest)
             if len(riverlatest) > 0:
                 for cc in riverlatest:
                     cc.spatialindex = locate(cc.x) #assign real world x position
         if not CITY_CONTOURQUEUE.empty():
             citylatest = CITY_CONTOURQUEUE.get()
-            print 'Got something from city: ', len(citylatest)
             if len(citylatest) > 0:
                 for cc in citylatest:
                     #reversing the x indices for this stream
@@ -192,6 +189,7 @@ try:
                     cc.spatialindex = (FIXTURES/2) + locate(cc.x) #assign real world x position
         if len(riverlatest+citylatest) > 1:
             #print len(riverlatest+citylatest)
+            logging.info('Contours and locations: %s', riverlatest+citylatest)
             CONTOURQUEUE.put(riverlatest+citylatest)
 
         if not RIVER_JOBQUEUE.empty():
