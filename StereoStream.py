@@ -141,13 +141,13 @@ def locate(_x):
 def generatecullmap():
     global CULL_MINIMUMS
     _res = []
-    _a = -0.001389
-    _b = 0.1889
-    _c = 2 #tweaking this changes the outer reaches of the cull map
+    _a = -0.02889
+    _b = 3.929
+    _c = -13.6 #tweaking this changes the outer reaches of the cull map
     for f in range(0, FIXTURES):
         minsize = (_a * (f * f)) + (_b * f) + _c
-        if minsize < 0:
-            minsize = 0
+        if minsize < 16:
+            minsize = 16
         _res.append(minsize)
     CULL_MINIMUMS = _res
 
