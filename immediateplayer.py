@@ -25,25 +25,17 @@ class ImmediatePlayer(Process):
         super(ImmediatePlayer, self).__init__()
         print 'starting worker'
         self.dmxData = []
-        if type(_playersettings.serialports) is list:
-            self.serials = [] #multiple unis
-            for i in range(0, len(_playersettings.serialports)):
-                try:
-                    self.serials.append(serial.Serial(_playersettings.serialports[i], baudrate=57600))
-                    self.dmxData.append([chr(0)]* 513) #add a universe for this port
-                except:
-                    print "Error: could not open Serial Port: " + _playersettings.serialports[i]
-                    sys.exit(0)
-            if len(_playersettings.serialports) != len(_playersettings.universes):
-                print "Warning: # of serial devices and # of dmx universes do not match."
-        else:
-            try:
-                self.serial = serial.Serial(_playersettings.serialport, baudrate=57600)
-                self.dmxData.append([chr(0)]* 513) #add a universe for this port
-            except:
-                print "Error: could not open Serial Port"
-                sys.exit(0)
         self.cont = True
+        self.universes = _playersettings.universes
+        
+        for _universe in self.universes:
+            try:
+                _universe.serial = serial.Serial(_universe.serialport, baudrate=57600)
+                self.dmxData.append([chr(0)]* _universe.usingchannels) #this doesn't make sense anymore
+            except:
+                print "Error: could not open Serial Port: ", _universe.serialport
+                sys.exit(0)
+
         self.dataqueue = _playersettings.dataqueue
         self.jobqueue = _playersettings.jobqueue
         self.colors = _colorsettings
@@ -98,7 +90,7 @@ class ImmediatePlayer(Process):
 
     def renderAll(self, _channels):
         """Given a total set of channels, intelligently break it up and get it to the proper devices"""
-        
+
 
     def contructInteractiveGoalFrame(self, _cdcs):
         """Build an end-goal frame for the run loop to work toward"""

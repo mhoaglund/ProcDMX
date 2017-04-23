@@ -136,4 +136,5 @@ class UniverseProfile(object):
     """Simple container to keep serial devices and universes straight"""
     def __init__(self, _serialport, _usingchannels):
         self.serialport = _serialport
-        self.usingchannelgs = _usingchannels
+        self.serial = ()
+        self.usingchannels = _usingchannels
