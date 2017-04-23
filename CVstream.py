@@ -108,7 +108,7 @@ class CVStream(Process):
                 )
                 self.job_queue.put(SHAPE_SETUP)
                 IS_SHAPE_SET = True
-
+            print 'Uploading ' , len(current_contours), ' contours'
             self.contour_queue.put(current_contours)
             cv2.imshow(str(self.stream_id), gray)
             cv2.waitKey(1)
@@ -139,3 +139,4 @@ class CVStream(Process):
         print 'Terminating...'
         self.cont = False
         self.vcap.release()
+        cv2.DestroyAllWindows()
