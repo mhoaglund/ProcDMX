@@ -130,8 +130,9 @@ class CVStream(Process):
             return False
 
 
-    def terminate(self):
+    def stop(self):
         print 'Terminating...'
         self.cont = False
         self.vcap.release()
         cv2.DestroyAllWindows()
+        super(CVStream, self).terminate()

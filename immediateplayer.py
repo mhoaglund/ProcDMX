@@ -121,11 +121,12 @@ class ImmediatePlayer(Process):
         self.blackout()
         self.render()
 
-    def terminate(self):
+    def stop(self):
         print 'Terminating...'
         self.cont = False
         self.blackout()
         self.render()
+        super(ImmediatePlayer, self).terminate()
 
     def playnightroutine(self):
         """Set it to the night color"""

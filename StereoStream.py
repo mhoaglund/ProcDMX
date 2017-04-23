@@ -182,7 +182,7 @@ def stopworkerthreads():
         print 'found worker'
         if proc.is_alive():
             print 'stopping worker'
-            proc.terminate()
+            proc.stop()
 
 generatecullmap()
 generatedistortionmap()
