@@ -9,7 +9,7 @@ import imutils
 import numpy as np
 from immediateplayer import ImmediatePlayer
 from CVstream import CVStream
-from playerutils import OpenCVPlayerSettings, ColorSettings, CVInputSettings, PlayerJob
+from playerutils import OpenCVPlayerSettings, ColorSettings, CVInputSettings, PlayerJob, UniverseProfile
 
 #Context:
 #This code spawns two opencv streaming processes which spit out contour data.
@@ -31,8 +31,6 @@ CITY_CONTOURQUEUE = Queue()
 RIVER_JOBQUEUE = Queue()
 CITY_JOBQUEUE = Queue()
 
-UNI1 = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22]
-UNI2 = [23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 51, 52, 53, 54, 55, 56, 57, 58]
 #BACKFILL = [51, 52, 53, 54, 55, 56, 57, 58]
 
 FIXTURES = 136
@@ -46,13 +44,21 @@ DEFAULT_COLOR = [0, 0, 90, 10]
 REDUCED_DEFAULT = [0, 0, 90, 0]
 THRESHOLD_COLOR = [255, 200, 255, 125]
 BUSY_THRESHOLD_COLOR = [150, 120, 255, 200]
+SPEED_COLORS = [[125, 50, 100, 100], [150, 75, 150, 150], [200, 75, 150, 150], [255,125,200,200]]#default, walker, runner, biker (supposedly)
 BACKFILL_COLOR = [125,15,175,75] #backfill for the 1ft fixtures
 NIGHT_IDLE_COLOR = [125, 125, 0, 255]
 INCREMENT = [5, 3, 7, 3] #the core aesthetic
 DECREMENT = [-4, -2, -2, -4]
 
+UNI1 = UniverseProfile(
+    SERIAL_U1,
+    368
+)
+UNI2 = UniverseProfile(
+    SERIAL_U2,
+    513
+)
 PLAYER_SETTINGS = OpenCVPlayerSettings(
-    [SERIAL_U1, SERIAL_U2],
     [UNI1, UNI2],
     25,
     4,
@@ -65,6 +71,7 @@ COLOR_SETTINGS = ColorSettings(
     DEFAULT_COLOR,
     REDUCED_DEFAULT,
     THRESHOLD_COLOR,
+    SPEED_COLORS,
     BACKFILL_COLOR,
     BUSY_THRESHOLD_COLOR,
     NIGHT_IDLE_COLOR,

@@ -9,16 +9,18 @@ class ColorSettings(object):
         Base Color (int[4])
         Dimmed Color (int[4])
         Peak Color (int[4])
+        Speed Colors ([int[4]])
         Backfill Color (int[4])
         Busy Color (int[4])
         Night Color (int[4])
         Increment (int[4])
         Decrement (int[4])
     """
-    def __init__(self, _base, _dimmed, _peak, _backfill, _busy, _night, _inc, _dec):
+    def __init__(self, _base, _dimmed, _peak, _speeds, _backfill, _busy, _night, _inc, _dec):
         self.base = _base
         self.dimmed = _dimmed
         self.peak = _peak
+        self.speeds = _speeds
         self.backfill = _backfill
         self.busy = _busy
         self.night = _night
@@ -58,17 +60,16 @@ class OpenCVPlayerSettings(object):
     """
         Light player that takes contour data from OpenCV and plays choreography dynamically from it.
         Args:
-        Serialport (string),
+        Universes [UniverseProfile]
         Decay (int, minimum number of frames which run in response to a hit),
         Light Count (int, number of lights in show),
         Channels per light (int, gen. 3 or 4),
         Data Queue (queue for contour locations from OpenCV),
         Job Queue (queue for any directives that aren't data)
     """
-    def __init__(self, _serialports, _universes, _decay, _lightcount, _channelsper, _dataqueue, _jobqueue
+    def __init__(self, _universes, _decay, _lightcount, _channelsper, _dataqueue, _jobqueue
                 ):
 
-        self.serialports = _serialports
         self.universes = _universes
         self.decay = _decay
         self.lights = _lightcount
@@ -119,7 +120,20 @@ class CalcdContour(object):
         self.x = _x
         self.detectedby = _from
         self.pos = (_x, _y)
-        self.a_ratio = _w/_h
+        self.a_ratio = int((_w/_h) * 10)
+        self.spd = 0
         self.spatialindex = 0
         self.center = (_x+(_w/2), _y+(_h/2))
         self.area = 0
+        if self.a_ratio <= 2:
+            self.spd = 1
+        if self.a_ratio > 2 and self.a_ratio <= 4:
+            self.spd = 2
+        if self.a_ratio > 4:
+            self.spd = 3
+
+class UniverseProfile(object):
+    """Simple container to keep serial devices and universes straight"""
+    def __init__(self, _serialport, _usingchannels):
+        self.serialport = _serialport
+        self.usingchannelgs = _usingchannels

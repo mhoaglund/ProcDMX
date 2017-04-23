@@ -60,7 +60,9 @@ class ImmediatePlayer(Process):
         self.decrement = self.colors.decrement
         self.blanklight = [chr(0)]*_playersettings.channelsperlight
 
-        self.prev_frame = [0]*self.channelsinuse
+        self.prev_frame = self.colors.base*136
+        self.goal_frame = self.colors.base*136
+        #self.prev_frame = [0]*self.channelsinuse
         self.mod_frame = [0]*self.channelsinuse
         self.allindices = [x for x in range(0, self.channelsinuse)]
 
@@ -94,10 +96,24 @@ class ImmediatePlayer(Process):
         sdata = ''.join(self.dmxData[universe])
         self.serial.write(DMXOPEN+DMXINTENSITY+sdata+DMXCLOSE)
 
-    def renderAll(self, universe=0):
-        """Intelligently divide up universes and render all intensities"""
-        sdata = ''.join(self.dmxData[universe])
-        self.serial.write(DMXOPEN+DMXINTENSITY+sdata+DMXCLOSE)
+    def renderAll(self, _channels):
+        """Given a total set of channels, intelligently break it up and get it to the proper devices"""
+        
+
+    def contructInteractiveGoalFrame(self, _cdcs):
+        """Build an end-goal frame for the run loop to work toward"""
+        #we have 132 interactive lights (4 per fixture) and some that aren't.
+        #each light has 4 channels, so we have a total of 544 channels.
+        #building more than one universe worth here, to be divided up later.
+        _dirty = [0]*544
+        _temp = self.colors.base*136
+        for cdc in _cdcs:
+            _fixturehue = self.colors.speeds[cdc.spd]
+            for ch in range (1,4): #should this be 0,3? only one way to find out.
+                _temp[cdc.spatialindex + ch] = _fixturehue[ch]
+                _dirty[cdc.spatialindex + ch] = 1
+        return _temp
+
 
     def run(self):
         while self.cont:
@@ -118,13 +134,11 @@ class ImmediatePlayer(Process):
                     self.isnightmode = False
             if not self.dataqueue.empty():
                 self.playlatestcontours(self.dataqueue.get())
-        self.blackout()
         self.render()
 
     def stop(self):
         print 'Terminating...'
         self.cont = False
-        self.blackout()
         self.render()
         super(ImmediatePlayer, self).terminate()
 
@@ -140,30 +154,38 @@ class ImmediatePlayer(Process):
         for channel in range(_channelrange[0], _channelrange[1]):
             self.mod_frame[channel] = self.colors.increment[i]
             i +=1
+    def compileLatestContours(self, _contours):
+        """When a set of contours comes in, build a goal frame out of it."""
+
+    def playTowardLatest(self):
+        """Always pushing every channel toward where it needs to go"""
+        """Loop over active channels, seeing which way we need to change the intensity"""
+        _actual = self.prev_frame
+        for index in range(1,544):
+            _thiscurr = self.prev_frame[index]
+            _thisdesired = self.goal_frame[index]
+            if _thiscurr == _thisdesired:
+                continue
+            if _thiscurr > _thisdesired:
+                if _thiscurr -4 < _thisdesired:
+                    _actual[index] = _thisdesired
+                else:
+                    _actual[index] = _thiscurr - 4
+            if _thiscurr < _thisdesired:
+                if _thiscurr + 4 > _thisdesired:
+                    _actual[index] = _thisdesired
+                else:
+                    _actual[index] = _thisdesired + 4
+        self.prev_frame = _actual
+        renderAll(_actual)
 
     def playlatestcontours(self, _contours):
         """When we get a set of contours from a frame, process here
-           Data comes in the form of a collection of points which mark the centers of
-           Contour areas. That will need to change later.
+           Data comes in the form of a collection of CalcdContours, with centers, spatial indices for fixtures,
+           and aspect ratios.
         """
-        #print _contours
-        if len(self.SHAPE) < 2:
-            self.blackout()
-            return
+        goal = self.contructInteractiveGoalFrame(_contours)
         self.mod_frame = self.colors.decrement*self.lightsinuse
-        if len(_contours) > 0:
-            for c in _contours:
-                c_ratio = (float(c[0])/self.SHAPE[0], float(c[1])/self.SHAPE[1])
-                target = (0, 0)
-                if c_ratio[0] < 0.25:
-                    target = (0, 4)
-                elif c_ratio[0] > 0.25 and c_ratio[0] < 0.5:
-                    target = (4, 8)
-                elif c_ratio[0] > 0.5 and c_ratio[0] < 0.75:
-                    target = (8, 12)
-                elif c_ratio[0] > 0.75:
-                    target = (12, 16)
-                self.warmChannels(target)
         self.reconcilemodifiers()
 
     def reconcilemodifiers(self):
