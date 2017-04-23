@@ -62,6 +62,7 @@ class CVStream(Process):
                 #self.cont = False
                 self.vcap.release()
                 self.hasStarted = False
+                print 'Crashed. Restarting stream...'
                 continue
                 #break #TODO: reboot stream here
 
