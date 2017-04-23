@@ -210,7 +210,10 @@ try:
                     cc.x = STREAM_WIDTH - cc.x
                     cc.spatialindex = (FIXTURES/2) + locate(cc.x) #assign real world x position
         if len(riverlatest+citylatest) > 1:
-            CONTOURQUEUE.put(contextualcull(riverlatest+citylatest))
+            _all = riverlatest+citylatest
+            for item in _all:
+                print item.area 
+            CONTOURQUEUE.put(contextualcull(_all))
 
         if not RIVER_JOBQUEUE.empty():
             JOBQUEUE.put(RIVER_JOBQUEUE.get())

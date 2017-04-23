@@ -43,7 +43,6 @@ class CVStream(Process):
             self.output = cv2.namedWindow(str(self.stream_id), cv2.WINDOW_NORMAL)
             self.CAPTURE_W = self.vcap.get(3)
             self.CAPTURE_H = self.vcap.get(4)
-            
             self.hasStarted = True
         while self.cont:
             if not self.job_queue.empty():
@@ -72,7 +71,6 @@ class CVStream(Process):
                 self.hasMasked = True
             if self.shouldmask:
                 frame = cv2.bitwise_and(frame, frame, mask = self.mask)
-            print frame.shape
             gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
             gray = cv2.equalizeHist(gray)
             #gray = cv2.GaussianBlur(gray, (self.settings.blur_radius, self.settings.blur_radius), 0)
@@ -116,8 +114,6 @@ class CVStream(Process):
            Generate a proper mask from the set of proportional coordinates passed in.
            This gets called once as a setup function.
         """
-        print self.CAPTURE_W
-        print self.CAPTURE_H
         self.mask = np.zeros(_frame.shape[:2], dtype=np.uint8)
         nonrels = []
         if len(self.settings.maskc) > 3:
