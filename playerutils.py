@@ -121,3 +121,4 @@ class CalcdContour(object):
         self.a_ratio = _w/_h
         self.spatialindex = 0
         self.center = (_x+(_w/2), _y+(_h/2))
+        self.area = 0

@@ -98,6 +98,7 @@ class CVStream(Process):
                 #TODO: mapping pixel location to fixture
                 (x, y, w, h) = cv2.boundingRect(c)
                 cdc = playerutils.CalcdContour(x, y, w, h, self.stream_id)
+                cdc.area = cv2.contourArea(c)
                 current_contours.append(cdc)
                 cv2.rectangle(gray, (x, y), (x+w, y+h), (0, 255, 0), 2)
             if self.IS_SHAPE_SET is not True:
