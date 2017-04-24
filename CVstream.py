@@ -42,6 +42,10 @@ class CVStream(Process):
                     cv2.startWindowThread()
                     self.output = cv2.namedWindow(str(self.stream_id), cv2.WINDOW_NORMAL)
                 self.hasStarted = True
+                throwaway = self.vcap.grab()
+                throwaway = self.vcap.grab()
+                throwaway = self.vcap.grab()
+                throwaway = self.vcap.grab()
             if not self.job_queue.empty():
                 currentjob = self.job_queue.get()
                 if currentjob.job == "TERM":
@@ -55,7 +59,7 @@ class CVStream(Process):
                     self.isnightmode = False
 
             try:
-                throwaway = self.vcap.read()
+                #throwaway = self.vcap.grab()
                 (grabbed, frame) = self.vcap.read()
             except cv2.error as e:
                 print e
