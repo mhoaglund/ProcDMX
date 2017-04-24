@@ -197,7 +197,7 @@ def stopworkerthreads():
 generatecullmap()
 generatedistortionmap()
 spinupcvstreams()
-#spinupplayer()
+spinupplayer()
 
 try:
     while True:
