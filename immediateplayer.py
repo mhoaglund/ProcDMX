@@ -108,7 +108,6 @@ class ImmediatePlayer(Process):
             for ch in range (1, 4): #should this be 0,3? only one way to find out.
                 _temp[cdc.spatialindex + ch] = _fixturehue[ch]
                 _dirty[cdc.spatialindex + ch] = 1
-        logging.info('Setting a goal frame: %s', _temp)
         return _temp
 
 
@@ -127,12 +126,13 @@ class ImmediatePlayer(Process):
 
     def stop(self):
         print 'Terminating...'
+        for uni in self.universes:
+            uni.serial.close()
         self.cont = False
         super(ImmediatePlayer, self).terminate()
 
     def compileLatestContours(self, _contours):
         """When a set of contours comes in, build a goal frame out of it."""
-        print 'compiling goal frame'
         self.goal_frame = self.constructInteractiveGoalFrame(_contours)
 
     def playTowardLatest(self):
