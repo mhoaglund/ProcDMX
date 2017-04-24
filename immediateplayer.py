@@ -84,18 +84,13 @@ class ImmediatePlayer(Process):
         uni1channels = uni1channels + self.backfills
         uni1remainder = 513 - len(uni1channels)
         uni1channels = uni1channels + ([chr(0)]*uni1remainder)
-
         self.universes[0].myDMXdata = uni1channels
-        print type(uni1channels)
-        print type(uni1channels[0])
 
         #Break off the second chunk of the interactive channels for the second universe. Should 176.
         uni2channels = self.goal_frame[:self.universes[0].interactivechannels:]
         uni2remainder = 513 - len(uni2channels)
         uni2channels = uni2channels + ([chr(0)]*uni2remainder)
         self.universes[1].myDMXdata = uni2channels
-        print type(uni2channels)
-        print type(uni2channels[0])
 
         for uni in self.universes:
             sdata = ''.join(uni.myDMXdata)
@@ -142,7 +137,6 @@ class ImmediatePlayer(Process):
         """Always pushing every channel toward where it needs to go
            Loop over active channels, seeing which way we need to change the intensity
         """
-        print 'Playing toward latest'
         _actual = self.prev_frame
         for index in range(1, 544):
             _thiscurr = self.prev_frame[index]
