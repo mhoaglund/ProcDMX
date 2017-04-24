@@ -93,7 +93,7 @@ class ImmediatePlayer(Process):
         self.universes[1].myDMXdata = uni2channels
 
         for uni in self.universes:
-            msg = len(uni.myDMXdata) + 'Sent to ' + uni.serialport
+            msg = str(len(uni.myDMXdata)) + 'Sent to ' + uni.serialport
             logging.info(msg)
             sdata = ''.join(uni.myDMXdata)
             logging.info(sdata)
