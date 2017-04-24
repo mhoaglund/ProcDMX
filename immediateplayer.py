@@ -55,16 +55,7 @@ class ImmediatePlayer(Process):
 
         self.prev_frame = self.colors.base*136
         self.goal_frame = self.colors.base*136
-        self.backfills = [
-            self.colors.backfill[0]+
-            self.colors.backfill[0]+
-            self.colors.backfill[1]+
-            self.colors.backfill[0]+
-            self.colors.backfill[0]+
-            self.colors.backfill[1]+
-            self.colors.backfill[0]+
-            self.colors.backfill[0]
-            ]
+        self.backfills = self.colors.backfill[0]+ self.colors.backfill[0]+ self.colors.backfill[1]+ self.colors.backfill[0]+ self.colors.backfill[0]+ self.colors.backfill[1]+ self.colors.backfill[0]+ self.colors.backfill[0]
         self.blackout()
         self.playTowardLatest()
 
