@@ -32,14 +32,16 @@ class CVStream(Process):
         self.mask = []
         self.hasMasked = False
         self.shouldmask = False
+        self.shouldShow = False
         
 
     def run(self):
         while self.cont:
             if self.hasStarted is False:
                 self.vcap = cv2.VideoCapture(self.settings.stream_location)
-                cv2.startWindowThread()
-                self.output = cv2.namedWindow(str(self.stream_id), cv2.WINDOW_NORMAL)
+                if self.shouldShow:
+                    cv2.startWindowThread()
+                    self.output = cv2.namedWindow(str(self.stream_id), cv2.WINDOW_NORMAL)
                 self.hasStarted = True
             if not self.job_queue.empty():
                 currentjob = self.job_queue.get()
@@ -105,8 +107,9 @@ class CVStream(Process):
                 self.job_queue.put(SHAPE_SETUP)
                 IS_SHAPE_SET = True
             self.my_contour_queue.put(current_contours)
-            cv2.imshow(str(self.stream_id), gray)
-            cv2.waitKey(15)
+            if self.shouldShow:
+                cv2.imshow(str(self.stream_id), gray)
+            cv2.waitKey(17)
 
     def GenerateMask(self, _frame):
         """
