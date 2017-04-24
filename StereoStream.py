@@ -63,7 +63,8 @@ UNI2 = UniverseProfile(
 )
 PLAYER_SETTINGS = OpenCVPlayerSettings(
     [UNI1, UNI2],
-    25,
+    4,
+    8,
     4,
     CHAN_PER_FIXTURE,
     CONTOURQUEUE,

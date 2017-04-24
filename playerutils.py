@@ -61,17 +61,19 @@ class OpenCVPlayerSettings(object):
         Light player that takes contour data from OpenCV and plays choreography dynamically from it.
         Args:
         Universes [UniverseProfile]
-        Decay (int, minimum number of frames which run in response to a hit),
+        Decay (int, downward step for reducing intensity toward goal),
+        Attack (int, upward step for reducing intensity toward goal),
         Light Count (int, number of lights in show),
         Channels per light (int, gen. 3 or 4),
         Data Queue (queue for contour locations from OpenCV),
         Job Queue (queue for any directives that aren't data)
     """
-    def __init__(self, _universes, _decay, _lightcount, _channelsper, _dataqueue, _jobqueue
+    def __init__(self, _universes, _decay, _attack, _lightcount, _channelsper, _dataqueue, _jobqueue
                 ):
 
         self.universes = _universes
         self.decay = _decay
+        self.attack = _attack
         self.lights = _lightcount
         self.channelsperlight = _channelsper
         self.dataqueue = _dataqueue

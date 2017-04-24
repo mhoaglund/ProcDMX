@@ -43,6 +43,7 @@ class ImmediatePlayer(Process):
         self.colors = _colorsettings
         self.channelsinuse = _playersettings.lights * _playersettings.channelsperlight
         self.lightsinuse = _playersettings.lights
+        self.settings = _playersettings
 
         self.baseframe = self.colors.base*_playersettings.lights
         self.dimframe = self.colors.dimmed*_playersettings.lights
@@ -152,15 +153,15 @@ class ImmediatePlayer(Process):
                 continue
             new = 0
             if _thiscurr > _thisdesired:
-                if _thiscurr -4 < _thisdesired:
+                if _thiscurr - self.settings.decay < _thisdesired:
                     new = _thisdesired
                 else:
-                    new = _thiscurr - 4
+                    new = _thiscurr - self.settings.decay
             if _thiscurr < _thisdesired:
-                if _thiscurr + 4 > _thisdesired:
+                if _thiscurr + self.settings.attack > _thisdesired:
                     new = _thisdesired
                 else:
-                    new = _thisdesired + 4
+                    new = _thisdesired + self.settings.attack
 
             _actual[index] = self.cleanValue(new)
         self.prev_frame = _actual
