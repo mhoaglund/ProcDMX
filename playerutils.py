@@ -134,7 +134,9 @@ class CalcdContour(object):
 
 class UniverseProfile(object):
     """Simple container to keep serial devices and universes straight"""
-    def __init__(self, _serialport, _usingchannels):
+    def __init__(self, _serialport, _usingchannels, _backfillchannels):
         self.serialport = _serialport
         self.serial = ()
-        self.usingchannels = _usingchannels
+        self.myDMXdata = [chr(0)]*513
+        self.interactivechannels = _usingchannels
+        self.backfillchannels = _backfillchannels

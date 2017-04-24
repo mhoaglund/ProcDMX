@@ -27,11 +27,11 @@ class ImmediatePlayer(Process):
         self.dmxData = []
         self.cont = True
         self.universes = _playersettings.universes
-        
+
         for _universe in self.universes:
             try:
                 _universe.serial = serial.Serial(_universe.serialport, baudrate=57600)
-                self.dmxData.append([chr(0)]* _universe.usingchannels) #this doesn't make sense anymore
+                #self.dmxData.append([chr(0)]* _universe.usingchannels)
             except:
                 print "Error: could not open Serial Port: ", _universe.serialport
                 sys.exit(0)
@@ -58,41 +58,44 @@ class ImmediatePlayer(Process):
         self.mod_frame = [0]*self.channelsinuse
         self.allindices = [x for x in range(0, self.channelsinuse)]
 
-        self.SHAPE = [0,0]
         self.blackout()
-        self.render()
 
-    def setchannel(self, chan, _intensity, universe=0):
-        """Set intensity on channel"""
-        intensity = int(_intensity)
-        if chan > 512:
-            chan = 512
-        if chan < 0:
-            chan = 0
+    def cleanValue(self, value):
+        """Clean byte values for dmx"""
+        intensity = int(value)
         if intensity > 255:
             intensity = 255
         if intensity < 0:
             intensity = 0
-        self.dmxData[universe][chan] = chr(intensity)
-        #self.dmxData[chan] = chr(intensity)
+        return chr(intensity)
 
     def blackout(self, universe=0):
         """Zero out intensity on all channels"""
         print 'blacking out'
-        for i in xrange(1, 512, 1):
-            self.dmxData[universe][i] = chr(0)
-            #self.dmxData[i] = chr(0)
-
-    def render(self, universe=0):
-        """Send off our DMX intensities to the hardware"""
-        sdata = ''.join(self.dmxData[universe])
-        self.serial.write(DMXOPEN+DMXINTENSITY+sdata+DMXCLOSE)
+        for uni in self.universes:
+            uni.myDMXdata = [chr(0)]*513
+            sdata = ''.join(uni.myDMXdata)
+            uni.serial.write(DMXOPEN+DMXINTENSITY+sdata+DMXCLOSE)
 
     def renderAll(self, _channels):
         """Given a total set of channels, intelligently break it up and get it to the proper devices"""
+        uni1channels = self.goal_frame[:self.universes[0].interactivechannels]
+        _backfills = self.colors.backfill * 4
+        uni1channels.append(_backfills)
+        uni1remainder = 513 - len(uni1channels)
+        uni1channels.append([chr(0)]*uni1remainder)
+        self.universes[0].myDMXdata = uni1channels
 
+        uni2channels = self.goal_frame[:self.universes[0].interactivechannels:]
+        uni2remainder = 513 - len(uni2channels)
+        uni2channels.append([chr(0)]*uni2remainder)
+        self.universes[1].myDMXdata = uni2channels
 
-    def contructInteractiveGoalFrame(self, _cdcs):
+        for uni in self.universes:
+            sdata = ''.join(uni.myDMXdata)
+            uni.serial.write(DMXOPEN+DMXINTENSITY+sdata+DMXCLOSE)
+
+    def constructInteractiveGoalFrame(self, _cdcs):
         """Build an end-goal frame for the run loop to work toward"""
         #we have 132 interactive lights (4 per fixture) and some that aren't.
         #each light has 4 channels, so we have a total of 544 channels.
@@ -101,7 +104,7 @@ class ImmediatePlayer(Process):
         _temp = self.colors.base*136
         for cdc in _cdcs:
             _fixturehue = self.colors.speeds[cdc.spd]
-            for ch in range (1,4): #should this be 0,3? only one way to find out.
+            for ch in range (1, 4): #should this be 0,3? only one way to find out.
                 _temp[cdc.spatialindex + ch] = _fixturehue[ch]
                 _dirty[cdc.spatialindex + ch] = 1
         return _temp
@@ -113,20 +116,12 @@ class ImmediatePlayer(Process):
                 currentjob = self.jobqueue.get()
                 if currentjob.job == "TERM":
                     self.cont = False
-                if currentjob.job == "SET_SHAPE":
-                    logging.info('Setting video shape %s', currentjob.payload)
-                    self.SHAPE[0] = currentjob.payload[1]
-                    self.SHAPE[1] = currentjob.payload[0]
-                    print self.SHAPE
-                if currentjob.job == "NIGHT":
-                    logging.info('Going into Night Mode')
-                    self.isnightmode = True
                 if currentjob.job == "MORNING":
                     logging.info('Activating for the day')
                     self.isnightmode = False
             if not self.dataqueue.empty():
-                self.playlatestcontours(self.dataqueue.get())
-        self.render()
+                self.compileLatestContours(self.dataqueue.get())
+            self.playTowardLatest()
 
     def stop(self):
         print 'Terminating...'
@@ -134,72 +129,35 @@ class ImmediatePlayer(Process):
         self.render()
         super(ImmediatePlayer, self).terminate()
 
-    def playnightroutine(self):
-        """Set it to the night color"""
-        for channel in range(0, self.channelsinuse):
-            self.setchannel(channel+1, self.nightframe[channel])
-        self.render()
-        time.sleep(2)
 
-    def warmChannels(self, _channelrange):
-        i = 0
-        for channel in range(_channelrange[0], _channelrange[1]):
-            self.mod_frame[channel] = self.colors.increment[i]
-            i +=1
+
     def compileLatestContours(self, _contours):
         """When a set of contours comes in, build a goal frame out of it."""
+        self.goal_frame = self.constructInteractiveGoalFrame(_contours)
 
     def playTowardLatest(self):
-        """Always pushing every channel toward where it needs to go"""
-        """Loop over active channels, seeing which way we need to change the intensity"""
+        """Always pushing every channel toward where it needs to go
+           Loop over active channels, seeing which way we need to change the intensity
+        """
         _actual = self.prev_frame
-        for index in range(1,544):
+        for index in range(1, 544):
             _thiscurr = self.prev_frame[index]
             _thisdesired = self.goal_frame[index]
             if _thiscurr == _thisdesired:
                 continue
+            new = 0
             if _thiscurr > _thisdesired:
                 if _thiscurr -4 < _thisdesired:
-                    _actual[index] = _thisdesired
+                    new = _thisdesired
                 else:
-                    _actual[index] = _thiscurr - 4
+                    new = _thiscurr - 4
             if _thiscurr < _thisdesired:
                 if _thiscurr + 4 > _thisdesired:
-                    _actual[index] = _thisdesired
+                    new = _thisdesired
                 else:
-                    _actual[index] = _thisdesired + 4
+                    new = _thisdesired + 4
+
+            _actual[index] = self.cleanValue(new)
         self.prev_frame = _actual
-        renderAll(_actual)
-
-    def playlatestcontours(self, _contours):
-        """When we get a set of contours from a frame, process here
-           Data comes in the form of a collection of CalcdContours, with centers, spatial indices for fixtures,
-           and aspect ratios.
-        """
-        goal = self.contructInteractiveGoalFrame(_contours)
-        self.mod_frame = self.colors.decrement*self.lightsinuse
-        self.reconcilemodifiers()
-
-    def reconcilemodifiers(self):
-        """Reconcile the current state of lights with the desired state, expressed by deltas"""
-        newframe = map(self.recchannel, self.prev_frame, self.mod_frame, self.allindices)
-        self.prev_frame = newframe
-        for channel in range(0, len(newframe)):
-            self.setchannel(channel+1, newframe[channel])
-        self.render()
-
-    def recchannel(self, old, mod, i):
-        """Reconcile channel value with modifier, soft-clamping values modally """
-        hiref = self.peakframe[i]
-        loref = self.baseframe[i]
-
-        temp = old + mod
-        if temp > hiref:
-            temp = hiref
-        if temp < loref:
-            diff = loref-temp
-            if diff > 4:
-                temp += 4
-            else:
-                temp = loref
-        return temp
+        self.renderAll(_actual)
+        time.sleep(0.02)
