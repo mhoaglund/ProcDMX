@@ -45,7 +45,8 @@ REDUCED_DEFAULT = [0, 0, 90, 0]
 THRESHOLD_COLOR = [255, 200, 255, 125]
 BUSY_THRESHOLD_COLOR = [150, 120, 255, 200]
 SPEED_COLORS = [[125, 50, 100, 100], [150, 75, 150, 150], [200, 75, 150, 150], [255, 125, 200, 200]]#default, walker, runner, biker (supposedly)
-BACKFILL_COLOR = [175, 15, 225, 75] #backfill for the 1ft fixtures
+BACKFILL_COLOR_A = [240, 0, 180, 0] #backfill for the 1ft fixtures
+BACKFILL_COLOR_B = [0, 0, 205, 0]
 NIGHT_IDLE_COLOR = [125, 125, 0, 255]
 INCREMENT = [5, 3, 7, 3] #the core aesthetic
 DECREMENT = [-4, -2, -2, -4]
@@ -74,7 +75,7 @@ COLOR_SETTINGS = ColorSettings(
     REDUCED_DEFAULT,
     THRESHOLD_COLOR,
     SPEED_COLORS,
-    BACKFILL_COLOR,
+    [BACKFILL_COLOR_A, BACKFILL_COLOR_B],
     BUSY_THRESHOLD_COLOR,
     NIGHT_IDLE_COLOR,
     INCREMENT,
@@ -181,7 +182,6 @@ def contextualcull(cnts):
     for cnt in cnts:
         if cnt.area > CULL_MINIMUMS[cnt.spatialindex]:
             temp.append(cnt)
-    print len(temp), ' remain after cull'
     return temp
 
 def stopworkerthreads():
