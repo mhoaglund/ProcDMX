@@ -79,13 +79,9 @@ class ImmediatePlayer(Process):
 
     def renderAll(self, _channels):
         """Given a total set of channels, intelligently break it up and get it to the proper devices"""
-        for _channel in self.goal_frame:
-            _channel = chr(_channel)
         #Break off the first chunk of the interactive channels for the first universe. Should 368.
         uni1channels = self.goal_frame[:self.universes[0].interactivechannels]
         _backfills = self.colors.backfill * 4
-        for _bfchannel in _backfills:
-            _bfchannel = chr(_bfchannel)
         uni1channels = uni1channels + _backfills
         uni1remainder = 513 - len(uni1channels)
         uni1channels = uni1channels + ([chr(0)]*uni1remainder)
@@ -98,6 +94,8 @@ class ImmediatePlayer(Process):
         self.universes[1].myDMXdata = uni2channels
 
         for uni in self.universes:
+            for item in uni.myDMXdata:
+                item = chr(item)
             sdata = ''.join(uni.myDMXdata)
             uni.serial.write(DMXOPEN+DMXINTENSITY+sdata+DMXCLOSE)
 
