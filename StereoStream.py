@@ -40,11 +40,12 @@ SERIAL_U2 = '/dev/ttyUSB1'
 DAY_START_HOUR = 6 #6am
 DAY_END_HOUR = 5 #5am
 
-DEFAULT_COLOR = [0, 0, 90, 10]
+PRIORITIZE_FASTEST = True
+DEFAULT_COLOR = [25, 0, 90, 10]
 REDUCED_DEFAULT = [0, 0, 90, 0]
 THRESHOLD_COLOR = [255, 200, 255, 125]
 BUSY_THRESHOLD_COLOR = [150, 120, 255, 200]
-SPEED_COLORS = [[125, 50, 100, 100], [150, 75, 150, 150], [200, 75, 150, 150], [255, 125, 200, 200]]#default, walker, runner, biker (supposedly)
+SPEED_COLORS = [[100, 50, 120, 50], [100, 75, 200, 50], [100, 75, 180, 150], [100, 255, 150, 255]]#default, walker, runner, biker (supposedly)
 BACKFILL_COLOR_A = [240, 0, 180, 0] #backfill for the 1ft fixtures
 BACKFILL_COLOR_B = [0, 0, 205, 0]
 NIGHT_IDLE_COLOR = [125, 125, 0, 255]
@@ -178,12 +179,23 @@ def spinupcvstreams():
         _cityprocess.start()
 
 def contextualcull(cnts):
-    """Cull contours based on size and index"""
+    """Cull calcdcontours based on size and index"""
     temp = []
+    actualout = []
+    indicesused = []
     for cnt in cnts:
         if cnt.area > CULL_MINIMUMS[cnt.spatialindex]:
             temp.append(cnt)
-    return temp
+            if cnt.spatialindex not in indicesused:
+                indicesused.append(cnt.spatialindex)
+    if PRIORITIZE_FASTEST:
+        for sindex in indicesused: #filter down to the fastest contour.
+            _allatthisindex = [x for x in temp if x == sindex]
+            highest = _allatthisindex.sort(key=lambda y: y.spd, reverse=False)[0]
+            actualout.append(highest)
+    else:
+        actualout = temp
+    return actualout
 
 def stopworkerthreads():
     """Stop any currently running threads"""
