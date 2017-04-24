@@ -33,7 +33,6 @@ class ImmediatePlayer(Process):
                 _universe.serial = serial.Serial(_universe.serialport, baudrate=57600)
                 _universe.serial.write( DMXOPEN+DMXINIT1+DMXCLOSE)
                 _universe.serial.write( DMXOPEN+DMXINIT2+DMXCLOSE)
-                #self.dmxData.append([chr(0)]* _universe.usingchannels)
             except:
                 print "Error: could not open Serial Port: ", _universe.serialport
                 sys.exit(0)
@@ -93,10 +92,8 @@ class ImmediatePlayer(Process):
         self.universes[1].myDMXdata = uni2channels
 
         for uni in self.universes:
-            msg = str(len(uni.myDMXdata)) + 'Sent to ' + uni.serialport
-            logging.info(msg)
             sdata = ''.join(uni.myDMXdata)
-            logging.info(sdata)
+            logging.info([int(x) for x in sdata])
             uni.serial.write(DMXOPEN+DMXINTENSITY+sdata+DMXCLOSE)
 
     def constructInteractiveGoalFrame(self, _cdcs):
