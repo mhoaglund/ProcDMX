@@ -75,7 +75,7 @@ class CVStream(Process):
                 frame = cv2.bitwise_and(frame, frame, mask = self.mask)
             gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
             gray = cv2.equalizeHist(gray)
-            #gray = cv2.GaussianBlur(gray, (self.settings.blur_radius, self.settings.blur_radius), 0)
+            gray = cv2.GaussianBlur(gray, (self.settings.blur_radius, self.settings.blur_radius), 0)
             
             if self.avg == None:
                 self.avg = np.float32(gray)
@@ -110,7 +110,7 @@ class CVStream(Process):
                 IS_SHAPE_SET = True
             self.my_contour_queue.put(current_contours)
             if self.shouldShow:
-                cv2.imshow(str(self.stream_id), gray)
+                cv2.imshow(str(self.stream_id), thresh)
             cv2.waitKey(17)
 
     def GenerateMask(self, _frame):
