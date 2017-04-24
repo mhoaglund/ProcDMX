@@ -90,12 +90,13 @@ class CVInputSettings(object):
         _contour_queue (Queue for outputting detected contours)
         _job_queue (Queue for responding to directives from the main process)
     """
-    def __init__(self, _stream_location, _stream_id, _resize, _thresh_op, _thresh_sensitivity, _accumulation, _blur_radius, _maskc, _contour_queue, _job_queue):
+    def __init__(self, _stream_location, _stream_id, _resize, _thresh_op, _thresh_sensitivity, _detectionMinimum, _accumulation, _blur_radius, _maskc, _contour_queue, _job_queue):
         self.stream_location = _stream_location
         self.stream_id = _stream_id
         self.resize = _resize
         self.thresh_op = _thresh_op
         self.thresh_sensitivity = _thresh_sensitivity
+        self.detectionMinimum = _detectionMinimum
         self.accumulation = _accumulation
         self.blur_radius = _blur_radius
         self.maskc = _maskc

@@ -93,6 +93,7 @@ OPENCV_STREAM_RIVER = CVInputSettings(
     STREAM_WIDTH,
     cv2.THRESH_BINARY,
     STREAM_THRESH,
+    24,
     STREAM_ACCUMULATION,
     STREAM_BLUR,
     MASK_PTS_RIVER,
@@ -106,6 +107,7 @@ OPENCV_STREAM_CITY = CVInputSettings(
     STREAM_WIDTH,
     cv2.THRESH_BINARY,
     STREAM_THRESH,
+    24,
     STREAM_ACCUMULATION,
     STREAM_BLUR,
     MASK_PTS_CITY,
@@ -148,13 +150,11 @@ def locate(_x):
 def generatecullmap():
     global CULL_MINIMUMS
     _res = []
-    _a = -0.02889
-    _b = 3.929
-    _c = -13.6 #tweaking this changes the outer reaches of the cull map
+    _a = -0.05147
+    _b = 7.0
+    _c = 12 #tweaking this changes the outer reaches of the cull map
     for f in range(0, FIXTURES):
         minsize = (_a * (f * f)) + (_b * f) + _c
-        if minsize < 24:
-            minsize = 24
         _res.append(minsize)
     CULL_MINIMUMS = _res
 
