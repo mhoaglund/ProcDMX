@@ -82,12 +82,14 @@ class ImmediatePlayer(Process):
         uni1remainder = 513 - len(uni1channels)
         uni1channels = uni1channels + ([0]*uni1remainder)
         self.universes[0].myDMXdata = uni1channels
+        logging.info('Universe 1: %s', uni1channels)
 
         #Break off the second chunk of the interactive channels for the second universe. Should 176.
         uni2channels = _channels[:self.universes[0].interactivechannels:]
         uni2remainder = 513 - len(uni2channels)
         uni2channels = uni2channels + ([0]*uni2remainder)
         self.universes[1].myDMXdata = uni2channels
+        logging.info('Universe 2: %s', uni2channels)
         self.render()
 
     def render(self):
