@@ -93,7 +93,7 @@ class ImmediatePlayer(Process):
 
         for uni in self.universes:
             sdata = ''.join(uni.myDMXdata)
-            logging.info([int(x) for x in sdata])
+            logging.info(sdata)
             uni.serial.write(DMXOPEN+DMXINTENSITY+sdata+DMXCLOSE)
 
     def constructInteractiveGoalFrame(self, _cdcs):
