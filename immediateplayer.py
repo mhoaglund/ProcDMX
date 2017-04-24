@@ -31,6 +31,8 @@ class ImmediatePlayer(Process):
         for _universe in self.universes:
             try:
                 _universe.serial = serial.Serial(_universe.serialport, baudrate=57600)
+                _universe.serial.write( DMXOPEN+DMXINIT1+DMXCLOSE)
+                _universe.serial.write( DMXOPEN+DMXINIT2+DMXCLOSE)
                 #self.dmxData.append([chr(0)]* _universe.usingchannels)
             except:
                 print "Error: could not open Serial Port: ", _universe.serialport
@@ -86,12 +88,17 @@ class ImmediatePlayer(Process):
         uni1remainder = 513 - len(uni1channels)
         uni1channels = uni1channels + ([chr(0)]*uni1remainder)
         self.universes[0].myDMXdata = uni1channels
+        print type(uni1channels)
+        print type(uni1channels[0])
 
         #Break off the second chunk of the interactive channels for the second universe. Should 176.
         uni2channels = self.goal_frame[:self.universes[0].interactivechannels:]
         uni2remainder = 513 - len(uni2channels)
         uni2channels = uni2channels + ([chr(0)]*uni2remainder)
         self.universes[1].myDMXdata = uni2channels
+        print type(uni2channels)
+        print type(uni2channels[0])
+
 
         for uni in self.universes:
             for item in uni.myDMXdata:
