@@ -75,7 +75,7 @@ class CVStream(Process):
                 frame = cv2.bitwise_and(frame, frame, mask = self.mask)
             gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
             gray = cv2.equalizeHist(gray)
-            gray = cv2.GaussianBlur(gray, (self.settings.blur_radius, self.settings.blur_radius), 0)
+            #gray = cv2.GaussianBlur(gray, (self.settings.blur_radius, self.settings.blur_radius), 0)
             
             if self.avg == None:
                 self.avg = np.float32(gray)
@@ -89,7 +89,7 @@ class CVStream(Process):
                                    self.settings.thresh_sensitivity,
                                    255,
                                    cv2.THRESH_BINARY)[1]
-            thresh = cv2.dilate(thresh, None, iterations=2)
+            thresh = cv2.dilate(thresh, None, iterations=3)
             (cnts, _) = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
             current_contours = []
             toshow = thresh.copy()
