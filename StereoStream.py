@@ -189,6 +189,7 @@ def stopworkerthreads():
     for proc in PROCESSES:
         print 'found worker'
         proc.stop()
+        proc.join()
         #if proc.is_alive():
         #    print 'stopping worker'
         #    proc.stop()
