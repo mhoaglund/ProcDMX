@@ -83,7 +83,7 @@ COLOR_SETTINGS = ColorSettings(
 
 STREAM_WIDTH = 685
 STREAM_ACCUMULATION = 0.10
-STREAM_THRESH = 40
+STREAM_THRESH = 50
 STREAM_BLUR = 5
 MASK_PTS_RIVER = [(0.0, 0.6), (0.0, 0.4), (0.75, 0.0), (1.0, 0.0), (1.0, 1.0), (0.75, 1.0),]
 MASK_PTS_CITY = [(1.0, 0.4), (1.0, 0.6), (0.25, 1.0), (0.0, 1.0), (0.0, 0.0), (0.25, 0.0)]
