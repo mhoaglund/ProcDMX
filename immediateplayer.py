@@ -95,7 +95,7 @@ class ImmediatePlayer(Process):
 
         for uni in self.universes:
             for item in uni.myDMXdata:
-                if type(item) is not str:
+                if type(item) is int:
                     item = chr(item)
             sdata = ''.join(uni.myDMXdata)
             uni.serial.write(DMXOPEN+DMXINTENSITY+sdata+DMXCLOSE)
