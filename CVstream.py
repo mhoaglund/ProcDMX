@@ -55,6 +55,7 @@ class CVStream(Process):
                     self.isnightmode = False
 
             try:
+                throwaway = self.vcap.read()
                 (grabbed, frame) = self.vcap.read()
             except cv2.error as e:
                 print e
