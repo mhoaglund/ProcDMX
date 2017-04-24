@@ -83,7 +83,7 @@ COLOR_SETTINGS = ColorSettings(
 
 STREAM_WIDTH = 685
 STREAM_ACCUMULATION = 0.10
-STREAM_THRESH = 35
+STREAM_THRESH = 40
 STREAM_BLUR = 5
 MASK_PTS_RIVER = [(0.0, 0.6), (0.0, 0.4), (1.0, 0.0), (1.0, 1.0)]
 MASK_PTS_CITY = [(1.0, 0.4), (1.0, 0.6), (0.0, 1.0), (0.0, 0.0)]
@@ -153,8 +153,8 @@ def generatecullmap():
     _c = -13.6 #tweaking this changes the outer reaches of the cull map
     for f in range(0, FIXTURES):
         minsize = (_a * (f * f)) + (_b * f) + _c
-        if minsize < 16:
-            minsize = 16
+        if minsize < 24:
+            minsize = 24
         _res.append(minsize)
     CULL_MINIMUMS = _res
 
