@@ -59,7 +59,7 @@ class ImmediatePlayer(Process):
             val = self.cleanValue(val)
         self.goal_frame = self.colors.base*136
         for gval in self.goal_frame:
-            gval = self.cleanValue(val)
+            gval = self.cleanValue(gval)
         #self.prev_frame = [0]*self.channelsinuse
         self.allindices = [x for x in range(0, self.channelsinuse)]
         #self.blackout()
