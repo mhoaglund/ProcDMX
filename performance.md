@@ -12,4 +12,5 @@ Known problematic scenarios:
 -no gui
 -Waitkey(10)
 
-One of the streams instantly crashes, the other is fine
+One of the streams instantly crashes, the other is fine.
+This scenario works dependably with WaitKey(15), resulting in 65-85% utilization of every core evenly

@@ -23,8 +23,6 @@ class CVStream(Process):
         self.stream_id = _CVInputSettings.stream_id
         self.my_contour_queue = _CVInputSettings.contour_queue
         self.job_queue = _CVInputSettings.job_queue
-        self.CAPTURE_W = 0
-        self.CAPTURE_H = 0
         self.firstFrame = None
         self.avg = None
         self.IS_SHAPE_SET = False
@@ -37,14 +35,12 @@ class CVStream(Process):
         
 
     def run(self):
-        if self.hasStarted is False:
-            self.vcap = cv2.VideoCapture(self.settings.stream_location)
-            #cv2.startWindowThread()
-            #self.output = cv2.namedWindow(str(self.stream_id), cv2.WINDOW_NORMAL)
-            self.CAPTURE_W = self.vcap.get(3)
-            self.CAPTURE_H = self.vcap.get(4)
-            self.hasStarted = True
         while self.cont:
+            if self.hasStarted is False:
+                self.vcap = cv2.VideoCapture(self.settings.stream_location)
+                cv2.startWindowThread()
+                self.output = cv2.namedWindow(str(self.stream_id), cv2.WINDOW_NORMAL)
+                self.hasStarted = True
             if not self.job_queue.empty():
                 currentjob = self.job_queue.get()
                 if currentjob.job == "TERM":
@@ -63,12 +59,10 @@ class CVStream(Process):
                 print e
             
             if not grabbed:
-                #self.cont = False
                 self.vcap.release()
                 self.hasStarted = False
                 print 'Crashed. Restarting stream...'
                 continue
-                #break #TODO: reboot stream here
 
             frame = imutils.resize(frame, width=self.settings.resize)
             if not self.hasMasked:
@@ -111,8 +105,8 @@ class CVStream(Process):
                 self.job_queue.put(SHAPE_SETUP)
                 IS_SHAPE_SET = True
             self.my_contour_queue.put(current_contours)
-            #cv2.imshow(str(self.stream_id), gray)
-            cv2.waitKey(10)
+            cv2.imshow(str(self.stream_id), gray)
+            cv2.waitKey(15)
 
     def GenerateMask(self, _frame):
         """
