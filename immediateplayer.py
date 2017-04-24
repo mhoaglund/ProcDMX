@@ -89,6 +89,9 @@ class ImmediatePlayer(Process):
         uni1channels = uni1channels + _backfills
         uni1remainder = 513 - len(uni1channels)
         uni1channels = uni1channels + ([chr(0)]*uni1remainder)
+        for item in uni1channels:
+            if type(item) == 'int':
+                item = chr(item)
         self.universes[0].myDMXdata = uni1channels
         print type(uni1channels)
         print type(uni1channels[0])
