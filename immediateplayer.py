@@ -54,15 +54,11 @@ class ImmediatePlayer(Process):
         self.decrement = self.colors.decrement
         self.blanklight = [chr(0)]*_playersettings.channelsperlight
 
-        self.prev_frame = self.colors.base*136
-        for val in self.prev_frame:
-            val = self.cleanValue(val)
-        self.goal_frame = self.colors.base*136
-        for gval in self.goal_frame:
-            gval = self.cleanValue(gval)
-        #self.prev_frame = [0]*self.channelsinuse
-        self.allindices = [x for x in range(0, self.channelsinuse)]
-        #self.blackout()
+        self.prev_frame = [chr(x) for x in self.colors.base*136]
+        self.goal_frame = [chr(x) for x in self.colors.base*136]
+        self.backfills = [chr(x) for x in self.colors.backfill * 4]
+        self.blackout()
+        self.playTowardLatest()
 
     def cleanValue(self, value):
         """Clean byte values for dmx"""
@@ -85,13 +81,10 @@ class ImmediatePlayer(Process):
         """Given a total set of channels, intelligently break it up and get it to the proper devices"""
         #Break off the first chunk of the interactive channels for the first universe. Should 368.
         uni1channels = self.goal_frame[:self.universes[0].interactivechannels]
-        _backfills = self.colors.backfill * 4
-        uni1channels = uni1channels + _backfills
+        uni1channels = uni1channels + self.backfills
         uni1remainder = 513 - len(uni1channels)
         uni1channels = uni1channels + ([chr(0)]*uni1remainder)
-        for item in uni1channels:
-            if type(item) == 'int':
-                item = chr(item)
+
         self.universes[0].myDMXdata = uni1channels
         print type(uni1channels)
         print type(uni1channels[0])
@@ -104,11 +97,7 @@ class ImmediatePlayer(Process):
         print type(uni2channels)
         print type(uni2channels[0])
 
-
         for uni in self.universes:
-            for item in uni.myDMXdata:
-                if type(item) == 'int':
-                    item = chr(item)
             sdata = ''.join(uni.myDMXdata)
             uni.serial.write(DMXOPEN+DMXINTENSITY+sdata+DMXCLOSE)
 
@@ -153,6 +142,7 @@ class ImmediatePlayer(Process):
         """Always pushing every channel toward where it needs to go
            Loop over active channels, seeing which way we need to change the intensity
         """
+        print 'Playing toward latest'
         _actual = self.prev_frame
         for index in range(1, 544):
             _thiscurr = self.prev_frame[index]

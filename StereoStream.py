@@ -85,7 +85,6 @@ STREAM_WIDTH = 685
 STREAM_ACCUMULATION = 0.10
 STREAM_THRESH = 35
 STREAM_BLUR = 5
-#Bottom left, top left, bottom right, top right. Makes perfect sense.
 MASK_PTS_RIVER = [(0.0, 0.6), (0.0, 0.4), (1.0, 0.0), (1.0, 1.0)]
 MASK_PTS_CITY = [(1.0, 0.4), (1.0, 0.6), (0.0, 1.0), (0.0, 0.0)]
 OPENCV_STREAM_RIVER = CVInputSettings(
@@ -101,7 +100,6 @@ OPENCV_STREAM_RIVER = CVInputSettings(
     RIVER_JOBQUEUE
 )
 
-#TODO reverse locations from this feed on the distmap
 OPENCV_STREAM_CITY = CVInputSettings(
     "rtsp://10.254.239.6:554/11.cgi",
     STREAM_PIDS[1],
