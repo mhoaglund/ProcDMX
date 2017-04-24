@@ -32,8 +32,7 @@ class CVStream(Process):
         self.mask = []
         self.hasMasked = False
         self.shouldmask = False
-        self.shouldShow = False
-        
+        self.shouldShow = True
 
     def run(self):
         while self.cont:
@@ -63,6 +62,7 @@ class CVStream(Process):
             if not grabbed:
                 self.vcap.release()
                 self.hasStarted = False
+                logging.info('Stream crash on %s. Attempting to restart stream...', self.stream_id)
                 print 'Crashed. Restarting stream...'
                 continue
 
@@ -109,7 +109,7 @@ class CVStream(Process):
             self.my_contour_queue.put(current_contours)
             if self.shouldShow:
                 cv2.imshow(str(self.stream_id), gray)
-            cv2.waitKey(17)
+            cv2.waitKey(25)
 
     def GenerateMask(self, _frame):
         """
