@@ -75,7 +75,7 @@ class ImmediatePlayer(Process):
         self.render()
 
     def applyAll(self, _channels):
-        """Given a total set of channels, intelligently break it up and get it to the proper devices"""
+        """Given a total set of channels, break it up and get it to the proper devices"""
         #Break off the first chunk of the interactive channels for the first universe. Should 368.
         uni1channels = _channels[:self.universes[0].interactivechannels]
         uni1channels = uni1channels + self.backfills
@@ -89,12 +89,11 @@ class ImmediatePlayer(Process):
         uni2channels = uni2channels + ([0]*uni2remainder)
         self.universes[1].myDMXdata = uni2channels
         self.render()
-    
+
     def render(self):
         for uni in self.universes:
             prep = [chr(x) for x in uni.myDMXdata] #this is the ONLY cast to char we're doing!
-            sdata = ''.join(uni.myDMXdata)
-            logging.info(sdata)
+            sdata = ''.join(prep)
             uni.serial.write(DMXOPEN+DMXINTENSITY+sdata+DMXCLOSE)
 
     def constructInteractiveGoalFrame(self, _cdcs):
@@ -109,6 +108,7 @@ class ImmediatePlayer(Process):
             for ch in range (1, 4): #should this be 0,3? only one way to find out.
                 _temp[cdc.spatialindex + ch] = _fixturehue[ch]
                 _dirty[cdc.spatialindex + ch] = 1
+        logging.info('Setting a goal frame: %s', _temp)
         return _temp
 
 
