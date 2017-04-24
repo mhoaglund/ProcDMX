@@ -95,7 +95,7 @@ class CVStream(Process):
             toshow = thresh.copy()
             for c in cnts:
                 (x, y, w, h) = cv2.boundingRect(c)
-                if cv2.contourArea(c) > self.settings.detectionMinimum:
+                if cv2.contourArea(c) > self.settings.detectionMinimum and c.w > 2:
                     cdc = playerutils.CalcdContour(x, y, w, h, self.stream_id)
                     cdc.area = cv2.contourArea(c)
                     current_contours.append(cdc)
