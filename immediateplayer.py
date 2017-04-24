@@ -51,11 +51,10 @@ class ImmediatePlayer(Process):
 
         self.increment = self.colors.increment
         self.decrement = self.colors.decrement
-        self.blanklight = [chr(0)]*_playersettings.channelsperlight
 
-        self.prev_frame = [chr(x) for x in self.colors.base*136]
-        self.goal_frame = [chr(x) for x in self.colors.base*136]
-        self.backfills = [chr(x) for x in self.colors.backfill * 4]
+        self.prev_frame = self.colors.base*136
+        self.goal_frame = self.colors.base*136
+        self.backfills = self.colors.backfill * 4
         self.blackout()
         self.playTowardLatest()
 
@@ -66,32 +65,34 @@ class ImmediatePlayer(Process):
             intensity = 255
         if intensity < 0:
             intensity = 0
-        return chr(intensity)
+        return intensity
 
     def blackout(self, universe=0):
         """Zero out intensity on all channels"""
         print 'blacking out'
         for uni in self.universes:
-            uni.myDMXdata = [chr(0)]*513
-            sdata = ''.join(uni.myDMXdata)
-            uni.serial.write(DMXOPEN+DMXINTENSITY+sdata+DMXCLOSE)
+            uni.myDMXdata = [0]*513
+        self.render()
 
-    def renderAll(self, _channels):
+    def applyAll(self, _channels):
         """Given a total set of channels, intelligently break it up and get it to the proper devices"""
         #Break off the first chunk of the interactive channels for the first universe. Should 368.
         uni1channels = _channels[:self.universes[0].interactivechannels]
         uni1channels = uni1channels + self.backfills
         uni1remainder = 513 - len(uni1channels)
-        uni1channels = uni1channels + ([chr(0)]*uni1remainder)
+        uni1channels = uni1channels + ([0]*uni1remainder)
         self.universes[0].myDMXdata = uni1channels
 
         #Break off the second chunk of the interactive channels for the second universe. Should 176.
         uni2channels = _channels[:self.universes[0].interactivechannels:]
         uni2remainder = 513 - len(uni2channels)
-        uni2channels = uni2channels + ([chr(0)]*uni2remainder)
+        uni2channels = uni2channels + ([0]*uni2remainder)
         self.universes[1].myDMXdata = uni2channels
-
+        self.render()
+    
+    def render(self):
         for uni in self.universes:
+            prep = [chr(x) for x in uni.myDMXdata] #this is the ONLY cast to char we're doing!
             sdata = ''.join(uni.myDMXdata)
             logging.info(sdata)
             uni.serial.write(DMXOPEN+DMXINTENSITY+sdata+DMXCLOSE)
@@ -158,5 +159,5 @@ class ImmediatePlayer(Process):
 
             _actual[index] = self.cleanValue(new)
         self.prev_frame = _actual
-        self.renderAll(_actual)
+        self.applyAll(_actual)
         time.sleep(0.02)
