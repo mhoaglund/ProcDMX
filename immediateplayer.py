@@ -55,12 +55,14 @@ class ImmediatePlayer(Process):
         self.blanklight = [chr(0)]*_playersettings.channelsperlight
 
         self.prev_frame = self.colors.base*136
+        for val in self.prev_frame:
+            val = self.cleanValue(val)
         self.goal_frame = self.colors.base*136
+        for gval in self.goal_frame:
+            gval = self.cleanValue(val)
         #self.prev_frame = [0]*self.channelsinuse
-        self.mod_frame = [0]*self.channelsinuse
         self.allindices = [x for x in range(0, self.channelsinuse)]
-
-        self.blackout()
+        #self.blackout()
 
     def cleanValue(self, value):
         """Clean byte values for dmx"""
@@ -138,10 +140,7 @@ class ImmediatePlayer(Process):
     def stop(self):
         print 'Terminating...'
         self.cont = False
-        self.render()
         super(ImmediatePlayer, self).terminate()
-
-
 
     def compileLatestContours(self, _contours):
         """When a set of contours comes in, build a goal frame out of it."""
