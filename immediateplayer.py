@@ -187,10 +187,10 @@ class ImmediatePlayer(Process):
                 else:
                     new = _thiscurr - self.settings.decay
             if _thiscurr < _thisdesired:
-                if _thiscurr + self.settings.attack > _thisdesired:
+                if _thiscurr + 1 > _thisdesired:
                     new = _thisdesired
                 else:
-                    new = _thisdesired + self.settings.attack
+                    new = _thisdesired + 1
 
             _actual[index] = new
         uni1channels = _actual[:368]
