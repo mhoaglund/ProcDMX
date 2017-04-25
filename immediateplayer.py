@@ -27,8 +27,8 @@ class ImmediatePlayer(Process):
         self.dmxData = []
         self.cont = True
         self.universes = _playersettings.universes
-        self.dmxDataOne = [chr(0)]* 513
-        self.dmxDataTwo = [chr(0)]* 513
+        self.dmxDataOne = [135]* 513
+        self.dmxDataTwo = [135]* 513
         try:
             self.serialOne = serial.Serial('/dev/ttyUSB0', baudrate=57600)
             self.serialTwo = serial.Serial('/dev/ttyUSB1', baudrate=57600)
@@ -103,11 +103,11 @@ class ImmediatePlayer(Process):
         if self.verbose:
             print len(uni1channels)
             #logging.info('Universe 2: %s', uni2channels)
-        self.render(uni1channels, uni2channels)
+        self.render(self.dmxDataOne, self.dmxDataTwo)
         time.sleep(0.02)
 
     def render(self, _payloadOne, _payloadTwo):
-        print 'Rendering...'
+        #print 'Rendering...'
         prep = [chr(x) for x in _payloadOne] #this is the ONLY cast to char we're doing!
         prep.pop()
         sdata = ''.join(prep)
@@ -142,7 +142,8 @@ class ImmediatePlayer(Process):
                     self.isnightmode = False
             if not self.dataqueue.empty():
                 self.compileLatestContours(self.dataqueue.get())
-            self.playTowardLatest()
+            self.render(uni1channels, uni2channels)
+            #self.playTowardLatest()
 
     def stop(self):
         print 'Terminating...'
@@ -200,4 +201,4 @@ class ImmediatePlayer(Process):
             print len(uni1channels)
             #logging.info('Universe 2: %s', uni2channels)
         self.render(uni1channels, uni2channels)
-        time.sleep(0.02)
+        #time.sleep(0.02)
