@@ -142,7 +142,7 @@ class ImmediatePlayer(Process):
                     self.isnightmode = False
             if not self.dataqueue.empty():
                 self.compileLatestContours(self.dataqueue.get())
-            self.render(uni1channels, uni2channels)
+            self.render(self.dmxDataOne, self.dmxDataTwo)
             #self.playTowardLatest()
 
     def stop(self):
