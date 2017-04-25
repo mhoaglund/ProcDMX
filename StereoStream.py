@@ -195,6 +195,7 @@ def contextualcull(cnts):
             actualout.append(highest)
     else:
         actualout = temp
+    print 'Contours after cull: ', len(actualout)
     return actualout
 
 def stopworkerthreads():
