@@ -41,11 +41,11 @@ DAY_START_HOUR = 6 #6am
 DAY_END_HOUR = 5 #5am
 
 PRIORITIZE_FASTEST = False
-DEFAULT_COLOR = [25, 0, 90, 10]
+DEFAULT_COLOR = [25, 25, 25, 25]
 REDUCED_DEFAULT = [0, 0, 90, 0]
 THRESHOLD_COLOR = [255, 200, 255, 125]
 BUSY_THRESHOLD_COLOR = [150, 120, 255, 200]
-SPEED_COLORS = [[100, 50, 120, 50], [100, 75, 200, 50], [100, 75, 180, 150], [100, 255, 150, 255]]#default, walker, runner, biker (supposedly)
+SPEED_COLORS = [[50, 50, 50, 50], [100, 75, 200, 50], [100, 75, 180, 150], [100, 255, 150, 255]]#default, walker, runner, biker (supposedly)
 BACKFILL_COLOR_A = [240, 0, 180, 0] #backfill for the 1ft fixtures
 BACKFILL_COLOR_B = [0, 0, 205, 0]
 NIGHT_IDLE_COLOR = [125, 125, 0, 255]
