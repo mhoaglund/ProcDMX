@@ -31,7 +31,7 @@ class ImmediatePlayer(Process):
         self.dmxDataTwo = [135]* 513
         try:
             self.serialOne = serial.Serial('/dev/ttyUSB0', baudrate=57600)
-            self.serialTwo = serial.Serial('/dev/ttyUSB1', baudrate=57600)
+            #self.serialTwo = serial.Serial('/dev/ttyUSB1', baudrate=57600)
         except:
             print "Error: could not open Serial port"
             sys.exit(0)
@@ -76,6 +76,16 @@ class ImmediatePlayer(Process):
             intensity = 0
         return intensity
 
+    
+    def render(self, _payloadOne, _payloadTwo):
+        #print 'Rendering...'
+        prep = [chr(x) for x in _payloadOne] #this is the ONLY cast to char we're doing!
+        sdata = ''.join(prep)
+        self.serialOne.write(DMXOPEN+DMXINTENSITY+sdata+DMXCLOSE)
+        #prep2 = [chr(x) for x in _payloadTwo] #this is the ONLY cast to char we're doing!
+        #sdata2 = ''.join(prep)
+        #self.serialTwo.write(DMXOPEN+DMXINTENSITY+sdata2+DMXCLOSE)
+
     def blackout(self, universe=0):
         """Zero out intensity on all channels"""
         print 'blacking out'
@@ -105,16 +115,6 @@ class ImmediatePlayer(Process):
             #logging.info('Universe 2: %s', uni2channels)
         self.render(self.dmxDataOne, self.dmxDataTwo)
         time.sleep(0.02)
-
-    def render(self, _payloadOne, _payloadTwo):
-        #print 'Rendering...'
-        prep = [chr(x) for x in _payloadOne] #this is the ONLY cast to char we're doing!
-        prep.pop()
-        sdata = ''.join(prep)
-        self.serialOne.write(DMXOPEN+DMXINTENSITY+sdata+DMXCLOSE)
-        prep2 = [chr(x) for x in _payloadTwo] #this is the ONLY cast to char we're doing!
-        sdata2 = ''.join(prep)
-        self.serialTwo.write(DMXOPEN+DMXINTENSITY+sdata2+DMXCLOSE)
 
     def constructInteractiveGoalFrame(self, _cdcs):
         """Build an end-goal frame for the run loop to work toward"""
