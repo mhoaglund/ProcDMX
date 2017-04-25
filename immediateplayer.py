@@ -27,8 +27,8 @@ class ImmediatePlayer(Process):
         self.dmxData = []
         self.cont = True
         self.universes = _playersettings.universes
-        self.dmxDataOne = [chr(100)]* 513
-        self.dmxDataTwo = [chr(100)]* 513
+        self.dmxDataOne = [chr(0)]* 513
+        self.dmxDataTwo = [chr(0)]* 513
         try:
             self.serialOne = serial.Serial('/dev/ttyUSB0', baudrate=57600)
             self.serialTwo = serial.Serial('/dev/ttyUSB1', baudrate=57600)
@@ -67,31 +67,31 @@ class ImmediatePlayer(Process):
         #self.blackout()
         self.playTowardLatest()
 
-        def setchannelOnOne(self, chan, _intensity):
-            """Set intensity on channel"""
-            intensity = int(_intensity)
-            if chan > 512:
-                chan = 512
-            if chan < 0:
-                chan = 0
-            if intensity > 255:
-                intensity = 255
-            if intensity < 0:
-                intensity = 0
-            self.dmxDataOne[chan] = chr(intensity)
+    def setchannelOnOne(self, chan, _intensity):
+        """Set intensity on channel"""
+        intensity = int(_intensity)
+        if chan > 512:
+            chan = 512
+        if chan < 0:
+            chan = 0
+        if intensity > 255:
+            intensity = 255
+        if intensity < 0:
+            intensity = 0
+        self.dmxDataOne[chan] = chr(intensity)
 
-        def setchannelOnTwo(self, chan, _intensity):
-            """Set intensity on channel"""
-            intensity = int(_intensity)
-            if chan > 512:
-                chan = 512
-            if chan < 0:
-                chan = 0
-            if intensity > 255:
-                intensity = 255
-            if intensity < 0:
-                intensity = 0
-            self.dmxDataTwo[chan] = chr(intensity)
+    def setchannelOnTwo(self, chan, _intensity):
+        """Set intensity on channel"""
+        intensity = int(_intensity)
+        if chan > 512:
+            chan = 512
+        if chan < 0:
+            chan = 0
+        if intensity > 255:
+            intensity = 255
+        if intensity < 0:
+            intensity = 0
+        self.dmxDataTwo[chan] = chr(intensity)
 
     
     def render(self, _payloadOne, _payloadTwo):
@@ -155,6 +155,8 @@ class ImmediatePlayer(Process):
                     self.isnightmode = False
             if not self.dataqueue.empty():
                 self.compileLatestContours(self.dataqueue.get())
+            self.setchannelOnOne(1, 255)
+            self.setchannelOnTwo(1, 255)
             self.render(self.dmxDataOne, self.dmxDataTwo)
             time.sleep(0.02)
             #self.playTowardLatest()
