@@ -139,7 +139,7 @@ class ImmediatePlayer(Process):
         _dirty = [0]*544
         _temp = self.colors.base*136
         for cdc in _cdcs:
-            _fixturehue = self.colors.speeds[cdc.spd]
+            _fixturehue = self.colors.speeds[0]
             for ch in range (1, 4): #should this be 0,3? only one way to find out.
                 _temp[cdc.spatialindex + ch] = _fixturehue[ch]
                 _dirty[cdc.spatialindex + ch] = 1
@@ -203,7 +203,5 @@ class ImmediatePlayer(Process):
             self.setchannelOnTwo(y, uni1channels[y])
 
         self.prev_frame = _actual
-        #self.setchannelOnOne(2, 255)
-        #self.setchannelOnTwo(2, 255)
         self.render(self.dmxDataOne, self.dmxDataTwo)
-        time.sleep(0.02)
+        time.sleep(0.05)
