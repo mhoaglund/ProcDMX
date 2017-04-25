@@ -27,17 +27,24 @@ class ImmediatePlayer(Process):
         self.dmxData = []
         self.cont = True
         self.universes = _playersettings.universes
+        self.dmxDataOne = [chr(0)]* 513
+        self.dmxDataTwo = [chr(0)]* 513
+        try:
+            self.serialOne = serial.Serial('/dev/ttyUSB0', baudrate=57600)
+            self.serialTwo = serial.Serial('/dev/ttyUSB1', baudrate=57600)
+        except:
+            print "Error: could not open Serial port"
+            sys.exit(0)
+        #for _universe in self.universes:
+        #    try:
+        #        _universe.serial = serial.Serial(_universe.serialport, baudrate=57600)
+        #        _universe.serial.write( DMXOPEN+DMXINIT1+DMXCLOSE)
+        #        _universe.serial.write( DMXOPEN+DMXINIT2+DMXCLOSE)
+        #    except:
+        #        print "Error: could not open Serial Port: ", _universe.serialport
+        #        sys.exit(0)
 
-        for _universe in self.universes:
-            try:
-                _universe.serial = serial.Serial(_universe.serialport, baudrate=57600)
-                _universe.serial.write( DMXOPEN+DMXINIT1+DMXCLOSE)
-                _universe.serial.write( DMXOPEN+DMXINIT2+DMXCLOSE)
-            except:
-                print "Error: could not open Serial Port: ", _universe.serialport
-                sys.exit(0)
-
-        self.verbose = False
+        self.verbose = True
         self.dataqueue = _playersettings.dataqueue
         self.jobqueue = _playersettings.jobqueue
         self.colors = _colorsettings
@@ -57,8 +64,8 @@ class ImmediatePlayer(Process):
         self.prev_frame = self.colors.base*136
         self.goal_frame = self.colors.base*136
         self.backfills = self.colors.backfill[0]+ self.colors.backfill[0]+ self.colors.backfill[1]+ self.colors.backfill[0]+ self.colors.backfill[0]+ self.colors.backfill[1]+ self.colors.backfill[0]+ self.colors.backfill[0]
-        self.blackout()
-        self.playTowardLatest()
+        #self.blackout()
+        #self.playTowardLatest()
 
     def cleanValue(self, value):
         """Clean byte values for dmx"""
@@ -72,9 +79,9 @@ class ImmediatePlayer(Process):
     def blackout(self, universe=0):
         """Zero out intensity on all channels"""
         print 'blacking out'
-        for uni in self.universes:
-            uni.myDMXdata = [0]*513
-        self.render()
+        #for uni in self.universes:
+        #    uni.myDMXdata = [0]*513
+        #self.render()
 
     def applyAll(self, _channels):
         """Given a total set of channels, break it up and get it to the proper devices"""
@@ -85,7 +92,8 @@ class ImmediatePlayer(Process):
         uni1channels = uni1channels + ([0]*uni1remainder)
         self.universes[0].myDMXdata = uni1channels
         if self.verbose:
-            logging.info('Universe 1: %s', uni1channels)
+            print len(uni1channels)
+            #logging.info('Universe 1: %s', uni1channels)
 
         #Break off the second chunk of the interactive channels for the second universe. Should 176.
         uni2channels = _channels[self.universes[0].interactivechannels:]
@@ -93,14 +101,20 @@ class ImmediatePlayer(Process):
         uni2channels = uni2channels + ([0]*uni2remainder)
         self.universes[1].myDMXdata = uni2channels
         if self.verbose:
-            logging.info('Universe 2: %s', uni2channels)
-        self.render()
+            print len(uni1channels)
+            #logging.info('Universe 2: %s', uni2channels)
+        self.render(uni1channels, uni2channels)
+        time.sleep(0.02)
 
-    def render(self):
-        for uni in self.universes:
-            prep = [chr(x) for x in uni.myDMXdata] #this is the ONLY cast to char we're doing!
-            sdata = ''.join(prep)
-            uni.serial.write(DMXOPEN+DMXINTENSITY+sdata+DMXCLOSE)
+    def render(self, _payloadOne, _payloadTwo):
+        print 'Rendering...'
+        prep = [chr(x) for x in _payloadOne] #this is the ONLY cast to char we're doing!
+        prep.pop()
+        sdata = ''.join(prep)
+        self.serialOne.write(DMXOPEN+DMXINTENSITY+sdata+DMXCLOSE)
+        prep2 = [chr(x) for x in _payloadTwo] #this is the ONLY cast to char we're doing!
+        sdata2 = ''.join(prep)
+        self.serialTwo.write(DMXOPEN+DMXINTENSITY+sdata2+DMXCLOSE)
 
     def constructInteractiveGoalFrame(self, _cdcs):
         """Build an end-goal frame for the run loop to work toward"""
@@ -166,4 +180,3 @@ class ImmediatePlayer(Process):
             _actual[index] = self.cleanValue(new)
         self.prev_frame = _actual
         self.applyAll(_actual)
-        time.sleep(0.02)
