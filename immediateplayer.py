@@ -187,18 +187,20 @@ class ImmediatePlayer(Process):
                 else:
                     new = _thiscurr - self.settings.decay
             if _thiscurr < _thisdesired:
-                if _thiscurr + 1 > _thisdesired:
+                if _thiscurr + self.settings.attack > _thisdesired:
                     new = _thisdesired
                 else:
-                    new = _thisdesired + 1
+                    new = _thisdesired + self.settings.attack
 
             _actual[index] = new
         uni1channels = _actual[:368]
         uni1channels = uni1channels + self.backfills
+        logging.info('Universe 1: %s', uni1channels)
         for x in range(1, len(uni1channels), 1):
             self.setchannelOnOne(x, uni1channels[x])
 
         uni2channels = _actual[368:]
+        logging.info('Universe 1: %s', uni2channels)
         for y in range(1, len(uni2channels), 1):
             self.setchannelOnTwo(y, uni1channels[y])
 
