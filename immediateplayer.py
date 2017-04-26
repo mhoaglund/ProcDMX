@@ -64,6 +64,7 @@ class ImmediatePlayer(Process):
         #Prev Frame and Goal Frame are containers for data pertaining to ALL interactive channels.
         #They get split up for rendering and don't have anything to do with DMX packets.
         self.prev_frame = self.colors.base*136
+        logging.info('Base frame is: %s', self.prev_frame)
         self.goal_frame = self.colors.base*136
         self.backfills = self.colors.backfill[0]+ self.colors.backfill[0]+ self.colors.backfill[1]+ self.colors.backfill[0]+ self.colors.backfill[0]+ self.colors.backfill[1]+ self.colors.backfill[0]+ self.colors.backfill[0]
         #self.blackout()
@@ -109,28 +110,6 @@ class ImmediatePlayer(Process):
         #    uni.myDMXdata = [0]*513
         #self.render()
 
-    def applyAll(self, _channels):
-        """Given a total set of channels, break it up and get it to the proper devices"""
-        #Break off the first chunk of the interactive channels for the first universe. Should 368.
-        uni1channels = _channels[:self.universes[0].interactivechannels]
-        uni1channels = uni1channels + self.backfills
-        uni1remainder = 513 - len(uni1channels)
-        uni1channels = uni1channels + ([0]*uni1remainder)
-        self.universes[0].myDMXdata = uni1channels
-        if self.verbose:
-            print len(uni1channels)
-            #logging.info('Universe 1: %s', uni1channels)
-
-        #Break off the second chunk of the interactive channels for the second universe. Should 176.
-        uni2channels = _channels[self.universes[0].interactivechannels:]
-        uni2remainder = 513 - len(uni2channels)
-        uni2channels = uni2channels + ([0]*uni2remainder)
-        self.universes[1].myDMXdata = uni2channels
-        if self.verbose:
-            print len(uni1channels)
-            #logging.info('Universe 2: %s', uni2channels)
-        self.render(self.dmxDataOne, self.dmxDataTwo)
-
     def constructInteractiveGoalFrame(self, _cdcs):
         """Build an end-goal frame for the run loop to work toward"""
         #we have 132 interactive lights (4 per fixture) and some that aren't.
@@ -140,7 +119,7 @@ class ImmediatePlayer(Process):
         _temp = self.colors.base*136
         for cdc in _cdcs:
             _fixturehue = self.colors.speeds[0]
-            for ch in range (1, 4): #should this be 0,3? only one way to find out.
+            for ch in range (0, 4):
                 _temp[cdc.spatialindex + ch] = _fixturehue[ch]
                 _dirty[cdc.spatialindex + ch] = 1
         return _temp
@@ -176,8 +155,8 @@ class ImmediatePlayer(Process):
         """
         _actual = self.prev_frame
         for index in range(0, 544):
-            _thiscurr = self.prev_frame[index]
-            _thisdesired = self.goal_frame[index]
+            _thiscurr = self.prev_frame[index] #25
+            _thisdesired = self.goal_frame[index] #250
             if _thiscurr == _thisdesired:
                 continue
             new = 0
@@ -190,9 +169,9 @@ class ImmediatePlayer(Process):
                 if _thiscurr + self.settings.attack > _thisdesired:
                     new = _thisdesired
                 else:
-                    new = _thisdesired + self.settings.attack
-
+                    new = _thiscurr + self.settings.attack
             _actual[index] = new
+
         uni1channels = _actual[:368]
         uni1channels = uni1channels + self.backfills
         logging.info('Universe 1: %s', uni1channels)
