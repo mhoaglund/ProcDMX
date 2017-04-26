@@ -175,7 +175,7 @@ class ImmediatePlayer(Process):
            Loop over active channels, seeing which way we need to change the intensity
         """
         _actual = self.prev_frame
-        for index in range(1, 544):
+        for index in range(0, 544):
             _thiscurr = self.prev_frame[index]
             _thisdesired = self.goal_frame[index]
             if _thiscurr == _thisdesired:
@@ -200,7 +200,7 @@ class ImmediatePlayer(Process):
             self.setchannelOnOne(x, uni1channels[x])
 
         uni2channels = _actual[368:]
-        logging.info('Universe 1: %s', uni2channels)
+        logging.info('Universe 2: %s', uni2channels)
         for y in range(1, len(uni2channels), 1):
             self.setchannelOnTwo(y, uni1channels[y])
 
