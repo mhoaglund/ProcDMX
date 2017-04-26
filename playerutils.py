@@ -123,17 +123,17 @@ class CalcdContour(object):
         self.x = _x
         self.detectedby = _from
         self.pos = (_x, _y)
-        self.a_ratio = int((_w/_h) * 10)
+        self.a_ratio = int(_w/_h) #remember, the camera is sideways. using the long resolution for tracking.
         self.spd = 0
         self.spatialindex = 0
         self.center = (_x+(_w/2), _y+(_h/2))
         self.area = 0
         if self.a_ratio <= 2:
+            self.spd = 0
+        if self.a_ratio > 2 and self.a_ratio <= 3:
             self.spd = 1
-        if self.a_ratio > 2 and self.a_ratio <= 4:
+        if self.a_ratio > 3:
             self.spd = 2
-        if self.a_ratio > 4:
-            self.spd = 3
 
 class UniverseProfile(object):
     """Simple container to keep serial devices and universes straight"""

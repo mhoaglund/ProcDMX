@@ -118,10 +118,13 @@ class ImmediatePlayer(Process):
         _dirty = [0]*544
         _temp = self.colors.base*136
         for cdc in _cdcs:
-            _fixturehue = self.colors.speeds[0]
+            _fixturehue = self.colors.speeds[cdc.spd]
+            _startchannel = 0
+            if cdc.spatialindex > 0:
+                _startchannel = cdc.spatialindex * 4
             for ch in range (0, 4):
-                _temp[cdc.spatialindex + ch] = _fixturehue[ch]
-                _dirty[cdc.spatialindex + ch] = 1
+                _temp[_startchannel + ch] = _fixturehue[ch]
+                _dirty[_startchannel + ch] = 1
         return _temp
 
 

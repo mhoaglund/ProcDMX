@@ -109,6 +109,8 @@ class CVStream(Process):
                 )
                 self.job_queue.put(SHAPE_SETUP)
                 IS_SHAPE_SET = True
+            if len(current_contours) > 80: #camera must be changing exposure
+                current_contours = []
             self.my_contour_queue.put(current_contours)
             if self.shouldShow:
                 cv2.imshow(str(self.stream_id), gray)
