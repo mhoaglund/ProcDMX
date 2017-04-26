@@ -202,7 +202,7 @@ class ImmediatePlayer(Process):
         uni2channels = _actual[368:]
         logging.info('Universe 2: %s', uni2channels)
         for y in range(1, len(uni2channels), 1):
-            self.setchannelOnTwo(y, uni1channels[y])
+            self.setchannelOnTwo(y, uni2channels[y])
 
         self.prev_frame = _actual
         self.render(self.dmxDataOne, self.dmxDataTwo)
