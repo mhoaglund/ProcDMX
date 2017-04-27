@@ -66,6 +66,7 @@ PLAYER_SETTINGS = OpenCVPlayerSettings(
     [UNI1, UNI2],
     1,
     16,
+    6,
     4,
     CHAN_PER_FIXTURE,
     CONTOURQUEUE,

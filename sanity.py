@@ -26,7 +26,7 @@ print '---'
 for x in range(0, 4):
     print x
 print '---'
-for x in range(4, 8):
+for x in range(0, 136):
     print x
 print '---'
 y = 4

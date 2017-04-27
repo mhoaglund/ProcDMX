@@ -109,7 +109,7 @@ class CVStream(Process):
                 if cv2.contourArea(c) > self.settings.detectionMinimum and w > 2:
                     cdc = playerutils.CalcdContour(x, y, w, h, self.stream_id)
                     cdc.area = cv2.contourArea(c)
-                    if cdc.area > 24:
+                    if cdc.area > 150:
                         cdc.spatialindex = self.locate(cdc.center[0]) #assign real world x position
                         if cdc.spatialindex < 69:
                             current_contours.append(cdc)

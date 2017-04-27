@@ -64,16 +64,14 @@ class ImmediatePlayer(Process):
 
         self.increment = self.colors.increment
         self.decrement = self.colors.decrement
-
-        self.rippleSize = 2
-
+        
         #Prev Frame and Goal Frame are containers for data pertaining to ALL interactive channels.
         #They get split up for rendering and don't have anything to do with DMX packets.
         self.prev_frame = self.colors.base*136
-        logging.info('Base frame is: %s', self.prev_frame)
         self.goal_frame = self.colors.base*136
+        self.heats = [0]*136
+        self.sustain = _playersettings.sustain
         self.backfills = self.colors.backfill[0]+ self.colors.backfill[0]+ self.colors.backfill[1]+ self.colors.backfill[0]+ self.colors.backfill[0]+ self.colors.backfill[1]+ self.colors.backfill[0]+ self.colors.backfill[0]
-        #self.blackout()
         self.playTowardLatest()
 
     def setchannelOnOne(self, chan, _intensity):
@@ -110,22 +108,18 @@ class ImmediatePlayer(Process):
             sdata2 = ''.join(self.dmxDataTwo)
             self.serialTwo.write(DMXOPEN+DMXINTENSITY+sdata2+DMXCLOSE)
 
-    def blackout(self, universe=0):
-        """Zero out intensity on all channels"""
-        print 'blacking out'
-        #for uni in self.universes:
-        #    uni.myDMXdata = [0]*513
-        #self.render()
-
     def constructInteractiveGoalFrame(self, _cdcs):
         """Build an end-goal frame for the run loop to work toward"""
         #we have 132 interactive lights (4 per fixture) and some that aren't.
         #each light has 4 channels, so we have a total of 544 channels.
         #building more than one universe worth here, to be divided up later.
         _temp = self.colors.base*136
+        for channelheat in range(0,136): #cool all the channels
+            self.heats[channelheat] -= 1
         for cdc in _cdcs:
             _fixturehue = self.colors.speeds[0]
             _startchannel = 0
+            self.heats[cdc.spatialindex] = self.sustain
             if cdc.spatialindex > 0:
                 _startchannel = cdc.spatialindex * 4
             if cdc.spatialindex > 4: #conditionally brighten the previous fixture

@@ -68,12 +68,13 @@ class OpenCVPlayerSettings(object):
         Data Queue (queue for contour locations from OpenCV),
         Job Queue (queue for any directives that aren't data)
     """
-    def __init__(self, _universes, _decay, _attack, _lightcount, _channelsper, _dataqueue, _jobqueue
+    def __init__(self, _universes, _decay, _attack, _sustain, _lightcount, _channelsper, _dataqueue, _jobqueue
                 ):
 
         self.universes = _universes
         self.decay = _decay
         self.attack = _attack
+        self.sustain = _sustain
         self.lights = _lightcount
         self.channelsperlight = _channelsper
         self.dataqueue = _dataqueue
