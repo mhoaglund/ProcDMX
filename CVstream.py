@@ -120,6 +120,7 @@ class CVStream(Process):
                 cv2.imshow(str(self.stream_id), gray)
             cv2.waitKey(17)
         self.vcap.release()
+        print 'Release Cap: ', self.stream_id
         if self.shouldShow:
             cv2.DestroyAllWindows()
 
