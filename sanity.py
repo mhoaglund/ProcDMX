@@ -21,6 +21,7 @@ print '----'
 
 for x in range(-4, 0):
     print x
+    print '...and', x+4
 print '---'
 for x in range(0, 4):
     print x
