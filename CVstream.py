@@ -119,6 +119,9 @@ class CVStream(Process):
             if self.shouldShow:
                 cv2.imshow(str(self.stream_id), gray)
             cv2.waitKey(17)
+        self.vcap.release()
+        if self.shouldShow:
+            cv2.DestroyAllWindows()
 
     def GenerateMask(self, _frame):
         """
@@ -176,6 +179,4 @@ class CVStream(Process):
     def stop(self):
         print 'Terminating...'
         self.cont = False
-        self.vcap.release()
-        cv2.DestroyAllWindows()
-        super(CVStream, self).terminate()
+        #super(CVStream, self).terminate()
