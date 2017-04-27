@@ -24,17 +24,21 @@ class ImmediatePlayer(Process):
     def __init__(self, _playersettings, _colorsettings):
         super(ImmediatePlayer, self).__init__()
         print 'starting worker'
+        self.isHardwareConnected = False #debug flag for working without the dmx harness
         self.dmxData = []
         self.cont = True
         self.universes = _playersettings.universes
         self.dmxDataOne = [chr(0)]* 513
         self.dmxDataTwo = [chr(0)]* 513
-        try:
-            self.serialOne = serial.Serial('/dev/ttyUSB0', baudrate=57600)
-            self.serialTwo = serial.Serial('/dev/ttyUSB1', baudrate=57600)
-        except:
-            print "Error: could not open Serial port"
-            sys.exit(0)
+        if self.isHardwareConnected:
+            try:
+                self.serialOne = serial.Serial('/dev/ttyUSB0', baudrate=57600)
+                self.serialTwo = serial.Serial('/dev/ttyUSB1', baudrate=57600)
+            except:
+                print "Error: could not open Serial port"
+                sys.exit(0)
+        else:
+            print "Running in dummy mode with no Serial Output!"
         #for _universe in self.universes:
         #    try:
         #        _universe.serial = serial.Serial(_universe.serialport, baudrate=57600)
@@ -96,12 +100,13 @@ class ImmediatePlayer(Process):
             intensity = 0
         self.dmxDataTwo[chan] = chr(intensity)
 
-    
+
     def render(self, _payloadOne, _payloadTwo):
-        sdata = ''.join(self.dmxDataOne)
-        self.serialOne.write(DMXOPEN+DMXINTENSITY+sdata+DMXCLOSE)
-        sdata2 = ''.join(self.dmxDataTwo)
-        self.serialTwo.write(DMXOPEN+DMXINTENSITY+sdata2+DMXCLOSE)
+        if self.isHardwareConnected:
+            sdata = ''.join(self.dmxDataOne)
+            self.serialOne.write(DMXOPEN+DMXINTENSITY+sdata+DMXCLOSE)
+            sdata2 = ''.join(self.dmxDataTwo)
+            self.serialTwo.write(DMXOPEN+DMXINTENSITY+sdata2+DMXCLOSE)
 
     def blackout(self, universe=0):
         """Zero out intensity on all channels"""
@@ -122,7 +127,7 @@ class ImmediatePlayer(Process):
             _startchannel = 0
             if cdc.spatialindex > 0:
                 _startchannel = cdc.spatialindex * 4
-            for ch in range (0, 4):
+            for ch in range(0, 4):
                 _temp[_startchannel + ch] = _fixturehue[ch]
                 _dirty[_startchannel + ch] = 1
         return _temp
@@ -130,21 +135,12 @@ class ImmediatePlayer(Process):
 
     def run(self):
         while self.cont:
-            if not self.jobqueue.empty():
-                currentjob = self.jobqueue.get()
-                if currentjob.job == "TERM":
-                    self.cont = False
-                if currentjob.job == "MORNING":
-                    logging.info('Activating for the day')
-                    self.isnightmode = False
             if not self.dataqueue.empty():
                 self.compileLatestContours(self.dataqueue.get())
             self.playTowardLatest()
 
     def stop(self):
         print 'Terminating...'
-        #for uni in self.universes:
-        #    uni.serial.close()
         self.cont = False
         super(ImmediatePlayer, self).terminate()
 

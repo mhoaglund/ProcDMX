@@ -33,10 +33,12 @@ class CVStream(Process):
         self.hasMasked = False
         self.shouldmask = False
         self.shouldShow = False
+        self.STRIPES = []
 
     def run(self):
         while self.cont:
             if self.hasStarted is False:
+                self.generatedistortionmap() #Temporarily doing this inside the opencv process so we can print fixture numbers into the picture.
                 self.vcap = cv2.VideoCapture(self.settings.stream_location)
                 if self.shouldShow:
                     cv2.startWindowThread()
@@ -100,7 +102,9 @@ class CVStream(Process):
                     cdc = playerutils.CalcdContour(x, y, w, h, self.stream_id)
                     cdc.area = cv2.contourArea(c)
                     current_contours.append(cdc)
+                    cdc.spatialindex = self.locate(cdc.center[0]) #assign real world x position
                     cv2.rectangle(gray, (x, y), (x+w, y+h), (0, 255, 0), 2)
+                    cv2.putText(gray, str(cdc.spatialindex),(x, y), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
             if self.IS_SHAPE_SET is not True:
                 SHAPE_SETUP = playerutils.PlayerJob(
                     self.stream_id,
@@ -135,6 +139,37 @@ class CVStream(Process):
         else:
             return False
 
+    def generatedistortionmap(self):
+        """
+        Using a quadratic equation to build a list of pixel ranges
+        which correspond to 1ft sections of flat ground captured
+        in the camera's image.
+        """
+        _res = []
+        _a = 0.005392
+        _b = -0.7637
+        _c = 28.00
+        for f in range(0, 136/2):
+            size = (_a * (f * f)) + (_b * f) + _c
+            if size < 1:
+                size = 1
+            _res.append(int(size))
+        print "Sum:", sum(_res) #This sum shouldn't exceed STREAM_WIDTH
+        _running = 0
+        for m in range(0, 136/2):
+            _start = _running
+            _end = _running+_res[m]
+            _running += _res[m]
+            self.STRIPES.append((_start, _end))
+        #print self.STRIPES
+
+    def locate(self, _x):
+        """
+           Given an x pixel value, find the appropriate stripe so the player can use that index to find a fixture.
+        """
+        for st in range(0, 68):
+            if _x >= self.STRIPES[st][0] and _x < self.STRIPES[st][1]:
+                return st
 
     def stop(self):
         print 'Terminating...'

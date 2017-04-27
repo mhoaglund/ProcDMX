@@ -170,6 +170,8 @@ def spinupplayer():
 
 def spinupcvstreams():
     """Set up the two opencv stream processes"""
+    global _riverprocess
+    global _cityprocess
     if __name__ == "__main__":
         _riverprocess = CVStream(OPENCV_STREAM_RIVER)
         PROCESSES.append(_riverprocess)
@@ -208,36 +210,46 @@ def stopworkerthreads():
         #    print 'stopping worker'
         #    proc.stop()
 
+def reclaim_stream(_stream):
+    """If a stream hasn't reported anything in a while, kill the process and start again."""
+    print 'A stream has stopped. Restarting it...'
+    _stream.stop()
+    time.sleep(1)
+    _stream.join()
+
 generatecullmap()
 generatedistortionmap()
 spinupcvstreams()
 spinupplayer()
+RIVER_LATEST = []
+RIVER_WATCHDOG = 0
+CITY_LATEST = []
+CITY_WATCHDOG = 0
+
 
 try:
     while True:
+        global _riverprocess
+        global _cityprocess
+        #if RIVER_WATCHDOG > 200:
+        #    reclaim_stream(_riverprocess)
+        #if CITY_WATCHDOG > 200:
+        #    reclaim_stream(_cityprocess)
         if hasattr(schedule, 'run_pending'):
             schedule.run_pending()
         """Gathering readings from both processes"""
-        riverlatest = []
-        citylatest = []
         if not RIVER_CONTOURQUEUE.empty():
-            riverlatest = RIVER_CONTOURQUEUE.get()
-            if len(riverlatest) > 0:
-                for cc in riverlatest:
-                    #cc.x = STREAM_WIDTH - cc.x
-                    cc.spatialindex = locate(STREAM_WIDTH - cc.center[0]) #assign real world x position
+            RIVER_LATEST = RIVER_CONTOURQUEUE.get()
+            RIVER_WATCHDOG = 0
         if not CITY_CONTOURQUEUE.empty():
-            citylatest = CITY_CONTOURQUEUE.get()
-            if len(citylatest) > 0:
-                for cc in citylatest:
-                    cc.spatialindex = (FIXTURES/2) + locate(cc.center[0]) #assign real world x position
-        if len(riverlatest+citylatest) > 1:
-            _all = riverlatest+citylatest
-            CONTOURQUEUE.put(contextualcull(_all))
-        if not RIVER_JOBQUEUE.empty():
-            JOBQUEUE.put(RIVER_JOBQUEUE.get())
-        if not CITY_JOBQUEUE.empty():
-            JOBQUEUE.put(CITY_JOBQUEUE.get())
+            CITY_LATEST = CITY_CONTOURQUEUE.get()
+            CITY_WATCHDOG = 0
+        ALL = RIVER_LATEST + CITY_LATEST
+        #CONTOURQUEUE.put(contextualcull(_all))
+        CONTOURQUEUE.put(ALL)
+        RIVER_WATCHDOG += 1
+        CITY_WATCHDOG += 1
+
 except (KeyboardInterrupt, SystemExit):
     print 'Interrupted!'
     for spid in STREAM_PIDS:
