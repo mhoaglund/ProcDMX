@@ -186,6 +186,7 @@ def stopworkerthreads():
 def reclaim_stream(_stream):
     """If a stream hasn't reported anything in a while, kill the process and start again."""
     #print 'A stream has stopped. Restarting it...'
+    logging.info('Refreshing %s', _stream)
     job = PlayerJob(
             'REFRESH',
             '',
