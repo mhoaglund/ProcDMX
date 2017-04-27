@@ -213,10 +213,10 @@ try:
         #print RIVER_WATCHDOG
         #print CITY_WATCHDOG
         if RIVER_WATCHDOG > 2000:
-            reclaim_stream('river')
+            #reclaim_stream('river')
             RIVER_WATCHDOG = 0
         if CITY_WATCHDOG > 2000:
-            reclaim_stream('city')
+            #reclaim_stream('city')
             CITY_WATCHDOG = 0
         if hasattr(schedule, 'run_pending'):
             schedule.run_pending()

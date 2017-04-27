@@ -74,11 +74,14 @@ class CVStream(Process):
                 continue
 
             if not grabbed:
-            #    self.vcap.release()
-            #    self.hasStarted = False
-            #    logging.info('Stream crash on %s. Attempting to restart stream...', self.stream_id)
-            #    print 'Crashed. Restarting stream...'
-                 continue
+                self.vcap.release()
+                self.hasStarted = False
+                cv2.waitKey(1)
+                cv2.destroyAllWindows()
+                cv2.waitKey(1)
+                logging.info('Stream crash on %s. Attempting to restart stream...', self.stream_id)
+            #   print 'Crashed. Restarting stream...'
+                continue
 
             frame = imutils.resize(frame, width=self.settings.resize)
             if not self.hasMasked:
