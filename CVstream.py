@@ -60,7 +60,7 @@ class CVStream(Process):
                     self.isnightmode = False
 
             try:
-                #throwaway = self.vcap.grab()
+                throwaway = self.vcap.grab()
                 (grabbed, frame) = self.vcap.read()
             except cv2.error as e:
                 print e
@@ -109,11 +109,12 @@ class CVStream(Process):
                 if cv2.contourArea(c) > self.settings.detectionMinimum and w > 2:
                     cdc = playerutils.CalcdContour(x, y, w, h, self.stream_id)
                     cdc.area = cv2.contourArea(c)
-                    cdc.spatialindex = self.locate(cdc.center[0]) #assign real world x position
-                    if cdc.spatialindex < 69:
-                        current_contours.append(cdc)
-                    cv2.rectangle(gray, (x, y), (x+w, y+h), (0, 255, 0), 2)
-                    cv2.putText(gray, str(cdc.spatialindex),(x, y), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+                    if cdc.area > 24:
+                        cdc.spatialindex = self.locate(cdc.center[0]) #assign real world x position
+                        if cdc.spatialindex < 69:
+                            current_contours.append(cdc)
+                        cv2.rectangle(gray, (x, y), (x+w, y+h), (0, 255, 0), 2)
+                        cv2.putText(gray, str(cdc.spatialindex),(x, y), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
             if self.IS_SHAPE_SET is not True:
                 SHAPE_SETUP = playerutils.PlayerJob(
                     self.stream_id,

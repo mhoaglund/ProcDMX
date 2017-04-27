@@ -22,8 +22,6 @@ STREAM_PIDS = ['River','City']
 
 PROCESSES = []
 
-CITY_WATCHDOG = 0
-RIVER_WATCHDOG = 0
 STRIPES = []
 CULL_MINIMUMS = []
 CONTOURQUEUE = Queue()
@@ -194,19 +192,18 @@ spinupcvstreams()
 spinupplayer()
 RIVER_LATEST = []
 CITY_LATEST = []
-
+CITY_WATCHDOG = 0
+RIVER_WATCHDOG = 0
 
 try:
     while True:
         global _riverprocess
         global _cityprocess
-        global RIVER_WATCHDOG
-        global CITY_WATCHDOG
-        if RIVER_WATCHDOG > 20000:
-            print RIVER_WATCHDOG
+        print RIVER_WATCHDOG
+        print CITY_WATCHDOG
+        #if RIVER_WATCHDOG > 20000:
             #reclaim_stream(_riverprocess)
-        if CITY_WATCHDOG > 20000:
-            print CITY_WATCHDOG
+        #if CITY_WATCHDOG > 20000:
             #reclaim_stream(_cityprocess)
         if hasattr(schedule, 'run_pending'):
             schedule.run_pending()
