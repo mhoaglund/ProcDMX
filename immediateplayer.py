@@ -65,6 +65,8 @@ class ImmediatePlayer(Process):
         self.increment = self.colors.increment
         self.decrement = self.colors.decrement
 
+        self.rippleSize = 2
+
         #Prev Frame and Goal Frame are containers for data pertaining to ALL interactive channels.
         #They get split up for rendering and don't have anything to do with DMX packets.
         self.prev_frame = self.colors.base*136
@@ -123,7 +125,7 @@ class ImmediatePlayer(Process):
         _dirty = [0]*544
         _temp = self.colors.base*136
         for cdc in _cdcs:
-            _fixturehue = self.colors.speeds[cdc.spd]
+            _fixturehue = self.colors.speeds[0]
             _startchannel = 0
             if cdc.spatialindex > 0:
                 _startchannel = cdc.spatialindex * 4

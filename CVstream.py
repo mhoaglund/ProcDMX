@@ -146,9 +146,9 @@ class CVStream(Process):
         in the camera's image.
         """
         _res = []
-        _a = 0.006592
-        _b = -0.8578
-        _c = 28.85
+        _a = self.settings.quadratics[0]
+        _b = self.settings.quadratics[1]
+        _c = self.settings.quadratics[2]
         for f in range(0, 136/2):
             size = (_a * (f * f)) + (_b * f) + _c
             if size < 1:
@@ -167,6 +167,8 @@ class CVStream(Process):
         """
            Given an x pixel value, find the appropriate stripe so the player can use that index to find a fixture.
         """
+        if self.settings.shouldflip:
+            _x = self.settings.resize - _x
         for st in range(0, 68):
             if _x >= self.STRIPES[st][0] and _x < self.STRIPES[st][1]:
                 return st

@@ -91,8 +91,10 @@ class CVInputSettings(object):
         _maskc (mask coordinates, array of proportional coords expressed as tuples of floats)
         _contour_queue (Queue for outputting detected contours)
         _job_queue (Queue for responding to directives from the main process)
+        _quadratics (the abc values for a parabola, used to map out the space the cam sees)
+        _shouldflip (kind of a bullshit thing- should we reverse x vals in the stream?)
     """
-    def __init__(self, _stream_location, _stream_id, _resize, _thresh_op, _thresh_sensitivity, _detectionMinimum, _accumulation, _blur_radius, _maskc, _contour_queue, _job_queue):
+    def __init__(self, _stream_location, _stream_id, _resize, _thresh_op, _thresh_sensitivity, _detectionMinimum, _accumulation, _blur_radius, _maskc, _contour_queue, _job_queue, _quadratics, _shouldflip):
         self.stream_location = _stream_location
         self.stream_id = _stream_id
         self.resize = _resize
@@ -104,6 +106,8 @@ class CVInputSettings(object):
         self.maskc = _maskc
         self.contour_queue = _contour_queue
         self.job_queue = _job_queue
+        self.quadratics = _quadratics
+        self.shouldflip = _shouldflip
 
 class PlayerJob(object):
     """

@@ -45,7 +45,7 @@ DEFAULT_COLOR = [70, 0, 255, 0]
 REDUCED_DEFAULT = [0, 0, 90, 0]
 THRESHOLD_COLOR = [255, 200, 255, 125]
 BUSY_THRESHOLD_COLOR = [150, 120, 255, 200]
-SPEED_COLORS = [[125, 125, 125, 175], [150, 200, 150, 150], [175, 175, 255, 175]]#default, walker, runner, biker (supposedly)
+SPEED_COLORS = [[255, 255, 255, 255], [150, 200, 150, 150], [175, 175, 255, 175]]#default, walker, runner, biker (supposedly)
 BACKFILL_COLOR_A = [240, 0, 180, 0] #backfill for the 1ft fixtures
 BACKFILL_COLOR_B = [0, 0, 255, 0]
 NIGHT_IDLE_COLOR = [125, 125, 0, 255]
@@ -74,7 +74,7 @@ PLAYER_SETTINGS = OpenCVPlayerSettings(
 
 COLOR_SETTINGS = ColorSettings(
     DEFAULT_COLOR,
-    REDUCED_DEFAULT,
+    DEFAULT_COLOR,
     THRESHOLD_COLOR,
     SPEED_COLORS,
     [BACKFILL_COLOR_A, BACKFILL_COLOR_B],
@@ -101,7 +101,9 @@ OPENCV_STREAM_RIVER = CVInputSettings(
     STREAM_BLUR,
     MASK_PTS_CITY,
     CITY_CONTOURQUEUE,
-    RIVER_JOBQUEUE
+    RIVER_JOBQUEUE,
+    [0.006592, -0.8578, 28.85],
+    True
 )
 
 OPENCV_STREAM_CITY = CVInputSettings(
@@ -115,7 +117,9 @@ OPENCV_STREAM_CITY = CVInputSettings(
     STREAM_BLUR,
     MASK_PTS_CITY,
     RIVER_CONTOURQUEUE,
-    CITY_JOBQUEUE
+    CITY_JOBQUEUE,
+    [0.006592, -0.8578, 28.85],
+    False
 )
 
 def generatecullmap():
@@ -210,6 +214,9 @@ try:
             RIVER_WATCHDOG = 0
         if not CITY_CONTOURQUEUE.empty():
             CITY_LATEST = CITY_CONTOURQUEUE.get()
+            for cc in CITY_LATEST:
+                    #reversing the x indices for this stream
+                    cc.spatialindex = (FIXTURES/2) + cc.spatialindex #assign real world x position
             CITY_WATCHDOG = 0
         ALL = RIVER_LATEST + CITY_LATEST
         #CONTOURQUEUE.put(contextualcull(_all))
