@@ -115,6 +115,8 @@ class CVStream(Process):
                             current_contours.append(cdc)
                         cv2.rectangle(gray, (x, y), (x+w, y+h), (0, 255, 0), 2)
                         cv2.putText(gray, str(cdc.spatialindex),(x, y), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+                        areamsg = 'Area'+str(cdc.area)
+                        cv2.putText(gray, areamsg, (x, y-h), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
             if self.IS_SHAPE_SET is not True:
                 SHAPE_SETUP = playerutils.PlayerJob(
                     self.stream_id,
