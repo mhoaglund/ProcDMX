@@ -122,16 +122,20 @@ class ImmediatePlayer(Process):
         #we have 132 interactive lights (4 per fixture) and some that aren't.
         #each light has 4 channels, so we have a total of 544 channels.
         #building more than one universe worth here, to be divided up later.
-        _dirty = [0]*544
         _temp = self.colors.base*136
         for cdc in _cdcs:
             _fixturehue = self.colors.speeds[0]
             _startchannel = 0
             if cdc.spatialindex > 0:
                 _startchannel = cdc.spatialindex * 4
+            if _startchannel -4 > 0: #conditionally brighten the previous fixture
+                for ch in range(-4, 0):
+                    _temp[_startchannel + ch] = _fixturehue[ch]
             for ch in range(0, 4):
                 _temp[_startchannel + ch] = _fixturehue[ch]
-                _dirty[_startchannel + ch] = 1
+            if _startchannel + 7 < 544:  #conditionally brighten the next fixture
+                for ch in range(4, 8):
+                    _temp[_startchannel + ch] = _fixturehue[ch]
         return _temp
 
 

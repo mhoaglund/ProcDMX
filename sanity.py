@@ -15,4 +15,13 @@ for m in range(0, 136/2):
     _end = _running+_res[m]
     _running += _res[m]
     STRIPES.append((_start, _end))
-print STRIPES
+#print STRIPES
+
+print '----'
+
+for x in range(-4, 0):
+    print x
+for x in range(0, 4):
+    print x
+for x in range(4, 8):
+    print x
