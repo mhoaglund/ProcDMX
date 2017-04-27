@@ -59,17 +59,22 @@ class CVStream(Process):
                     self.isnightmode = False
 
             try:
-                throwaway = self.vcap.grab()
+                #throwaway = self.vcap.grab()
                 (grabbed, frame) = self.vcap.read()
             except cv2.error as e:
                 print e
-            
-            if not grabbed:
                 self.vcap.release()
                 self.hasStarted = False
                 logging.info('Stream crash on %s. Attempting to restart stream...', self.stream_id)
                 print 'Crashed. Restarting stream...'
                 continue
+
+            #if not grabbed:
+            #    self.vcap.release()
+            #    self.hasStarted = False
+            #    logging.info('Stream crash on %s. Attempting to restart stream...', self.stream_id)
+            #    print 'Crashed. Restarting stream...'
+            #    continue
 
             frame = imutils.resize(frame, width=self.settings.resize)
             if not self.hasMasked:
@@ -78,7 +83,7 @@ class CVStream(Process):
             if self.shouldmask:
                 frame = cv2.bitwise_and(frame, frame, mask = self.mask)
             gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-            gray = cv2.equalizeHist(gray)
+            #gray = cv2.equalizeHist(gray)
             #gray = cv2.GaussianBlur(gray, (self.settings.blur_radius, self.settings.blur_radius), 0)
             
             if self.avg == None:
@@ -120,7 +125,7 @@ class CVStream(Process):
             self.my_contour_queue.put(current_contours)
             if self.shouldShow:
                 cv2.imshow(str(self.stream_id), gray)
-            cv2.waitKey(17)
+            cv2.waitKey(22)
         self.vcap.release()
         print 'Release Cap: ', self.stream_id
         if self.shouldShow:
