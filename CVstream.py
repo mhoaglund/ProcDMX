@@ -54,6 +54,7 @@ class CVStream(Process):
                     self.hasStarted = False
 
             if self.hasStarted is False:
+                print 'setting up', self.stream_id
                 logging.info('Performing stream setup on %s', self.stream_id)
                 self.generatedistortionmap() #Temporarily doing this inside the opencv process so we can print fixture numbers into the picture.
                 self.vcap = cv2.VideoCapture(self.settings.stream_location)
@@ -61,9 +62,9 @@ class CVStream(Process):
                     cv2.startWindowThread()
                     self.output = cv2.namedWindow(str(self.stream_id), cv2.WINDOW_NORMAL)
                 self.hasStarted = True
-            
+
             try:
-                throwaway = self.vcap.grab()
+                #throwaway = self.vcap.grab()
                 (grabbed, frame) = self.vcap.read()
             except cv2.error as e:
                 print e
@@ -76,9 +77,10 @@ class CVStream(Process):
             if not grabbed:
                 self.vcap.release()
                 self.hasStarted = False
-                cv2.waitKey(1)
-                cv2.destroyAllWindows()
-                cv2.waitKey(1)
+                if self.shouldShow:
+                    cv2.waitKey(1)
+                    cv2.destroyAllWindows()
+                    cv2.waitKey(1)
                 logging.info('Stream crash on %s. Attempting to restart stream...', self.stream_id)
             #   print 'Crashed. Restarting stream...'
                 continue
