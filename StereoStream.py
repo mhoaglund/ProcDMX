@@ -85,7 +85,7 @@ COLOR_SETTINGS = ColorSettings(
 )
 
 STREAM_WIDTH = 685
-STREAM_ACCUMULATION = 0.10
+STREAM_ACCUMULATION = 0.05
 STREAM_THRESH = 50
 STREAM_BLUR = 5
 MASK_PTS_RIVER = [(0.0, 0.6), (0.0, 0.4), (0.75, 0.0), (1.0, 0.0), (1.0, 1.0), (0.75, 1.0),]
@@ -117,38 +117,6 @@ OPENCV_STREAM_CITY = CVInputSettings(
     RIVER_CONTOURQUEUE,
     CITY_JOBQUEUE
 )
-
-def generatedistortionmap():
-    """
-       Using a quadratic equation to build a list of pixel ranges
-       which correspond to 1ft sections of flat ground captured
-       in the camera's image.
-    """
-    _res = []
-    _a = 0.005392
-    _b = -0.7637
-    _c = 28.00
-    for f in range(0, FIXTURES/2):
-        size = (_a * (f * f)) + (_b * f) + _c
-        if size < 1:
-            size = 1
-        _res.append(int(size))
-    print "Sum:", sum(_res) #This sum shouldn't exceed STREAM_WIDTH
-    _running = 0
-    for m in range(0, FIXTURES/2):
-        _start = _running
-        _end = _running+_res[m]
-        _running += _res[m]
-        STRIPES.append((_start, _end))
-    print STRIPES
-
-def locate(_x):
-    """
-       Given an x pixel value, find the appropriate stripe so the player can use that index to find a fixture.
-    """
-    for st in range(0, 68):
-        if _x >= STRIPES[st][0] and _x < STRIPES[st][1]:
-            return st
 
 def generatecullmap():
     global CULL_MINIMUMS
@@ -218,7 +186,6 @@ def reclaim_stream(_stream):
     _stream.join()
 
 generatecullmap()
-generatedistortionmap()
 spinupcvstreams()
 spinupplayer()
 RIVER_LATEST = []
