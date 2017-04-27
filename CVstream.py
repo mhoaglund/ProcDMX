@@ -146,9 +146,9 @@ class CVStream(Process):
         in the camera's image.
         """
         _res = []
-        _a = 0.005392
-        _b = -0.7637
-        _c = 28.00
+        _a = 0.006592
+        _b = -0.8578
+        _c = 28.85
         for f in range(0, 136/2):
             size = (_a * (f * f)) + (_b * f) + _c
             if size < 1:
