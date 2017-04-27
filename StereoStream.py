@@ -202,10 +202,10 @@ try:
         global _cityprocess
         global RIVER_WATCHDOG
         global CITY_WATCHDOG
-        if RIVER_WATCHDOG > 200:
+        if RIVER_WATCHDOG > 20000:
             print RIVER_WATCHDOG
             #reclaim_stream(_riverprocess)
-        if CITY_WATCHDOG > 200:
+        if CITY_WATCHDOG > 20000:
             print CITY_WATCHDOG
             #reclaim_stream(_cityprocess)
         if hasattr(schedule, 'run_pending'):
@@ -225,6 +225,7 @@ try:
         CONTOURQUEUE.put(ALL)
         RIVER_WATCHDOG += 1
         CITY_WATCHDOG += 1
+        time.sleep(0.02)
 
 except (KeyboardInterrupt, SystemExit):
     print 'Interrupted!'
