@@ -132,8 +132,8 @@ class CVStream(Process):
             cv2.waitKey(22)
         self.vcap.release()
         print 'Release Cap: ', self.stream_id
-        if self.shouldShow:
-            cv2.DestroyAllWindows()
+        #if self.shouldShow:
+        #    cv2.DestroyAllWindows()
 
     def GenerateMask(self, _frame):
         """
