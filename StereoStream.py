@@ -214,9 +214,11 @@ try:
         #print CITY_WATCHDOG
         if RIVER_WATCHDOG > 2000:
             #reclaim_stream('river')
+            print 'No report from river in a while'
             RIVER_WATCHDOG = 0
         if CITY_WATCHDOG > 2000:
             #reclaim_stream('city')
+            print 'No report from city in a while'
             CITY_WATCHDOG = 0
         if hasattr(schedule, 'run_pending'):
             schedule.run_pending()
