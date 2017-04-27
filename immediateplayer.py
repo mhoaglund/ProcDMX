@@ -190,4 +190,4 @@ class ImmediatePlayer(Process):
 
         self.prev_frame = _actual
         self.render(self.dmxDataOne, self.dmxDataTwo)
-        time.sleep(0.05)
+        time.sleep(0.02)
