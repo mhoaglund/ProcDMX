@@ -22,6 +22,8 @@ STREAM_PIDS = ['River','City']
 
 PROCESSES = []
 
+CITY_WATCHDOG = 0
+RIVER_WATCHDOG = 0
 STRIPES = []
 CULL_MINIMUMS = []
 CONTOURQUEUE = Queue()
@@ -191,9 +193,7 @@ generatecullmap()
 spinupcvstreams()
 spinupplayer()
 RIVER_LATEST = []
-RIVER_WATCHDOG = 0
 CITY_LATEST = []
-CITY_WATCHDOG = 0
 
 
 try:
