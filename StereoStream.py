@@ -204,8 +204,10 @@ try:
         #print CITY_WATCHDOG
         if RIVER_WATCHDOG > 2000:
             reclaim_stream(_riverprocess)
+            RIVER_WATCHDOG = 0
         if CITY_WATCHDOG > 2000:
             reclaim_stream(_cityprocess)
+            CITY_WATCHDOG = 0
         if hasattr(schedule, 'run_pending'):
             schedule.run_pending()
         """Gathering readings from both processes"""
