@@ -179,12 +179,10 @@ class ImmediatePlayer(Process):
 
         uni1channels = _actual[:368]
         uni1channels = uni1channels + self.backfills
-        logging.info('Universe 1: %s', uni1channels)
         for x in range(1, len(uni1channels), 1):
             self.setchannelOnOne(x, uni1channels[x-1])
 
         uni2channels = _actual[368:]
-        logging.info('Universe 2: %s', uni2channels)
         for y in range(1, len(uni2channels), 1):
             self.setchannelOnTwo(y, uni2channels[y-1])
 

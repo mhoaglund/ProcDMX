@@ -103,7 +103,7 @@ OPENCV_STREAM_RIVER = CVInputSettings(
     CITY_CONTOURQUEUE,
     RIVER_JOBQUEUE,
     [0.006592, -0.8578, 28.85],
-    True
+    False
 )
 
 OPENCV_STREAM_CITY = CVInputSettings(
@@ -184,7 +184,7 @@ def stopworkerthreads():
 
 def reclaim_stream(_stream):
     """If a stream hasn't reported anything in a while, kill the process and start again."""
-    print 'A stream has stopped. Restarting it...'
+    #print 'A stream has stopped. Restarting it...'
     _stream.refresh()
 
 generatecullmap()
@@ -200,10 +200,14 @@ try:
     while True:
         global _riverprocess
         global _cityprocess
+        global RIVER_WATCHDOG
+        global CITY_WATCHDOG
         if RIVER_WATCHDOG > 200:
-            reclaim_stream(_riverprocess)
+            print RIVER_WATCHDOG
+            #reclaim_stream(_riverprocess)
         if CITY_WATCHDOG > 200:
-            reclaim_stream(_cityprocess)
+            print CITY_WATCHDOG
+            #reclaim_stream(_cityprocess)
         if hasattr(schedule, 'run_pending'):
             schedule.run_pending()
         """Gathering readings from both processes"""

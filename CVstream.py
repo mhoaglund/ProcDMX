@@ -32,7 +32,7 @@ class CVStream(Process):
         self.mask = []
         self.hasMasked = False
         self.shouldmask = False
-        self.shouldShow = False
+        self.shouldShow = True
         self.STRIPES = []
 
         self.exit_event = Event()
@@ -40,6 +40,7 @@ class CVStream(Process):
     def run(self):
         while not self.exit_event.is_set():
             if self.hasStarted is False:
+                logging.info('Performing stream setup on %s', self.stream_id)
                 self.generatedistortionmap() #Temporarily doing this inside the opencv process so we can print fixture numbers into the picture.
                 self.vcap = cv2.VideoCapture(self.settings.stream_location)
                 if self.shouldShow:
