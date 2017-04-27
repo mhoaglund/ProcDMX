@@ -21,7 +21,9 @@ print '----'
 
 for x in range(-4, 0):
     print x
+print '---'
 for x in range(0, 4):
     print x
+print '---'
 for x in range(4, 8):
     print x
