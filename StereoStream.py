@@ -185,9 +185,7 @@ def stopworkerthreads():
 def reclaim_stream(_stream):
     """If a stream hasn't reported anything in a while, kill the process and start again."""
     print 'A stream has stopped. Restarting it...'
-    _stream.stop()
-    time.sleep(1)
-    _stream.join()
+    _stream.refresh()
 
 generatecullmap()
 spinupcvstreams()
@@ -202,10 +200,10 @@ try:
     while True:
         global _riverprocess
         global _cityprocess
-        #if RIVER_WATCHDOG > 200:
-        #    reclaim_stream(_riverprocess)
-        #if CITY_WATCHDOG > 200:
-        #    reclaim_stream(_cityprocess)
+        if RIVER_WATCHDOG > 200:
+            reclaim_stream(_riverprocess)
+        if CITY_WATCHDOG > 200:
+            reclaim_stream(_cityprocess)
         if hasattr(schedule, 'run_pending'):
             schedule.run_pending()
         """Gathering readings from both processes"""
