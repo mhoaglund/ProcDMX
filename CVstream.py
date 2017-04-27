@@ -32,7 +32,7 @@ class CVStream(Process):
         self.mask = []
         self.hasMasked = False
         self.shouldmask = False
-        self.shouldShow = True
+        self.shouldShow = False
 
     def run(self):
         while self.cont:

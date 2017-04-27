@@ -158,8 +158,8 @@ class ImmediatePlayer(Process):
         """
         _actual = self.prev_frame
         for index in range(0, 544):
-            _thiscurr = self.prev_frame[index] #25
-            _thisdesired = self.goal_frame[index] #250
+            _thiscurr = self.prev_frame[index]
+            _thisdesired = self.goal_frame[index]
             if _thiscurr == _thisdesired:
                 continue
             new = 0
@@ -179,12 +179,12 @@ class ImmediatePlayer(Process):
         uni1channels = uni1channels + self.backfills
         logging.info('Universe 1: %s', uni1channels)
         for x in range(1, len(uni1channels), 1):
-            self.setchannelOnOne(x, uni1channels[x])
+            self.setchannelOnOne(x, uni1channels[x-1])
 
         uni2channels = _actual[368:]
         logging.info('Universe 2: %s', uni2channels)
         for y in range(1, len(uni2channels), 1):
-            self.setchannelOnTwo(y, uni2channels[y])
+            self.setchannelOnTwo(y, uni2channels[y-1])
 
         self.prev_frame = _actual
         self.render(self.dmxDataOne, self.dmxDataTwo)
