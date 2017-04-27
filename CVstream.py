@@ -182,4 +182,4 @@ class CVStream(Process):
     def stop(self):
         print 'Terminating...'
         self.cont = False
-        #super(CVStream, self).terminate()
+        super(CVStream, self).terminate()
