@@ -200,12 +200,12 @@ try:
     while True:
         global _riverprocess
         global _cityprocess
-        print RIVER_WATCHDOG
-        print CITY_WATCHDOG
-        #if RIVER_WATCHDOG > 20000:
-            #reclaim_stream(_riverprocess)
-        #if CITY_WATCHDOG > 20000:
-            #reclaim_stream(_cityprocess)
+        #print RIVER_WATCHDOG
+        #print CITY_WATCHDOG
+        if RIVER_WATCHDOG > 2000:
+            reclaim_stream(_riverprocess)
+        if CITY_WATCHDOG > 2000:
+            reclaim_stream(_cityprocess)
         if hasattr(schedule, 'run_pending'):
             schedule.run_pending()
         """Gathering readings from both processes"""

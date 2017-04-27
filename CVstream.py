@@ -65,9 +65,9 @@ class CVStream(Process):
             except cv2.error as e:
                 print e
                 self.vcap.release()
-                self.hasStarted = False
+                #self.hasStarted = False
+                logging.error('Stream error: %s', e)
                 logging.info('Stream crash on %s. Attempting to restart stream...', self.stream_id)
-                print 'Crashed. Restarting stream...'
                 continue
 
             #if not grabbed:
