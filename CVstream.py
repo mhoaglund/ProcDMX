@@ -43,8 +43,8 @@ class CVStream(Process):
                 currentjob = self.job_queue.get()
                 if currentjob.job == "REFRESH":
                     self.cont = False
-                    if self.shouldShow:
-                        cv2.DestroyAllWindows()
+                    #if self.shouldShow:
+                    #    cv2.DestroyAllWindows()
                     self.vcap.release()
                     self.vcap = cv2.VideoCapture()
                     self.hasStarted = False
