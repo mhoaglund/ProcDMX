@@ -32,7 +32,7 @@ class CVStream(Process):
         self.mask = []
         self.hasMasked = False
         self.shouldmask = False
-        self.shouldShow = True
+        self.shouldShow = False
         self.STRIPES = []
 
         self.exit_event = Event()
@@ -74,7 +74,8 @@ class CVStream(Process):
                 logging.info('Stream crash on %s. Attempting to restart stream...', self.stream_id)
                 continue
 
-            if not grabbed:
+            if not grabbed or type(frame) is None:
+                print 'Stream problem! ', self.stream_id, 
                 self.vcap.release()
                 self.hasStarted = False
                 if self.shouldShow:
@@ -121,10 +122,11 @@ class CVStream(Process):
                         cdc.spatialindex = self.locate(cdc.center[0]) #assign real world x position
                         if cdc.spatialindex < 69:
                             current_contours.append(cdc)
-                        cv2.rectangle(gray, (x, y), (x+w, y+h), (0, 255, 0), 2)
-                        cv2.putText(gray, str(cdc.spatialindex),(x, y), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
-                        areamsg = 'Area'+str(cdc.area)
-                        cv2.putText(gray, areamsg, (x, y-h), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+                        if self.shouldShow:
+                            cv2.rectangle(gray, (x, y), (x+w, y+h), (0, 255, 0), 2)
+                            cv2.putText(gray, str(cdc.spatialindex),(x, y), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+                            areamsg = 'Area'+str(cdc.area)
+                            cv2.putText(gray, areamsg, (x, y-h), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
             if self.IS_SHAPE_SET is not True:
                 SHAPE_SETUP = playerutils.PlayerJob(
                     self.stream_id,
