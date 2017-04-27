@@ -27,3 +27,9 @@ for x in range(0, 4):
 print '---'
 for x in range(4, 8):
     print x
+print '---'
+y = 4
+print y-4
+
+if 0 -4 < 0:
+    print 'yes'
