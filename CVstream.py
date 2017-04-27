@@ -172,9 +172,11 @@ class CVStream(Process):
         """
         if self.settings.shouldflip:
             _x = self.settings.resize - _x
+        stripe = 99
         for st in range(0, 68):
             if _x >= self.STRIPES[st][0] and _x < self.STRIPES[st][1]:
-                return st
+                stripe = st
+        return stripe
 
     def stop(self):
         print 'Terminating...'
