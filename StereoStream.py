@@ -2,7 +2,7 @@ import logging
 import os
 import datetime
 import time
-from multiprocessing import Queue
+from multiprocessing import Queue, Event
 import schedule
 import cv2
 import imutils
@@ -177,7 +177,7 @@ def stopworkerthreads():
     for proc in PROCESSES:
         print 'found worker'
         proc.stop()
-        proc.join()
+        #proc.join()
         #if proc.is_alive():
         #    print 'stopping worker'
         #    proc.stop()

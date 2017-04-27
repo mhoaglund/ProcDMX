@@ -7,7 +7,7 @@ import cv2
 import imutils
 import numpy as np
 import playerutils
-from multiprocessing import Process, Queue
+from multiprocessing import Process, Queue, Event
 from random import randint
 from operator import add
 
@@ -35,8 +35,10 @@ class CVStream(Process):
         self.shouldShow = False
         self.STRIPES = []
 
+        self.exit_event = Event()
+
     def run(self):
-        while self.cont:
+        while not self.exit_event.is_set():
             if self.hasStarted is False:
                 self.generatedistortionmap() #Temporarily doing this inside the opencv process so we can print fixture numbers into the picture.
                 self.vcap = cv2.VideoCapture(self.settings.stream_location)
@@ -182,4 +184,5 @@ class CVStream(Process):
     def stop(self):
         print 'Terminating...'
         self.cont = False
+        self.exit_event.set()
         super(CVStream, self).terminate()
