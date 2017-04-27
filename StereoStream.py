@@ -186,7 +186,16 @@ def stopworkerthreads():
 def reclaim_stream(_stream):
     """If a stream hasn't reported anything in a while, kill the process and start again."""
     #print 'A stream has stopped. Restarting it...'
-    _stream.refresh()
+    job = PlayerJob(
+            'REFRESH',
+            '',
+            0,
+        )
+    if _stream == 'city':
+        CITY_JOBQUEUE.put(job)
+    if _stream == 'river':
+        RIVER_JOBQUEUE.put(job)
+    #_stream.refresh()
 
 generatecullmap()
 spinupcvstreams()
@@ -203,10 +212,10 @@ try:
         #print RIVER_WATCHDOG
         #print CITY_WATCHDOG
         if RIVER_WATCHDOG > 2000:
-            reclaim_stream(_riverprocess)
+            reclaim_stream('river')
             RIVER_WATCHDOG = 0
         if CITY_WATCHDOG > 2000:
-            reclaim_stream(_cityprocess)
+            reclaim_stream('city')
             CITY_WATCHDOG = 0
         if hasattr(schedule, 'run_pending'):
             schedule.run_pending()

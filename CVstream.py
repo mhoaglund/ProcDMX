@@ -39,6 +39,13 @@ class CVStream(Process):
 
     def run(self):
         while not self.exit_event.is_set():
+            if not self.job_queue.empty():
+                currentjob = self.job_queue.get()
+                if currentjob.job == "REFRESH":
+                    self.cont = False
+                    self.vcap.release()
+                    self.hasStarted = False
+
             if self.hasStarted is False:
                 logging.info('Performing stream setup on %s', self.stream_id)
                 self.generatedistortionmap() #Temporarily doing this inside the opencv process so we can print fixture numbers into the picture.
@@ -47,24 +54,13 @@ class CVStream(Process):
                     cv2.startWindowThread()
                     self.output = cv2.namedWindow(str(self.stream_id), cv2.WINDOW_NORMAL)
                 self.hasStarted = True
-            if not self.job_queue.empty():
-                currentjob = self.job_queue.get()
-                if currentjob.job == "TERM":
-                    self.cont = False
-                    self.vcap.release()
-                if currentjob.job == "NIGHT":
-                    logging.info('Going into Night Mode')
-                    self.isnightmode = True
-                if currentjob.job == "MORNING":
-                    logging.info('Activating for the day')
-                    self.isnightmode = False
-
+            
             try:
                 throwaway = self.vcap.grab()
                 (grabbed, frame) = self.vcap.read()
             except cv2.error as e:
                 print e
-                self.vcap.release()
+                #self.vcap.release()
                 #self.hasStarted = False
                 logging.error('Stream error: %s', e)
                 logging.info('Stream crash on %s. Attempting to restart stream...', self.stream_id)
