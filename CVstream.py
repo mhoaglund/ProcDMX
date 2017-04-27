@@ -198,6 +198,6 @@ class CVStream(Process):
         super(CVStream, self).terminate()
 
     def refresh(self):
-        logging.info('Problem with stream %s , rebooting', self.stream_id)
+        logging.info('Experiencing a problem with stream %s, rebooting', self.stream_id)
         self.vcap.release()
         self.hasStarted = False

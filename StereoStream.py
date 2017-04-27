@@ -92,7 +92,7 @@ STREAM_BLUR = 5
 MASK_PTS_RIVER = [(0.0, 0.6), (0.0, 0.4), (0.75, 0.0), (1.0, 0.0), (1.0, 1.0), (0.75, 1.0),]
 MASK_PTS_CITY = [(1.0, 0.4), (1.0, 0.6), (0.25, 1.0), (0.0, 1.0), (0.0, 0.0), (0.25, 0.0)]
 OPENCV_STREAM_RIVER = CVInputSettings(
-    "rivertest.mp4",
+    "rtsp://10.254.239.7:554/11.cgi",
     STREAM_PIDS[0],
     STREAM_WIDTH,
     cv2.THRESH_BINARY,
@@ -108,7 +108,7 @@ OPENCV_STREAM_RIVER = CVInputSettings(
 )
 
 OPENCV_STREAM_CITY = CVInputSettings(
-    "citytest.mp4",
+    "rtsp://10.254.239.6:554/11.cgi",
     STREAM_PIDS[1],
     STREAM_WIDTH,
     cv2.THRESH_BINARY,
