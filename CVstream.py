@@ -66,12 +66,12 @@ class CVStream(Process):
                 logging.info('Stream crash on %s. Attempting to restart stream...', self.stream_id)
                 continue
 
-            #if not grabbed:
+            if not grabbed:
             #    self.vcap.release()
             #    self.hasStarted = False
             #    logging.info('Stream crash on %s. Attempting to restart stream...', self.stream_id)
             #    print 'Crashed. Restarting stream...'
-            #    continue
+                 continue
 
             frame = imutils.resize(frame, width=self.settings.resize)
             if not self.hasMasked:
