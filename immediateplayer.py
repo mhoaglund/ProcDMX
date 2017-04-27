@@ -129,7 +129,7 @@ class ImmediatePlayer(Process):
             if cdc.spatialindex > 0:
                 _startchannel = cdc.spatialindex * 4
             if _startchannel -4 > 0: #conditionally brighten the previous fixture
-                for ch in range(-4, 0):
+                for ch in range(-4, 1):
                     _temp[_startchannel + ch] = _fixturehue[ch]
             for ch in range(0, 4):
                 _temp[_startchannel + ch] = _fixturehue[ch]
