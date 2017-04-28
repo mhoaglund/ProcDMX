@@ -7,6 +7,7 @@ import cv2
 import imutils
 import numpy as np
 import playerutils
+import math
 from multiprocessing import Process, Queue, Event
 from random import randint
 from operator import add
@@ -169,10 +170,11 @@ class CVStream(Process):
         """
         _res = []
         _a = self.settings.quadratics[0]
-        _b = self.settings.quadratics[1]
-        _c = self.settings.quadratics[2]
+        _pow = self.settings.quadratics[1]
+        _b = self.settings.quadratics[2]
+        _c = self.settings.quadratics[3]
         for f in range(0, 136/2):
-            size = (_a * (f * f)) + (_b * f) + _c
+            size = math.pow(_a, _pow) + (_b * f) + _c
             if size < 1:
                 size = 1
             _res.append(int(size))
