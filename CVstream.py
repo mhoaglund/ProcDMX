@@ -57,7 +57,7 @@ class CVStream(Process):
                 self.vcap = cv2.VideoCapture(self.settings.stream_location)
                 if self.shouldShow:
                     cv2.startWindowThread()
-                    self.output = cv2.namedWindow(str(self.stream_id), cv2.WINDOW_NORMAL)
+                    self.output = cv2.namedWindow(str(self.stream_id), cv2.CV_WINDOW_AUTOSIZE)
                 self.hasStarted = True
 
             try:
