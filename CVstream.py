@@ -177,14 +177,15 @@ class CVStream(Process):
             if size < 1:
                 size = 1
             _res.append(int(size))
-        print _res
-        print "Sum:", sum(_res) #This sum shouldn't exceed STREAM_WIDTH
+        
         _running = 0
         #doing this manually after all
-        if self.stream_id == "River":
-            _res=[37,31,30,25,24,22,20,19,19,18,18,17,17,17,17,17,16,15,15,15,14,14,13,12,12,10,10,9,9,8,8,8,7,7,6,6,5,5,5,5,4,4,4,3,3,3,3,2,2,2,2,2,2,2,2,2,2,1,1,1,1,1,1,1,1,1,1,1]
-        if self.stream_id == "City":
-            _res=[27,26,25,24,23,22,21,20,20,19,19,18,18,18,17,17,16,16,15,14,14,13,13,12,12,11,11,10,10,9,9,9,8,8,7,7,7,6,6,6,5,5,5,4,4,4,4,3,3,3,3,2,2,2,2,2,2,2,1,1,1,1,1,1,1,1,1,1,1]
+        # if self.stream_id == "River":
+        #     _res=[37,31,30,25,24,22,20,19,19,18,18,17,17,17,17,17,16,15,15,15,14,14,13,12,12,10,10,9,9,8,8,8,7,7,6,6,5,5,5,5,4,4,4,3,3,3,3,2,2,2,2,2,2,2,2,2,2,1,1,1,1,1,1,1,1,1,1,1]
+        # if self.stream_id == "City":
+        #     _res=[27,26,25,24,23,22,21,20,20,19,19,18,18,18,17,17,16,16,15,14,14,13,13,12,12,11,11,10,10,9,9,9,8,8,7,7,7,6,6,6,5,5,5,4,4,4,4,3,3,3,3,2,2,2,2,2,2,2,1,1,1,1,1,1,1,1,1,1,1]
+        print _res
+        print "Sum:", sum(_res) #This sum shouldn't exceed STREAM_WIDTH
         for m in range(0, 68):
             _start = _running
             _end = _running+_res[m]
@@ -197,6 +198,7 @@ class CVStream(Process):
            Given an x pixel value, find the appropriate stripe so the player can use that index to find a fixture.
         """
         stripe = 99
+        _x = int(_x*0.95)
         for st in range(0, 68):
             if _x >= self.STRIPES[st][0] and _x < self.STRIPES[st][1]:
                 stripe = st
