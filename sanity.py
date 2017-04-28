@@ -80,15 +80,29 @@ def stripeify(_arr):
 #print newStripes
 #print len(newStripes)
 
-print 'CITY: ---'
-cityStripes = gps(0,28, -0.0259, -1.026, 665.1) + gps(29, 68, -0.2014, 9.528, 507.1) + lps(241, -30, 7) + [30, 0]
-print cityStripes
-cityStripes = stripeify(cityStripes[::-1])
-print len(cityStripes)
-print ''
-print 'RIVER: ---'
-riverStripes = [207] + gps(73, 99, -0.3958, 81.33, -3600) + gps(100,136, -0.04051, 11.70, -189.8)
-print riverStripes
-riverStripes = stripeify(riverStripes)
-print len(riverStripes)
+# print 'CITY: ---'
+# cityStripes = gps(0,28, -0.0259, -1.026, 665.1) + gps(29, 68, -0.2014, 9.528, 507.1) + lps(241, -30, 7) + [30, 0]
+# print cityStripes
+# cityStripes = stripeify(cityStripes[::-1])
+# print len(cityStripes)
+# print ''
+# print 'RIVER: ---'
+# riverStripes = [207] + gps(73, 99, -0.3958, 81.33, -3600) + gps(100,136, -0.04051, 11.70, -189.8)
+# print riverStripes
+# riverStripes = stripeify(riverStripes)
+# print len(riverStripes)
 
+
+def computeModifier(_input):
+    """
+        The location algorithms just need help being right.
+    """
+    _result = 0
+    _salt = 1.0-((660.0/_input)/25)
+    print _salt
+    return _salt
+
+computeModifier(685)
+computeModifier(600)
+computeModifier(500)
+computeModifier(200)

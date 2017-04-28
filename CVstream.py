@@ -193,19 +193,22 @@ class CVStream(Process):
             self.STRIPES.append((_start, _end))
         print self.STRIPES
 
+    def pullBack(self, _input):
+        """
+            The location algorithms just need help being right.
+        """
+        _result = 0
+        _salt = 1.0-((660.0/_input)/25)
+        print _salt*_input
+        return int(_salt)
+
+
     def locate(self, _x):
         """
            Given an x pixel value, find the appropriate stripe so the player can use that index to find a fixture.
         """
         stripe = 99
-        modifier = 1.0
-        if _x > 600:
-            modifier = 1.0
-        if _x < 600 and _x > 449:
-            modifier = 0.9
-        if _x < 450:
-            modifier = 0.82
-        _x = int(_x*modifier)
+        _x = self.pullBack(_x)
         for st in range(0, 68):
             if _x >= self.STRIPES[st][0] and _x < self.STRIPES[st][1]:
                 stripe = st
