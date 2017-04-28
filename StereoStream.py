@@ -91,7 +91,7 @@ STREAM_THRESH = 40
 STREAM_BLUR = 5
 MASK_PTS = [(1.0, 0.4), (1.0, 0.6), (0.25, 1.0), (0.0, 1.0), (0.0, 0.0), (0.25, 0.0)]
 OPENCV_STREAM_RIVER = CVInputSettings(
-    "waypointwalkRIVER1.mp4",
+    "waypointwalkRIVER2.mp4",
     STREAM_PIDS[0],
     STREAM_WIDTH,
     cv2.THRESH_BINARY,
@@ -109,7 +109,7 @@ OPENCV_STREAM_RIVER = CVInputSettings(
 
 #subtract 80 from starting x
 OPENCV_STREAM_CITY = CVInputSettings(
-    "waypointwalkCITY1.mp4",
+    "waypointwalkCITY2.mp4",
     STREAM_PIDS[1],
     STREAM_WIDTH,
     cv2.THRESH_BINARY,
