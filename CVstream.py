@@ -170,8 +170,8 @@ class CVStream(Process):
         """
         _res = []
         _a = self.settings.quadratics[0]
-        _b = self.settings.quadratics[1]
-        _c = self.settings.quadratics[2]
+        _b = self.settings.quadratics[2]
+        _c = self.settings.quadratics[3]
         for f in range(0, 136/2):
             size = (_a * (f * f)) + (_b * f) + _c
             if size < 1:
@@ -185,7 +185,7 @@ class CVStream(Process):
             _end = _running+_res[m]
             _running += _res[m]
             self.STRIPES.append((_start, _end))
-        #print self.STRIPES
+        print self.STRIPES
 
     def locate(self, _x):
         """
