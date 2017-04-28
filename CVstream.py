@@ -124,7 +124,7 @@ class CVStream(Process):
             if self.shouldShow:
                 for point in self.settings.waypoints:
                     cv2.rectangle(thresh, (point[0], point[1]), (point[0]+4, point[1]+4), (255, 255, 255), 2)
-                    cv2.putText(thresh, str(point[0]),(x, y), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+                    cv2.putText(thresh, str(point[0]),(point[0], point[1]), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
             if len(current_contours) > 80: #camera must be changing exposure
                 current_contours = []
             self.my_contour_queue.put(current_contours)
