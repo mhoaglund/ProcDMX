@@ -174,7 +174,7 @@ class CVStream(Process):
         _b = self.settings.quadratics[2]
         _c = self.settings.quadratics[3]
         for f in range(0, 136/2):
-            size = math.pow(_a, _pow) + (_b * f) + _c
+            size = pow(_a, _pow) + (_b * f) + _c
             if size < 1:
                 size = 1
             _res.append(int(size))
