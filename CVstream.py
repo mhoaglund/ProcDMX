@@ -178,6 +178,7 @@ class CVStream(Process):
             if size < 1:
                 size = 1
             _res.append(int(size))
+        print _res
         print "Sum:", sum(_res) #This sum shouldn't exceed STREAM_WIDTH
         _running = 0
         for m in range(0, 136/2):
