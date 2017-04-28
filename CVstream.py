@@ -120,29 +120,24 @@ class CVStream(Process):
                         if cdc.spatialindex < 69:
                             current_contours.append(cdc)
                         if self.shouldShow:
-                            cv2.rectangle(thresh, (x, y), (x+w, y+h), (0, 255, 0), 2)
-                            cv2.putText(thresh, str(cdc.spatialindex),(x, y), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
-                            #areamsg = 'Area'+str(cdc.area)
-                            #cv2.putText(thresh, areamsg, (x, y-h), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
-            if self.IS_SHAPE_SET is not True:
-                SHAPE_SETUP = playerutils.PlayerJob(
-                    self.stream_id,
-                    'SET_SHAPE',
-                    frame.shape
-                )
-                self.job_queue.put(SHAPE_SETUP)
-                IS_SHAPE_SET = True
+                            cv2.rectangle(gray, (x, y), (x+w, y+h), (0, 255, 0), 2)
+                            cv2.putText(gray, str(cdc.spatialindex),(x, y), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+            if self.shouldShow:
+                cv2.rectangle(gray, (650, 190), (4, 4), (255,255,255), 2)
+                cv2.rectangle(gray, (100, 190), (4, 4), (255,255,255), 2)
             if len(current_contours) > 80: #camera must be changing exposure
                 current_contours = []
             self.my_contour_queue.put(current_contours)
             if self.shouldShow:
                 cv2.imshow(str(self.stream_id), thresh)
-            cv2.waitKey(28)
+            cv2.waitKey(20)
         self.vcap.release()
         print 'Release Cap: ', self.stream_id
-        #if self.shouldShow:
-        #    cv2.DestroyAllWindows()
-
+        if self.shouldShow:
+            cv2.waitKey(1)
+            cv2.destroyAllWindows()
+            cv2.waitKey(1)
+            
     def GenerateMask(self, _frame):
         """
            Generate a proper mask from the set of proportional coordinates passed in.

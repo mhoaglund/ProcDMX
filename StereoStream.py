@@ -54,7 +54,7 @@ DECREMENT = [-4, -2, -2, -4]
 
 UNI1 = UniverseProfile(
     SERIAL_U1,
-    369,
+    368,
     28
 )
 UNI2 = UniverseProfile(
@@ -89,10 +89,9 @@ STREAM_WIDTH = 685
 STREAM_ACCUMULATION = 0.03
 STREAM_THRESH = 40
 STREAM_BLUR = 5
-MASK_PTS_RIVER = [(0.0, 0.6), (0.0, 0.4), (0.75, 0.0), (1.0, 0.0), (1.0, 1.0), (0.75, 1.0),]
-MASK_PTS_CITY = [(1.0, 0.4), (1.0, 0.6), (0.25, 1.0), (0.0, 1.0), (0.0, 0.0), (0.25, 0.0)]
+MASK_PTS = [(1.0, 0.4), (1.0, 0.6), (0.25, 1.0), (0.0, 1.0), (0.0, 0.0), (0.25, 0.0)]
 OPENCV_STREAM_RIVER = CVInputSettings(
-    "rtsp://10.254.239.9:554/11.cgi",
+    "waypointwalkRIVER1.mp4",
     STREAM_PIDS[0],
     STREAM_WIDTH,
     cv2.THRESH_BINARY,
@@ -100,8 +99,8 @@ OPENCV_STREAM_RIVER = CVInputSettings(
     24,
     STREAM_ACCUMULATION,
     STREAM_BLUR,
-    MASK_PTS_CITY,
-    CITY_CONTOURQUEUE,
+    MASK_PTS,
+    RIVER_CONTOURQUEUE,
     RIVER_JOBQUEUE,
     [0.003170, -0.535, 23.43],
     False
@@ -109,7 +108,7 @@ OPENCV_STREAM_RIVER = CVInputSettings(
 
 #subtract 80 from starting x
 OPENCV_STREAM_CITY = CVInputSettings(
-    "rtsp://10.254.239.8:554/11.cgi",
+    "waypointwalkCITY1.mp4",
     STREAM_PIDS[1],
     STREAM_WIDTH,
     cv2.THRESH_BINARY,
@@ -117,8 +116,8 @@ OPENCV_STREAM_CITY = CVInputSettings(
     24,
     STREAM_ACCUMULATION,
     STREAM_BLUR,
-    MASK_PTS_CITY,
-    RIVER_CONTOURQUEUE,
+    MASK_PTS,
+    CITY_CONTOURQUEUE,
     CITY_JOBQUEUE,
     [0.005392, -0.7637, 28],
     False
@@ -231,22 +230,19 @@ try:
             _new = True
             RIVER_LATEST = RIVER_CONTOURQUEUE.get()
             for cc in RIVER_LATEST:
-                    #reversing the x indices for this stream by subtracting them from 68
-                    cc.spatialindex = 68 - cc.spatialindex #assign real world x position
+                    cc.spatialindex = 68 + cc.spatialindex #assign real world x position
             RIVER_WATCHDOG = 0
         if not CITY_CONTOURQUEUE.empty():
             _new = True
             CITY_LATEST = CITY_CONTOURQUEUE.get()
             for cc in CITY_LATEST:
-                    #for this sit: add 68 to place them correctly
-                    cc.spatialindex = 68 + cc.spatialindex #assign real world x position
+                    cc.spatialindex = 68 - cc.spatialindex
             CITY_WATCHDOG = 0
         if _new:
             ALL = RIVER_LATEST + CITY_LATEST
-        #CONTOURQUEUE.put(contextualcull(_all))
             CONTOURQUEUE.put(ALL)
-        #RIVER_WATCHDOG += 1
-        #CITY_WATCHDOG += 1
+        RIVER_WATCHDOG += 1
+        CITY_WATCHDOG += 1
         #time.sleep(0.001)
 
 except (KeyboardInterrupt, SystemExit):
