@@ -33,7 +33,7 @@ class CVStream(Process):
         self.hasMasked = False
         self.shouldmask = False
         self.shouldShow = True
-        self.STRIPES = []
+        self.STRIPES = self.settings.stripes
 
         self.exit_event = Event()
 
@@ -53,7 +53,6 @@ class CVStream(Process):
             if self.hasStarted is False:
                 print 'setting up', self.stream_id
                 logging.info('Performing stream setup on %s', self.stream_id)
-                self.generatedistortionmap() #Temporarily doing this inside the opencv process so we can print fixture numbers into the picture.
                 self.vcap = cv2.VideoCapture(self.settings.stream_location)
                 if self.shouldShow:
                     cv2.startWindowThread()
@@ -137,7 +136,7 @@ class CVStream(Process):
             cv2.waitKey(1)
             cv2.destroyAllWindows()
             cv2.waitKey(1)
-            
+
     def GenerateMask(self, _frame):
         """
            Generate a proper mask from the set of proportional coordinates passed in.
@@ -157,40 +156,12 @@ class CVStream(Process):
         else:
             return False
 
-    def generatedistortionmap(self):
-        """
-        Using a quadratic equation to build a list of pixel ranges
-        which correspond to 1ft sections of flat ground captured
-        in the camera's image.
-        """
-        _res = []
-        _a = self.settings.quadratics[0]
-        _b = self.settings.quadratics[1]
-        _c = self.settings.quadratics[2]
-        for f in range(0, 136/2):
-            size = (_a * (f * f)) + (_b * f) + _c
-            if size < 1:
-                size = 1
-            _res.append(int(size))
-        
-        print "Sum:", sum(_res) #This sum shouldn't exceed STREAM_WIDTH
-        _running = 0
-        for m in range(0, 136/2):
-            _start = _running
-            _end = _running+_res[m]
-            _running += _res[m]
-            self.STRIPES.append((_start, _end))
-        print 'Old location matrix from ', self.stream_id, ': ', self.STRIPES
-        #print self.STRIPES
-
     def locate(self, _x):
         """
            Given an x pixel value, find the appropriate stripe so the player can use that index to find a fixture.
         """
-        if self.settings.shouldflip:
-            _x = self.settings.resize - _x
         stripe = 99
-        for st in range(0, 68):
+        for st in range(0, len(self.STRIPES)):
             if _x >= self.STRIPES[st][0] and _x < self.STRIPES[st][1]:
                 stripe = st
         return stripe

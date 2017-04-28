@@ -35,7 +35,7 @@ def gps(_start, _end, _a, _b, _c):
             _prev = int(size)
         else:
             _prev = int(size)
-    print 'From ', _start, ' To ', _end, ': '
+    #print 'From ', _start, ' To ', _end, ': '
     #print _result
     #print _deltas
     #print len(_result)
@@ -61,24 +61,34 @@ def lps(_start, _inc, _passes):
         Given a starting point, subtract a number from it x times and return an array of those results
     """
     _result = []
-    for x in range (0, _passes):
+    for x in range (1, _passes):
         _result.append(_start + (_inc * x))
     print _result
     return _result
+
+def stripeify(_arr):
+    """Loop over array, pairing up values"""
+    _running = 0
+    STRIPES = []
+    for m in range(1, len(_arr)):
+        STRIPES.append((_arr[m-1], _arr[m]))
+    print 'Generated Stripes: ', STRIPES
+    return STRIPES
+
 
 #newStripes = gps(0,28, -0.0259, -1.026, 665.1) + gps(29, 68, -0.2014, 9.528, 507.1) + lps(241, -34, 8) + gps(74, 99, -0.3958, 81.33, -3600) + gps(100,136, -0.04051, 11.70, -189.8)
 #print newStripes
 #print len(newStripes)
 
 print 'CITY: ---'
-cityStripes = gps(0,28, -0.0259, -1.026, 665.1) + gps(29, 68, -0.2014, 9.528, 507.1) + lps(241, -34, 7) + [0]
-#print cityStripes
-printDeltas(cityStripes[::-1] )
+cityStripes = gps(0,28, -0.0259, -1.026, 665.1) + gps(29, 68, -0.2014, 9.528, 507.1) + lps(241, -30, 7) + [30, 0]
+print cityStripes
+cityStripes = stripeify(cityStripes[::-1])
 print len(cityStripes)
-print''
+print ''
 print 'RIVER: ---'
-riverStripes = gps(74, 99, -0.3958, 81.33, -3600) + gps(100,136, -0.04051, 11.70, -189.8)
-#print riverStripes
-printDeltas(riverStripes)
+riverStripes = [207] + gps(73, 99, -0.3958, 81.33, -3600) + gps(100,136, -0.04051, 11.70, -189.8)
+print riverStripes
+riverStripes = stripeify(riverStripes)
 print len(riverStripes)
 

@@ -85,6 +85,63 @@ COLOR_SETTINGS = ColorSettings(
     DECREMENT
 )
 
+def gps(_start, _end, _a, _b, _c):
+    """Given a desired set of fixtures and variables for a quadratic equation, generate a set of pixel segments"""
+    _result = []
+    _deltas = []
+    _prev = 0
+    for f in range(_start, _end):
+        size = (_a * (f * f)) + (_b * f) + _c
+        _result.append(int(size))
+        if f > _start:
+            if int(size) > _prev:
+                _deltas.append(int(size) - _prev)
+            if int(size) < _prev:
+                _deltas.append(_prev - int(size))
+            _prev = int(size)
+        else:
+            _prev = int(size)
+    return _result
+
+def printDeltas(_arr):
+    _deltas = []
+    _prev = 0
+    for f in range(0, len(_arr)):
+        if f > 0:
+            if _arr[f] > _prev:
+                _deltas.append(_arr[f] - _prev)
+            if _arr[f] < _prev:
+                _deltas.append(_prev - _arr[f])
+            _prev = _arr[f]
+        else:
+            _prev = _arr[f]
+    print _deltas
+
+def lps(_start, _inc, _passes):
+    """
+        Given a starting point, subtract a number from it x times and return an array of those results
+    """
+    _result = []
+    for x in range (1, _passes):
+        _result.append(_start + (_inc * x))
+    print _result
+    return _result
+
+def stripeify(_arr):
+    """Loop over array, pairing up values"""
+    _running = 0
+    STRIPES = []
+    for m in range(1, len(_arr)):
+        STRIPES.append((_arr[m-1], _arr[m]))
+    print 'Generated Stripes: ', STRIPES
+    return STRIPES
+
+cityStripes = gps(0,28, -0.0259, -1.026, 665.1) + gps(29, 68, -0.2014, 9.528, 507.1) + lps(241, -30, 7) + [30, 0]
+cityStripes = stripeify(cityStripes[::-1])
+
+riverStripes = [207] + gps(73, 99, -0.3958, 81.33, -3600) + gps(100,136, -0.04051, 11.70, -189.8)
+riverStripes = stripeify(riverStripes)
+
 STREAM_WIDTH = 685
 STREAM_ACCUMULATION = 0.03
 STREAM_THRESH = 40
@@ -102,7 +159,7 @@ OPENCV_STREAM_RIVER = CVInputSettings(
     MASK_PTS,
     RIVER_CONTOURQUEUE,
     RIVER_JOBQUEUE,
-    [0.003170, -0.535, 23.43],
+    riverStripes,
     False
 )
 
@@ -119,7 +176,7 @@ OPENCV_STREAM_CITY = CVInputSettings(
     MASK_PTS,
     CITY_CONTOURQUEUE,
     CITY_JOBQUEUE,
-    [0.005392, -0.7637, 28],
+    cityStripes,
     False
 )
 
