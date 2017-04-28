@@ -42,6 +42,20 @@ def gps(_start, _end, _a, _b, _c):
     #print "Sum:", sum(_res) #This sum shouldn't exceed STREAM_WIDTH
     return _result
 
+def printDeltas(_arr):
+    _deltas = []
+    _prev = 0
+    for f in range(0, len(_arr)):
+        if f > 0:
+            if _arr[f] > _prev:
+                _deltas.append(_arr[f] - _prev)
+            if _arr[f] < _prev:
+                _deltas.append(_prev - _arr[f])
+            _prev = _arr[f]
+        else:
+            _prev = _arr[f]
+    print _deltas
+
 def lps(_start, _inc, _passes):
     """
         Given a starting point, subtract a number from it x times and return an array of those results
@@ -56,10 +70,15 @@ def lps(_start, _inc, _passes):
 #print newStripes
 #print len(newStripes)
 
+print 'CITY: ---'
 cityStripes = gps(0,28, -0.0259, -1.026, 665.1) + gps(29, 68, -0.2014, 9.528, 507.1) + lps(241, -34, 7) + [0]
-print cityStripes
+#print cityStripes
+printDeltas(cityStripes[::-1] )
 print len(cityStripes)
+print''
+print 'RIVER: ---'
 riverStripes = gps(74, 99, -0.3958, 81.33, -3600) + gps(100,136, -0.04051, 11.70, -189.8)
-print riverStripes
+#print riverStripes
+printDeltas(riverStripes)
 print len(riverStripes)
 

@@ -172,7 +172,7 @@ class CVStream(Process):
             if size < 1:
                 size = 1
             _res.append(int(size))
-        print 'Old location matrix from ', self.stream_id, ': ', _res
+        
         print "Sum:", sum(_res) #This sum shouldn't exceed STREAM_WIDTH
         _running = 0
         for m in range(0, 136/2):
@@ -180,6 +180,7 @@ class CVStream(Process):
             _end = _running+_res[m]
             _running += _res[m]
             self.STRIPES.append((_start, _end))
+        print 'Old location matrix from ', self.stream_id, ': ', self.STRIPES
         #print self.STRIPES
 
     def locate(self, _x):
