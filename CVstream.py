@@ -198,7 +198,7 @@ class CVStream(Process):
            Given an x pixel value, find the appropriate stripe so the player can use that index to find a fixture.
         """
         stripe = 99
-        _x = int(_x*0.95)
+        _x = int(_x*0.92)
         for st in range(0, 68):
             if _x >= self.STRIPES[st][0] and _x < self.STRIPES[st][1]:
                 stripe = st
