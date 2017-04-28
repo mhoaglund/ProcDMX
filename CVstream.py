@@ -32,7 +32,7 @@ class CVStream(Process):
         self.mask = []
         self.hasMasked = False
         self.shouldmask = False
-        self.shouldShow = False
+        self.shouldShow = True
         self.STRIPES = []
 
         self.exit_event = Event()
@@ -120,10 +120,10 @@ class CVStream(Process):
                         if cdc.spatialindex < 69:
                             current_contours.append(cdc)
                         if self.shouldShow:
-                            cv2.rectangle(gray, (x, y), (x+w, y+h), (0, 255, 0), 2)
-                            cv2.putText(gray, str(cdc.spatialindex),(x, y), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
-                            areamsg = 'Area'+str(cdc.area)
-                            cv2.putText(gray, areamsg, (x, y-h), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+                            cv2.rectangle(thresh, (x, y), (x+w, y+h), (0, 255, 0), 2)
+                            cv2.putText(thresh, str(cdc.spatialindex),(x, y), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+                            #areamsg = 'Area'+str(cdc.area)
+                            #cv2.putText(thresh, areamsg, (x, y-h), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
             if self.IS_SHAPE_SET is not True:
                 SHAPE_SETUP = playerutils.PlayerJob(
                     self.stream_id,
@@ -136,8 +136,8 @@ class CVStream(Process):
                 current_contours = []
             self.my_contour_queue.put(current_contours)
             if self.shouldShow:
-                cv2.imshow(str(self.stream_id), gray)
-            cv2.waitKey(22)
+                cv2.imshow(str(self.stream_id), thresh)
+            cv2.waitKey(28)
         self.vcap.release()
         print 'Release Cap: ', self.stream_id
         #if self.shouldShow:

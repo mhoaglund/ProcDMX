@@ -41,11 +41,11 @@ DAY_START_HOUR = 6 #6am
 DAY_END_HOUR = 5 #5am
 
 PRIORITIZE_FASTEST = False
-DEFAULT_COLOR = [70, 0, 255, 0]
+DEFAULT_COLOR = [135, 135, 135, 135]
 REDUCED_DEFAULT = [0, 0, 90, 0]
 THRESHOLD_COLOR = [255, 200, 255, 125]
 BUSY_THRESHOLD_COLOR = [150, 120, 255, 200]
-SPEED_COLORS = [[255, 255, 255, 255], [150, 200, 150, 150], [175, 175, 255, 175]]#default, walker, runner, biker (supposedly)
+SPEED_COLORS = [[130, 0, 255, 0], [150, 200, 150, 150], [175, 175, 255, 175]]#default, walker, runner, biker (supposedly)
 BACKFILL_COLOR_A = [240, 0, 180, 0] #backfill for the 1ft fixtures
 BACKFILL_COLOR_B = [0, 0, 255, 0]
 NIGHT_IDLE_COLOR = [125, 125, 0, 255]
@@ -64,8 +64,8 @@ UNI2 = UniverseProfile(
 )
 PLAYER_SETTINGS = OpenCVPlayerSettings(
     [UNI1, UNI2],
-    1,
-    16,
+    2,
+    2,
     6,
     4,
     CHAN_PER_FIXTURE,
@@ -86,13 +86,13 @@ COLOR_SETTINGS = ColorSettings(
 )
 
 STREAM_WIDTH = 685
-STREAM_ACCUMULATION = 0.05
-STREAM_THRESH = 50
+STREAM_ACCUMULATION = 0.03
+STREAM_THRESH = 40
 STREAM_BLUR = 5
 MASK_PTS_RIVER = [(0.0, 0.6), (0.0, 0.4), (0.75, 0.0), (1.0, 0.0), (1.0, 1.0), (0.75, 1.0),]
 MASK_PTS_CITY = [(1.0, 0.4), (1.0, 0.6), (0.25, 1.0), (0.0, 1.0), (0.0, 0.0), (0.25, 0.0)]
 OPENCV_STREAM_RIVER = CVInputSettings(
-    "rtsp://10.254.239.7:554/11.cgi",
+    "rtsp://10.254.239.9:554/11.cgi",
     STREAM_PIDS[0],
     STREAM_WIDTH,
     cv2.THRESH_BINARY,
@@ -103,12 +103,13 @@ OPENCV_STREAM_RIVER = CVInputSettings(
     MASK_PTS_CITY,
     CITY_CONTOURQUEUE,
     RIVER_JOBQUEUE,
-    [0.006592, -0.8578, 28.85],
+    [0.003170, -0.535, 23.43],
     False
 )
 
+#subtract 80 from starting x
 OPENCV_STREAM_CITY = CVInputSettings(
-    "rtsp://10.254.239.6:554/11.cgi",
+    "rtsp://10.254.239.8:554/11.cgi",
     STREAM_PIDS[1],
     STREAM_WIDTH,
     cv2.THRESH_BINARY,
@@ -119,7 +120,7 @@ OPENCV_STREAM_CITY = CVInputSettings(
     MASK_PTS_CITY,
     RIVER_CONTOURQUEUE,
     CITY_JOBQUEUE,
-    [0.006592, -0.8578, 28.85],
+    [0.005392, -0.7637, 28],
     False
 )
 
@@ -212,12 +213,13 @@ try:
         global _cityprocess
         #print RIVER_WATCHDOG
         #print CITY_WATCHDOG
-        if RIVER_WATCHDOG > 2000:
+        _new = False
+        if RIVER_WATCHDOG > 8000:
             #reclaim_stream('river')
             print 'No report from river in a while'
             logging.info('Stream outage on River.')
             RIVER_WATCHDOG = 0
-        if CITY_WATCHDOG > 2000:
+        if CITY_WATCHDOG > 8000:
             #reclaim_stream('city')
             print 'No report from city in a while'
             logging.info('Stream outage on City.')
@@ -226,20 +228,26 @@ try:
             schedule.run_pending()
         """Gathering readings from both processes"""
         if not RIVER_CONTOURQUEUE.empty():
+            _new = True
             RIVER_LATEST = RIVER_CONTOURQUEUE.get()
+            for cc in RIVER_LATEST:
+                    #reversing the x indices for this stream by subtracting them from 68
+                    cc.spatialindex = 68 - cc.spatialindex #assign real world x position
             RIVER_WATCHDOG = 0
         if not CITY_CONTOURQUEUE.empty():
+            _new = True
             CITY_LATEST = CITY_CONTOURQUEUE.get()
             for cc in CITY_LATEST:
-                    #reversing the x indices for this stream
-                    cc.spatialindex = (FIXTURES/2) + cc.spatialindex #assign real world x position
+                    #for this sit: add 68 to place them correctly
+                    cc.spatialindex = 68 + cc.spatialindex #assign real world x position
             CITY_WATCHDOG = 0
-        ALL = RIVER_LATEST + CITY_LATEST
+        if _new:
+            ALL = RIVER_LATEST + CITY_LATEST
         #CONTOURQUEUE.put(contextualcull(_all))
-        CONTOURQUEUE.put(ALL)
-        RIVER_WATCHDOG += 1
-        CITY_WATCHDOG += 1
-        time.sleep(0.02)
+            CONTOURQUEUE.put(ALL)
+        #RIVER_WATCHDOG += 1
+        #CITY_WATCHDOG += 1
+        #time.sleep(0.001)
 
 except (KeyboardInterrupt, SystemExit):
     print 'Interrupted!'

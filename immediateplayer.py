@@ -24,7 +24,7 @@ class ImmediatePlayer(Process):
     def __init__(self, _playersettings, _colorsettings):
         super(ImmediatePlayer, self).__init__()
         print 'starting worker'
-        self.isHardwareConnected = False #debug flag for working without the dmx harness
+        self.isHardwareConnected = True #debug flag for working without the dmx harness
         self.dmxData = []
         self.cont = True
         self.universes = _playersettings.universes
@@ -39,14 +39,6 @@ class ImmediatePlayer(Process):
                 sys.exit(0)
         else:
             print "Running in dummy mode with no Serial Output!"
-        #for _universe in self.universes:
-        #    try:
-        #        _universe.serial = serial.Serial(_universe.serialport, baudrate=57600)
-        #        _universe.serial.write( DMXOPEN+DMXINIT1+DMXCLOSE)
-        #        _universe.serial.write( DMXOPEN+DMXINIT2+DMXCLOSE)
-        #    except:
-        #        print "Error: could not open Serial Port: ", _universe.serialport
-        #        sys.exit(0)
 
         self.verbose = True
         self.dataqueue = _playersettings.dataqueue
@@ -67,6 +59,7 @@ class ImmediatePlayer(Process):
         
         #Prev Frame and Goal Frame are containers for data pertaining to ALL interactive channels.
         #They get split up for rendering and don't have anything to do with DMX packets.
+        self.status = [0]*136
         self.prev_frame = self.colors.base*136
         self.goal_frame = self.colors.base*136
         self.heats = [0]*136
@@ -114,24 +107,25 @@ class ImmediatePlayer(Process):
         #each light has 4 channels, so we have a total of 544 channels.
         #building more than one universe worth here, to be divided up later.
         _temp = self.colors.base*136
-        for channelheat in range(0,136): #cool all the channels
-            self.heats[channelheat] -= 1
-        for cdc in _cdcs:
-            _fixturehue = self.colors.speeds[0]
-            _startchannel = 0
-            self.heats[cdc.spatialindex] = self.sustain
-            if cdc.spatialindex > 0:
-                _startchannel = cdc.spatialindex * 4
-            if cdc.spatialindex > 4: #conditionally brighten the previous fixture
-                for ch in range(-4, 0):
-                    _temp[_startchannel + ch] = _fixturehue[ch+4]
-            for ch in range(0, 4):
-                _temp[_startchannel + ch] = _fixturehue[ch]
-            if _startchannel + 7 < 544:  #conditionally brighten the next fixture
-                for ch in range(4, 8):
-                    _temp[_startchannel + ch] = _fixturehue[ch-4]
+        _fixturehue = self.colors.speeds[0]
+        _startchannel = 0
+        #for channelheat in range(0,136): #cool all the channels
+        #    self.heats[channelheat] -= 1
+        for x in range(0, 136):
+            if _cdcs[x] > 1:
+                #hot spot
+                if x > 0:
+                    _startchannel = x * 4
+                if _startchannel > 4: #conditionally brighten the previous fixture
+                    for ch in range(-4, 0):
+                        _temp[_startchannel + ch] = _fixturehue[ch+4]
+                for ch in range(0, 4):
+                    _temp[_startchannel + ch] = _fixturehue[ch]
+                if _startchannel + 7 < 544:  #conditionally brighten the next fixture
+                    for ch in range(4, 8):
+                        _temp[_startchannel + ch] = _fixturehue[ch-4]
+                
         return _temp
-
 
     def run(self):
         while self.cont:
@@ -146,7 +140,11 @@ class ImmediatePlayer(Process):
 
     def compileLatestContours(self, _contours):
         """When a set of contours comes in, build a goal frame out of it."""
-        self.goal_frame = self.constructInteractiveGoalFrame(_contours)
+        for y in range(0, 136):
+            self.status[y] -=1
+        for x in range(0, len(_contours)):
+            self.status[_contours[x].spatialindex] = 100
+        self.goal_frame = self.constructInteractiveGoalFrame(self.status)
 
     def playTowardLatest(self):
         """Always pushing every channel toward where it needs to go
@@ -182,4 +180,4 @@ class ImmediatePlayer(Process):
 
         self.prev_frame = _actual
         self.render(self.dmxDataOne, self.dmxDataTwo)
-        time.sleep(0.02)
+        time.sleep(0.002)
