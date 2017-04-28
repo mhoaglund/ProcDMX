@@ -143,8 +143,8 @@ riverStripes = [207] + gps(73, 99, -0.3958, 81.33, -3600) + gps(100,136, -0.0405
 riverStripes = stripeify(riverStripes)
 
 STREAM_WIDTH = 685
-STREAM_ACCUMULATION = 0.03
-STREAM_THRESH = 40
+STREAM_ACCUMULATION = 0.02
+STREAM_THRESH = 35
 STREAM_BLUR = 5
 MASK_PTS = [(1.0, 0.4), (1.0, 0.6), (0.25, 1.0), (0.0, 1.0), (0.0, 0.0), (0.25, 0.0)]
 OPENCV_STREAM_RIVER = CVInputSettings(

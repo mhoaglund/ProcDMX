@@ -119,11 +119,8 @@ class CVStream(Process):
                         if cdc.spatialindex < 69:
                             current_contours.append(cdc)
                         if self.shouldShow:
-                            cv2.rectangle(gray, (x, y), (x+w, y+h), (0, 255, 0), 2)
-                            cv2.putText(gray, str(cdc.spatialindex),(x, y), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
-            if self.shouldShow:
-                cv2.rectangle(gray, (650, 190), (654, 194), (255,255,255), 2)
-                cv2.rectangle(gray, (100, 190), (104, 194), (255,255,255), 2)
+                            cv2.rectangle(thresh, (x, y), (x+w, y+h), (0, 255, 0), 2)
+                            cv2.putText(thresh, str(cdc.spatialindex),(x, y), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
             if len(current_contours) > 80: #camera must be changing exposure
                 current_contours = []
             self.my_contour_queue.put(current_contours)
