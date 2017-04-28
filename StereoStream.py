@@ -159,6 +159,7 @@ OPENCV_STREAM_RIVER = CVInputSettings(
     MASK_PTS,
     RIVER_CONTOURQUEUE,
     RIVER_JOBQUEUE,
+    [(652,184),(638,184),(613,184),(575,184),(492,184),(295,184)],
     riverStripes,
     False
 )
@@ -176,6 +177,7 @@ OPENCV_STREAM_CITY = CVInputSettings(
     MASK_PTS,
     CITY_CONTOURQUEUE,
     CITY_JOBQUEUE,
+    [(664,184),(642,184),(616,184),(566,184),(458,184),(231,184)],
     cityStripes,
     False
 )
