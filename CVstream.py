@@ -122,7 +122,7 @@ class CVStream(Process):
                         if self.shouldShow:
                             cv2.rectangle(thresh, (x, y), (x+w, y+h), (0, 255, 0), 2)
                             modifier = 0
-                            if self.stream_id == 'river':
+                            if self.stream_id == 'River':
                                 modifier = 68
                             cv2.putText(thresh, str(modifier + cdc.spatialindex),(x, y), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
             if self.shouldShow:
