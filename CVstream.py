@@ -129,7 +129,7 @@ class CVStream(Process):
                 current_contours = []
             self.my_contour_queue.put(current_contours)
             if self.shouldShow:
-                cv2.imshow(str(self.stream_id), thresh)
+                cv2.imshow(str(self.stream_id), gray)
             cv2.waitKey(20)
         self.vcap.release()
         print 'Release Cap: ', self.stream_id
