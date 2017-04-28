@@ -199,9 +199,8 @@ class CVStream(Process):
         """
         _result = 0
         _salt = 1.0-((660.0/_input)/25)
-        print _salt*_input
-        return int(_salt)
-
+        _result = _salt*_input
+        return int(_result)
 
     def locate(self, _x):
         """
