@@ -35,7 +35,7 @@ class CVStream(Process):
         self.shouldmask = False
         self.shouldShow = False
         self.STRIPES = []
-
+        self.stripe_count = 72 #each camera sees 72 feet of flat distance
         self.exit_event = Event()
 
     def run(self):
@@ -54,7 +54,7 @@ class CVStream(Process):
             if self.hasStarted is False:
                 print 'setting up', self.stream_id
                 logging.info('Performing stream setup on %s', self.stream_id)
-                self.generatedistortionmap() #Temporarily doing this inside the opencv process so we can print fixture numbers into the picture.
+                self.generatedistortionmap()
                 self.vcap = cv2.VideoCapture(self.settings.stream_location)
                 if self.shouldShow:
                     cv2.startWindowThread()
@@ -68,17 +68,9 @@ class CVStream(Process):
                 logging.error('Opencv: %s', e)
                 continue
 
-            #if not grabbed or type(frame) is None:
-               # print 'Stream problem! ', self.stream_id, 
-               # self.vcap.release()
-               # self.hasStarted = False
-               # if self.shouldShow:
-               #     cv2.waitKey(1)
-               #     cv2.destroyAllWindows()
-               #     cv2.waitKey(1)
-               # logging.info('Stream crash on %s. Attempting to restart stream...', self.stream_id)
-            #   print 'Crashed. Restarting stream...'
-               # continue
+            if not grabbed or type(frame) is None:
+                logging.info('Grab failed...')
+                continue
 
             frame = imutils.resize(frame, width=self.settings.resize)
             if not self.hasMasked:
@@ -118,11 +110,10 @@ class CVStream(Process):
                             current_contours.append(cdc)
                         if self.shouldShow:
                             cv2.rectangle(gray, (x, y), (x+w, y+h), (0, 255, 0), 2)
-                            modifier = 68
                             if self.stream_id == 'River':
-                                cv2.putText(gray, str(modifier + cdc.spatialindex),(x, y), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
-                            else:
-                                cv2.putText(gray, str(modifier - cdc.spatialindex),(x, y), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+                                cv2.putText(gray, str(self.stripe_count + cdc.spatialindex),(x, y), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+                            if self.stream_id == 'City':
+                                cv2.putText(gray, str(self.stripe_count - cdc.spatialindex),(x, y), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
 
             if self.shouldShow:
                 for point in self.settings.waypoints:
@@ -170,7 +161,7 @@ class CVStream(Process):
         _a = self.settings.quadratics[0]
         _b = self.settings.quadratics[2]
         _c = self.settings.quadratics[3]
-        for f in range(0, 136/2):
+        for f in range(0, self.stripe_count):
             size = (_a * (f * f)) + (_b * f) + _c
             if size < 1:
                 size = 1
@@ -178,7 +169,7 @@ class CVStream(Process):
 
         _running = 0
     
-        for m in range(0, 68):
+        for m in range(0, self.stripe_count):
             _start = _running
             _end = _running+_res[m]
             _running += _res[m]
@@ -198,15 +189,18 @@ class CVStream(Process):
            Given an x pixel value, find the appropriate stripe so the player can use that index to find a fixture.
         """
         stripe = 99
+        overlap_tweak = 0
         if self.stream_id == "River":
             _x = self.pullBack(_x, 25, 660.0)
+            overlap_tweak = 4
         else:
             if _x < 600:
                 _x = self.pullBack(_x, 25, 350.0)
-        for st in range(0, 68):
+        for st in range(0, self.stripe_count):
             if _x >= self.STRIPES[st][0] and _x < self.STRIPES[st][1]:
                 stripe = st
-        return stripe
+        
+        return stripe - overlap_tweak
 
     def stop(self):
         print 'Terminating...'
