@@ -68,17 +68,17 @@ class CVStream(Process):
                 logging.error('Opencv: %s', e)
                 continue
 
-            if not grabbed or type(frame) is None:
-                print 'Stream problem! ', self.stream_id, 
-                self.vcap.release()
-                self.hasStarted = False
-                if self.shouldShow:
-                    cv2.waitKey(1)
-                    cv2.destroyAllWindows()
-                    cv2.waitKey(1)
-                logging.info('Stream crash on %s. Attempting to restart stream...', self.stream_id)
+            #if not grabbed or type(frame) is None:
+               # print 'Stream problem! ', self.stream_id, 
+               # self.vcap.release()
+               # self.hasStarted = False
+               # if self.shouldShow:
+               #     cv2.waitKey(1)
+               #     cv2.destroyAllWindows()
+               #     cv2.waitKey(1)
+               # logging.info('Stream crash on %s. Attempting to restart stream...', self.stream_id)
             #   print 'Crashed. Restarting stream...'
-                continue
+               # continue
 
             frame = imutils.resize(frame, width=self.settings.resize)
             if not self.hasMasked:
