@@ -253,6 +253,7 @@ try:
             CITY_WATCHDOG = 0
         if _new:
             ALL = RIVER_LATEST + CITY_LATEST
+            print len(ALL)
             CONTOURQUEUE.put(ALL)
         RIVER_WATCHDOG += 1
         CITY_WATCHDOG += 1
