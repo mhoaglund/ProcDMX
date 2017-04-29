@@ -201,7 +201,7 @@ def reclaim_stream(_stream):
         print 'found worker'
         proc.stop()
         proc.join()
-    time.sleep(0.5)
+    time.sleep(0.1)
     spinupcvstreams()
     # logging.info('Refreshing %s', _stream)
     # job = PlayerJob(
@@ -228,7 +228,7 @@ try:
         print RIVER_WATCHDOG
         print CITY_WATCHDOG
         _new = False
-        if RIVER_WATCHDOG > 8000 or CITY_WATCHDOG > 8000:
+        if RIVER_WATCHDOG > 800 or CITY_WATCHDOG > 800:
             reclaim_stream('river')
             logging.info('Stream outage...')
             RIVER_WATCHDOG = 0
