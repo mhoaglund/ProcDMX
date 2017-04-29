@@ -184,36 +184,21 @@ def stopworkerthreads():
         print 'found worker'
         proc.stop()
         proc.join()
-    time.sleep(2)
     for cvproc in CVPROCESSES:
         print 'found worker'
         cvproc.stop()
         cvproc.join()
-        time.sleep(2)
         #if proc.is_alive():
         #    print 'stopping worker'
         #    proc.stop()
 
 def reclaim_stream(_stream):
     """If a stream hasn't reported anything in a while, kill the process and start again."""
-    #print 'A stream has stopped. Restarting it...'
     for proc in CVPROCESSES:
         print 'found worker'
         proc.stop()
         proc.join()
-    time.sleep(0.1)
     spinupcvstreams()
-    # logging.info('Refreshing %s', _stream)
-    # job = PlayerJob(
-    #         'REFRESH',
-    #         '',
-    #         0,
-    #     )
-    # if _stream == 'city':
-    #     CITY_JOBQUEUE.put(job)
-    # if _stream == 'river':
-    #     RIVER_JOBQUEUE.put(job)
-    # #_stream.refresh()
 
 generatecullmap()
 spinupcvstreams()
