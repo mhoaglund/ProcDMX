@@ -225,7 +225,7 @@ try:
     while True:
         global _riverprocess
         global _cityprocess
-        print RIVER_WATCHDOG
+        print 'RIVERW: ', RIVER_WATCHDOG
         print CITY_WATCHDOG
         _new = False
         if RIVER_WATCHDOG > 8000:
