@@ -183,11 +183,11 @@ def stopworkerthreads():
     for proc in PROCESSES:
         print 'found worker'
         proc.stop()
-        proc.join()
+        #proc.join()
     for cvproc in CVPROCESSES:
         print 'found worker'
         cvproc.stop()
-        cvproc.join()
+        #cvproc.join()
         #if proc.is_alive():
         #    print 'stopping worker'
         #    proc.stop()
@@ -197,7 +197,8 @@ def reclaim_stream(_stream):
     for proc in CVPROCESSES:
         print 'found worker'
         proc.stop()
-        proc.join()
+        #proc.join()
+    time.sleep(0.5)
     spinupcvstreams()
 
 generatecullmap()
