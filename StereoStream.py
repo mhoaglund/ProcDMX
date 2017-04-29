@@ -234,7 +234,7 @@ try:
             CONTOURQUEUE.put(ALL)
         RIVER_WATCHDOG += 1
         CITY_WATCHDOG += 1
-        #time.sleep(0.02)
+        time.sleep(0.002)
 
 except (KeyboardInterrupt, SystemExit):
     print 'Interrupted!'
