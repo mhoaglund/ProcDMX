@@ -192,7 +192,7 @@ class CVStream(Process):
         distance_from_end = 685.0 - _input
         _pepper = (1.0 - (distance_from_end/685))
         _result = int( _input * _pepper)
-        return int()
+        return _result
 
     def locate(self, _x):
         """
