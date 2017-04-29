@@ -225,10 +225,8 @@ try:
     while True:
         global _riverprocess
         global _cityprocess
-        global RIVER_WATCHDOG
-        global CITY_WATCHDOG
         print 'RIVERW: ', RIVER_WATCHDOG
-        print CITY_WATCHDOG
+        print str(CITY_WATCHDOG)
         _new = False
         if RIVER_WATCHDOG > 8000:
             reclaim_stream('river')
