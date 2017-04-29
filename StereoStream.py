@@ -225,16 +225,13 @@ try:
     while True:
         global _riverprocess
         global _cityprocess
-        print 'RIVERW: ', RIVER_WATCHDOG
-        print str(CITY_WATCHDOG)
+        #print 'RIVERW: ', RIVER_WATCHDOG
+        #print str(CITY_WATCHDOG)
         _new = False
-        if RIVER_WATCHDOG > 8000:
+        if RIVER_WATCHDOG > 80000 or CITY_WATCHDOG > 80000:
             reclaim_stream('river')
-            logging.info('Stream outage on River.')
+            logging.info('Stream outage...')
             RIVER_WATCHDOG = 0
-        if CITY_WATCHDOG > 8000:
-            reclaim_stream('city')
-            logging.info('Stream outage on City.')
             CITY_WATCHDOG = 0
         if hasattr(schedule, 'run_pending'):
             schedule.run_pending()
