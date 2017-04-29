@@ -91,7 +91,7 @@ STREAM_THRESH = 40
 STREAM_BLUR = 5
 MASK_PTS = [(1.0, 0.4), (1.0, 0.6), (0.25, 1.0), (0.0, 1.0), (0.0, 0.0), (0.25, 0.0)]
 OPENCV_STREAM_RIVER = CVInputSettings(
-    "waypointwalkRIVER2.mp4",
+    "rtsp://10.254.239.7:554/11.cgi",
     STREAM_PIDS[0],
     STREAM_WIDTH,
     cv2.THRESH_BINARY,
@@ -109,7 +109,7 @@ OPENCV_STREAM_RIVER = CVInputSettings(
 
 #subtract 80 from starting x
 OPENCV_STREAM_CITY = CVInputSettings(
-    "waypointwalkCITY2.mp4",
+    "rtsp://10.254.239.6:554/11.cgi",
     STREAM_PIDS[1],
     STREAM_WIDTH,
     cv2.THRESH_BINARY,
@@ -143,15 +143,16 @@ def spinupplayer():
         PROCESSES.append(_playthread)
         _playthread.start()
 
+CVPROCESSES = []
 def spinupcvstreams():
     """Set up the two opencv stream processes"""
     global _riverprocess
     global _cityprocess
     if __name__ == "__main__":
         _riverprocess = CVStream(OPENCV_STREAM_RIVER)
-        PROCESSES.append(_riverprocess)
+        CVPROCESSES.append(_riverprocess)
         _cityprocess = CVStream(OPENCV_STREAM_CITY)
-        PROCESSES.append(_cityprocess)
+        CVPROCESSES.append(_cityprocess)
         _riverprocess.start()
         _cityprocess.start()
 
@@ -188,17 +189,23 @@ def stopworkerthreads():
 def reclaim_stream(_stream):
     """If a stream hasn't reported anything in a while, kill the process and start again."""
     #print 'A stream has stopped. Restarting it...'
-    logging.info('Refreshing %s', _stream)
-    job = PlayerJob(
-            'REFRESH',
-            '',
-            0,
-        )
-    if _stream == 'city':
-        CITY_JOBQUEUE.put(job)
-    if _stream == 'river':
-        RIVER_JOBQUEUE.put(job)
-    #_stream.refresh()
+    for proc in CVPROCESSES:
+        print 'found worker'
+        proc.stop()
+        proc.join()
+    time.sleep(0.5)
+    spinupcvstreams()
+    # logging.info('Refreshing %s', _stream)
+    # job = PlayerJob(
+    #         'REFRESH',
+    #         '',
+    #         0,
+    #     )
+    # if _stream == 'city':
+    #     CITY_JOBQUEUE.put(job)
+    # if _stream == 'river':
+    #     RIVER_JOBQUEUE.put(job)
+    # #_stream.refresh()
 
 generatecullmap()
 spinupcvstreams()
@@ -216,13 +223,11 @@ try:
         #print CITY_WATCHDOG
         _new = False
         if RIVER_WATCHDOG > 8000:
-            #reclaim_stream('river')
-            print 'No report from river in a while'
+            reclaim_stream('river')
             logging.info('Stream outage on River.')
             RIVER_WATCHDOG = 0
         if CITY_WATCHDOG > 8000:
-            #reclaim_stream('city')
-            print 'No report from city in a while'
+            reclaim_stream('city')
             logging.info('Stream outage on City.')
             CITY_WATCHDOG = 0
         if hasattr(schedule, 'run_pending'):

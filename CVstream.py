@@ -66,10 +66,6 @@ class CVStream(Process):
                 (grabbed, frame) = self.vcap.read()
             except cv2.error as e:
                 logging.error('Opencv: %s', e)
-                #self.vcap.release()
-                #self.hasStarted = False
-                logging.error('Stream error: %s', e)
-                logging.info('Stream crash on %s. Attempting to restart stream...', self.stream_id)
                 continue
 
             if not grabbed or type(frame) is None:
