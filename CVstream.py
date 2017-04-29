@@ -126,7 +126,7 @@ class CVStream(Process):
                 cv2.imshow(str(self.stream_id), gray)
             cv2.waitKey(20)
         self.vcap.release()
-        print 'Release Cap: ', self.stream_id
+        print 'Released Capture: ', self.stream_id
         if self.shouldShow:
             cv2.waitKey(1)
             cv2.destroyAllWindows()
@@ -200,12 +200,8 @@ class CVStream(Process):
         """
         stripe = 99
         overlap_tweak = 0
-        if self.stream_id == "River": #really need river to be zooming back down a bit quicker.
+        if self.stream_id == "River":
             _x = self.pullBackAlt(_x)
-            # if _x < 630:
-            #     _x = self.pullBack(_x, 6, 660.0)
-            # else:
-            #     _x = self.pullBack(_x, 50, 400.0)
             overlap_tweak = 4
         else:
             if _x < 600:
@@ -220,7 +216,6 @@ class CVStream(Process):
         print 'Terminating...'
         self.cont = False
         self.exit_event.set()
-        #super(CVStream, self).terminate()
 
     def refresh(self):
         logging.info('Experiencing a problem with stream %s, rebooting', self.stream_id)
