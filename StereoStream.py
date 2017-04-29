@@ -182,6 +182,10 @@ def stopworkerthreads():
         print 'found worker'
         proc.stop()
         proc.join()
+    for cvproc in CVPROCESSES:
+        print 'found worker'
+        cvproc.stop()
+        cvproc.join()
         #if proc.is_alive():
         #    print 'stopping worker'
         #    proc.stop()
