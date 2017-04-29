@@ -121,20 +121,20 @@ class CVStream(Process):
                         if cdc.spatialindex < 69:
                             current_contours.append(cdc)
                         if self.shouldShow:
-                            cv2.rectangle(thresh, (x, y), (x+w, y+h), (0, 255, 0), 2)
-                            modifier = 0
+                            cv2.rectangle(gray, (x, y), (x+w, y+h), (0, 255, 0), 2)
+                            modifier = -68
                             if self.stream_id == 'River':
                                 modifier = 68
-                            cv2.putText(thresh, str(modifier + cdc.spatialindex),(x, y), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+                            cv2.putText(gray, str(modifier + cdc.spatialindex),(x, y), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
             if self.shouldShow:
                 for point in self.settings.waypoints:
-                    cv2.rectangle(thresh, (point[0], point[1]), (point[0]+4, point[1]+4), (255, 255, 255), 1)
-                    cv2.putText(thresh, str(point[2]),(point[0], point[1]), cv2.FONT_HERSHEY_SIMPLEX, 1, (125, 125, 125), 2)
+                    cv2.rectangle(gray, (point[0], point[1]), (point[0]+4, point[1]+4), (255, 255, 255), 1)
+                    cv2.putText(gray, str(point[2]),(point[0], point[1]), cv2.FONT_HERSHEY_SIMPLEX, 1, (125, 125, 125), 2)
             if len(current_contours) > 80: #camera must be changing exposure
                 current_contours = []
             self.my_contour_queue.put(current_contours)
             if self.shouldShow:
-                cv2.imshow(str(self.stream_id), thresh)
+                cv2.imshow(str(self.stream_id), gray)
             cv2.waitKey(20)
         self.vcap.release()
         print 'Release Cap: ', self.stream_id
