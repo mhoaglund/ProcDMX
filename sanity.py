@@ -93,20 +93,28 @@ def stripeify(_arr):
 # print len(riverStripes)
 
 
-def computeModifier(_input):
+def computeModifier(_input, _base):
     """
         The location algorithms just need help being right.
     """
     _result = 0
-    distance_from_end = 665.0 - _input
-    _pepper = (1.0 - (distance_from_end/665))
+    distance_from_end = _base - _input
+    _pepper = (1.0 - (distance_from_end/_base))
     print 'pepper: ', _input * _pepper
-    _salt = 1.0-((660.0/_input)/6)
-    print 'salt: ', _input * _salt
-    return _salt
 
-computeModifier(685)
-computeModifier(650)
-computeModifier(600)
-computeModifier(500)
-computeModifier(200)
+computeModifier(685, 667.0)
+computeModifier(665, 667.0)
+computeModifier(650, 667.0)
+computeModifier(600, 667.0)
+computeModifier(500, 667.0)
+computeModifier(200, 667.0)
+print '---'
+computeModifier(685, 680.0)
+computeModifier(665, 680.0)
+computeModifier(650, 680.0)
+computeModifier(600, 680.0)
+computeModifier(500, 680.0)
+computeModifier(200, 680.0)
+
+for x in range(0,136):
+    print x

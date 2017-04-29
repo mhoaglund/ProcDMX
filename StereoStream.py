@@ -93,7 +93,7 @@ STREAM_THRESH = 40
 STREAM_BLUR = 5
 MASK_PTS = [(1.0, 0.4), (1.0, 0.6), (0.25, 1.0), (0.0, 1.0), (0.0, 0.0), (0.25, 0.0)]
 OPENCV_STREAM_RIVER = CVInputSettings(
-    "waypointwalkRIVER1.mp4",
+    "rtsp://10.254.239.9:554/11.cgi",
     STREAM_PIDS[0],
     STREAM_WIDTH,
     cv2.THRESH_BINARY,
@@ -111,7 +111,7 @@ OPENCV_STREAM_RIVER = CVInputSettings(
 
 #subtract 80 from starting x
 OPENCV_STREAM_CITY = CVInputSettings(
-    "waypointwalkCITY1.mp4",
+    "rtsp://10.254.239.8:554/11.cgi",
     STREAM_PIDS[1],
     STREAM_WIDTH,
     cv2.THRESH_BINARY,
@@ -123,7 +123,7 @@ OPENCV_STREAM_CITY = CVInputSettings(
     CITY_CONTOURQUEUE,
     CITY_JOBQUEUE,
     [(664,200, 0),(642,234, 16),(616,200, 28),(566,234, 40),(458,200, 52),(231,234, 64)],
-    [0.005392, 2, -0.7637, 28],
+    [0.003170, 2, -0.535, 23.43],
     False
 )
 
@@ -184,7 +184,7 @@ def stopworkerthreads():
         print 'found worker'
         proc.stop()
     for cvproc in CVPROCESSES:
-        print 'found worker'
+        print 'opencv found worker'
         cvproc.stop()
 
 def reclaim_stream(_stream):
@@ -229,7 +229,7 @@ try:
             CITY_WATCHDOG = 0
         if _new:
             ALL = RIVER_LATEST + CITY_LATEST
-            print len(ALL)
+            #print len(ALL)
             CONTOURQUEUE.put(ALL)
         RIVER_WATCHDOG += 1
         CITY_WATCHDOG += 1

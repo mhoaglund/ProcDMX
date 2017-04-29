@@ -33,7 +33,7 @@ class CVStream(Process):
         self.mask = []
         self.hasMasked = False
         self.shouldmask = False
-        self.shouldShow = True
+        self.shouldShow = False
         self.STRIPES = []
         self.stripe_count = 72 #each camera sees 72 feet of flat distance
         self.exit_event = Event()
@@ -166,9 +166,9 @@ class CVStream(Process):
             if size < 1:
                 size = 1
             _res.append(int(size))
-
+        if self.stream_id == "City":
+            _res[0] -=4
         _running = 0
-    
         for m in range(0, self.stripe_count):
             _start = _running
             _end = _running+_res[m]
@@ -184,14 +184,18 @@ class CVStream(Process):
         _result = _salt*_input
         return int(_result)
 
-    def pullBackAlt(self, _input):
+    def pullBackAlt(self, _input, _mod, _base):
         """
             The location algorithms just need help being right.
         """
         _result = 0
-        distance_from_end = 685.0 - _input
-        _pepper = (1.0 - (distance_from_end/685))
+        if _input > _mod:
+            _input = _input + _mod
+        distance_from_end = _base - _input
+        _pepper = (1.0 - (distance_from_end/_base))
         _result = int( _input * _pepper)
+        if _result > 685:
+            _result = 685
         return _result
 
     def locate(self, _x):
@@ -201,11 +205,13 @@ class CVStream(Process):
         stripe = 99
         overlap_tweak = 0
         if self.stream_id == "River":
-            _x = self.pullBackAlt(_x)
+            _x = self.pullBackAlt(_x, 5, 667.0)
             overlap_tweak = 4
         else:
-            if _x < 600:
-                _x = self.pullBack(_x, 25, 350.0)
+            _x = self.pullBackAlt(_x, 0, 650.0)
+            #if _x < 600:
+            #    _x = self.pullBack(_x, 25, 350.0)
+            #_x = self.pullBackAlt(_x)
         for st in range(0, self.stripe_count):
             if _x >= self.STRIPES[st][0] and _x < self.STRIPES[st][1]:
                 stripe = st

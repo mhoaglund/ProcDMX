@@ -24,7 +24,7 @@ class ImmediatePlayer(Process):
     def __init__(self, _playersettings, _colorsettings):
         super(ImmediatePlayer, self).__init__()
         print 'starting worker'
-        self.isHardwareConnected = False #debug flag for working without the dmx harness
+        self.isHardwareConnected = True #debug flag for working without the dmx harness
         self.dmxData = []
         self.cont = True
         self.universes = _playersettings.universes
@@ -124,7 +124,6 @@ class ImmediatePlayer(Process):
                 if _startchannel + 7 < 544:  #conditionally brighten the next fixture
                     for ch in range(4, 8):
                         _temp[_startchannel + ch] = _fixturehue[ch-4]
-                
         return _temp
 
     def run(self):
@@ -144,6 +143,10 @@ class ImmediatePlayer(Process):
             self.status[y] -=1
         for x in range(0, len(_contours)):
             self.status[_contours[x].spatialindex] = 100
+        self.status[0] = self.status[6]
+        self.status[1] = self.status[6]
+        self.status[2] = self.status[7]
+        self.status[3] = self.status[8]
         self.goal_frame = self.constructInteractiveGoalFrame(self.status)
 
     def playTowardLatest(self):
@@ -175,6 +178,7 @@ class ImmediatePlayer(Process):
             self.setchannelOnOne(x, uni1channels[x-1])
 
         uni2channels = _actual[368:]
+        uni2channels.append(135)
         for y in range(1, len(uni2channels), 1):
             self.setchannelOnTwo(y, uni2channels[y-1])
 
