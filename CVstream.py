@@ -177,14 +177,12 @@ class CVStream(Process):
             _res.append(int(size))
 
         _running = 0
-        print _res
-        print "Sum:", sum(_res) #This sum shouldn't exceed STREAM_WIDTH
+    
         for m in range(0, 68):
             _start = _running
             _end = _running+_res[m]
             _running += _res[m]
             self.STRIPES.append((_start, _end))
-        print self.STRIPES
 
     def pullBack(self, _input, _scalar, _base):
         """

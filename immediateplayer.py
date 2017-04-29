@@ -24,7 +24,7 @@ class ImmediatePlayer(Process):
     def __init__(self, _playersettings, _colorsettings):
         super(ImmediatePlayer, self).__init__()
         print 'starting worker'
-        self.isHardwareConnected = True #debug flag for working without the dmx harness
+        self.isHardwareConnected = False #debug flag for working without the dmx harness
         self.dmxData = []
         self.cont = True
         self.universes = _playersettings.universes
