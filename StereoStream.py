@@ -51,6 +51,8 @@ BACKFILL_COLOR_B = [0, 0, 255, 0]
 NIGHT_IDLE_COLOR = [125, 125, 0, 255]
 INCREMENT = [5, 3, 7, 3] #the core aesthetic
 DECREMENT = [-4, -2, -2, -4]
+CITY_WATCHDOG = 0
+RIVER_WATCHDOG = 0
 
 UNI1 = UniverseProfile(
     SERIAL_U1,
