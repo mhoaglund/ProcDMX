@@ -98,7 +98,7 @@ def computeModifier(_input):
         The location algorithms just need help being right.
     """
     _result = 0
-    _salt = 1.0-((500.0/_input)/25)
+    _salt = 1.0-((350.0/_input)/25)
     print _salt
     return _salt
 
