@@ -183,21 +183,15 @@ def stopworkerthreads():
     for proc in PROCESSES:
         print 'found worker'
         proc.stop()
-        #proc.join()
     for cvproc in CVPROCESSES:
         print 'found worker'
         cvproc.stop()
-        #cvproc.join()
-        #if proc.is_alive():
-        #    print 'stopping worker'
-        #    proc.stop()
 
 def reclaim_stream(_stream):
     """If a stream hasn't reported anything in a while, kill the process and start again."""
     for proc in CVPROCESSES:
         print 'found worker'
         proc.stop()
-        #proc.join()
     time.sleep(0.5)
     spinupcvstreams()
 

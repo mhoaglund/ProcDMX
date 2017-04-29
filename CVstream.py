@@ -33,7 +33,7 @@ class CVStream(Process):
         self.mask = []
         self.hasMasked = False
         self.shouldmask = False
-        self.shouldShow = True
+        self.shouldShow = False
         self.STRIPES = []
 
         self.exit_event = Event()
