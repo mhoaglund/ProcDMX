@@ -191,7 +191,10 @@ class CVStream(Process):
         stripe = 99
         overlap_tweak = 0
         if self.stream_id == "River": #really need river to be zooming back down a bit quicker.
-            _x = self.pullBack(_x, 10, 660.0)
+            if _x < 630:
+                _x = self.pullBack(_x, 6, 660.0)
+            else:
+                _x = self.pullBack(_x, 25, 660.0)
             overlap_tweak = 4
         else:
             if _x < 600:
