@@ -225,6 +225,8 @@ try:
     while True:
         global _riverprocess
         global _cityprocess
+        global RIVER_WATCHDOG
+        global CITY_WATCHDOG
         print 'RIVERW: ', RIVER_WATCHDOG
         print CITY_WATCHDOG
         _new = False
