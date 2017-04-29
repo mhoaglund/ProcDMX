@@ -212,7 +212,7 @@ class CVStream(Process):
         if self.stream_id == "River":
             _x = self.pullBack(_x, 25)
         else:
-            _x = self.pullBack(_x, 10)
+            _x = self.pullBack(_x, 18)
         for st in range(0, 68):
             if _x >= self.STRIPES[st][0] and _x < self.STRIPES[st][1]:
                 stripe = st
