@@ -225,10 +225,10 @@ try:
     while True:
         global _riverprocess
         global _cityprocess
-        #print 'RIVERW: ', RIVER_WATCHDOG
-        #print str(CITY_WATCHDOG)
+        print RIVER_WATCHDOG
+        print CITY_WATCHDOG
         _new = False
-        if RIVER_WATCHDOG > 80000 or CITY_WATCHDOG > 80000:
+        if RIVER_WATCHDOG > 8000 or CITY_WATCHDOG > 8000:
             reclaim_stream('river')
             logging.info('Stream outage...')
             RIVER_WATCHDOG = 0
