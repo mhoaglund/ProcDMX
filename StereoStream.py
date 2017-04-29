@@ -218,8 +218,6 @@ spinupcvstreams()
 spinupplayer()
 RIVER_LATEST = []
 CITY_LATEST = []
-CITY_WATCHDOG = 0
-RIVER_WATCHDOG = 0
 
 try:
     while True:
