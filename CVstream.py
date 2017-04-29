@@ -184,6 +184,16 @@ class CVStream(Process):
         _result = _salt*_input
         return int(_result)
 
+    def pullBackAlt(self, _input):
+        """
+            The location algorithms just need help being right.
+        """
+        _result = 0
+        distance_from_end = 685.0 - _input
+        _pepper = (1.0 - (distance_from_end/685))
+        _result = int( _input * _pepper)
+        return int()
+
     def locate(self, _x):
         """
            Given an x pixel value, find the appropriate stripe so the player can use that index to find a fixture.
@@ -191,10 +201,11 @@ class CVStream(Process):
         stripe = 99
         overlap_tweak = 0
         if self.stream_id == "River": #really need river to be zooming back down a bit quicker.
-            if _x < 630:
-                _x = self.pullBack(_x, 6, 660.0)
-            else:
-                _x = self.pullBack(_x, 25, 660.0)
+            _x = self.pullBackAlt(_x)
+            # if _x < 630:
+            #     _x = self.pullBack(_x, 6, 660.0)
+            # else:
+            #     _x = self.pullBack(_x, 50, 400.0)
             overlap_tweak = 4
         else:
             if _x < 600:

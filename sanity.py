@@ -98,8 +98,11 @@ def computeModifier(_input):
         The location algorithms just need help being right.
     """
     _result = 0
-    _salt = 1.0-((660.0/_input)/10)
-    print _salt
+    distance_from_end = 685.0 - _input
+    _pepper = (1.0 - (distance_from_end/685))
+    print 'pepper: ', _input * _pepper
+    _salt = 1.0-((660.0/_input)/6)
+    print 'salt: ', _input * _salt
     return _salt
 
 computeModifier(685)
