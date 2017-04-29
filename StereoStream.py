@@ -220,13 +220,13 @@ try:
             _new = True
             RIVER_LATEST = RIVER_CONTOURQUEUE.get()
             for cc in RIVER_LATEST:
-                    cc.spatialindex = 68 + cc.spatialindex #assign real world x position
+                    cc.spatialindex = 68 + cc.spatialindex
             RIVER_WATCHDOG = 0
         if not CITY_CONTOURQUEUE.empty():
             _new = True
             CITY_LATEST = CITY_CONTOURQUEUE.get()
             for cc in CITY_LATEST:
-                    cc.spatialindex = 68 - cc.spatialindex
+                    cc.spatialindex = 72 - cc.spatialindex
             CITY_WATCHDOG = 0
         if _new:
             ALL = RIVER_LATEST + CITY_LATEST
@@ -234,7 +234,7 @@ try:
             CONTOURQUEUE.put(ALL)
         RIVER_WATCHDOG += 1
         CITY_WATCHDOG += 1
-        time.sleep(0.002)
+        time.sleep(0.002) #tentatively committed to this.
 
 except (KeyboardInterrupt, SystemExit):
     print 'Interrupted!'

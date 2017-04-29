@@ -33,7 +33,7 @@ class CVStream(Process):
         self.mask = []
         self.hasMasked = False
         self.shouldmask = False
-        self.shouldShow = False
+        self.shouldShow = True
         self.STRIPES = []
         self.stripe_count = 72 #each camera sees 72 feet of flat distance
         self.exit_event = Event()
