@@ -195,12 +195,12 @@ class CVStream(Process):
             self.STRIPES.append((_start, _end))
         print self.STRIPES
 
-    def pullBack(self, _input):
+    def pullBack(self, _input, _scalar):
         """
             The location algorithms just need help being right.
         """
         _result = 0
-        _salt = 1.0-((660.0/_input)/25)
+        _salt = 1.0-((660.0/_input)/_scalar)
         _result = _salt*_input
         return int(_result)
 
@@ -210,7 +210,9 @@ class CVStream(Process):
         """
         stripe = 99
         if self.stream_id == "River":
-            _x = self.pullBack(_x)
+            _x = self.pullBack(_x, 25)
+        else:
+            _x = self.pullBack(_x, 10)
         for st in range(0, 68):
             if _x >= self.STRIPES[st][0] and _x < self.STRIPES[st][1]:
                 stripe = st
