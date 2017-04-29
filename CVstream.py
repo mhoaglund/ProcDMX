@@ -214,7 +214,7 @@ class CVStream(Process):
         print 'Terminating...'
         self.cont = False
         self.exit_event.set()
-        super(CVStream, self).terminate()
+        #super(CVStream, self).terminate()
 
     def refresh(self):
         logging.info('Experiencing a problem with stream %s, rebooting', self.stream_id)
