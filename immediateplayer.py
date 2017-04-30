@@ -36,7 +36,9 @@ class ImmediatePlayer(Process):
                 self.serialTwo = serial.Serial('/dev/ttyUSB1', baudrate=57600)
             except:
                 print "Error: could not open Serial port"
-                sys.exit(0)
+                logging.info("An issue has occurred with one of the Serial Ports. Exiting...")
+                self.cont = False
+                #sys.exit(0)
         else:
             print "Running in dummy mode with no Serial Output!"
 
