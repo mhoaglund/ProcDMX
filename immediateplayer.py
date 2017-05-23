@@ -102,6 +102,9 @@ class ImmediatePlayer(Process):
             self.serialOne.write(DMXOPEN+DMXINTENSITY+sdata+DMXCLOSE)
             sdata2 = ''.join(self.dmxDataTwo)
             self.serialTwo.write(DMXOPEN+DMXINTENSITY+sdata2+DMXCLOSE)
+        else:
+            return 0
+            #GUI stuff here
 
     def constructInteractiveGoalFrame(self, _cdcs):
         """Build an end-goal frame for the run loop to work toward"""
