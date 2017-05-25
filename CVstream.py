@@ -97,13 +97,17 @@ class CVStream(Process):
             thresh = cv2.dilate(thresh, None, iterations=3)
             (cnts, _) = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
             current_contours = []
-            toshow = thresh.copy()
+
+            total_cntr_area = 0
+            max_cntr_area = 200000 #this figure is a guess.
             for c in cnts:
                 (x, y, w, h) = cv2.boundingRect(c)
+                _area = cv2.contourArea(c)
+                total_cntr_area += _area
                 #_rect = cv2.minAreaRect(c) can switch to this and get rotation if need be.
-                if cv2.contourArea(c) > self.settings.detectionMinimum and w > 2:
+                if _area > self.settings.detectionMinimum and w > 2:
                     cdc = playerutils.CalcdContour(x, y, w, h, self.stream_id)
-                    cdc.area = cv2.contourArea(c)
+                    cdc.area = _area
                     if cdc.area > 150:
                         cdc.spatialindex = self.locate(cdc.center[0]) #assign real world x position
                         if cdc.spatialindex < 69:
@@ -111,15 +115,42 @@ class CVStream(Process):
                         if self.shouldShow:
                             cv2.rectangle(gray, (x, y), (x+w, y+h), (0, 255, 0), 2)
                             if self.stream_id == 'River':
-                                cv2.putText(gray, str(self.stripe_count + cdc.spatialindex),(x, y), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+                                cv2.putText(
+                                    gray,
+                                    str(self.stripe_count + cdc.spatialindex),
+                                    (x, y),
+                                    cv2.FONT_HERSHEY_SIMPLEX,
+                                    1,
+                                    (255, 255, 255),
+                                    2)
                             if self.stream_id == 'City':
-                                cv2.putText(gray, str(self.stripe_count - cdc.spatialindex),(x, y), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+                                cv2.putText(
+                                    gray,
+                                    str(self.stripe_count - cdc.spatialindex),
+                                    (x, y),
+                                    cv2.FONT_HERSHEY_SIMPLEX,
+                                    1,
+                                    (255, 255, 255),
+                                    2)
 
             if self.shouldShow:
                 for point in self.settings.waypoints:
-                    cv2.rectangle(gray, (point[0], point[1]), (point[0]+4, point[1]+4), (255, 255, 255), 1)
-                    cv2.putText(gray, str(point[2]),(point[0], point[1]), cv2.FONT_HERSHEY_SIMPLEX, 1, (125, 125, 125), 2)
-            if len(current_contours) > 80: #camera must be changing exposure
+                    cv2.rectangle(
+                        gray,
+                        (point[0], point[1]),
+                        (point[0]+4, point[1]+4),
+                        (255, 255, 255),
+                        1)
+                    cv2.putText(
+                        gray,
+                        str(point[2]),
+                        (point[0], point[1]),
+                        cv2.FONT_HERSHEY_SIMPLEX,
+                        1,
+                        (125, 125, 125),
+                        2)
+            if len(current_contours) > 80 or total_cntr_area > max_cntr_area:
+                #camera must be changing exposure or there's feedback
                 current_contours = []
             self.my_contour_queue.put(current_contours)
             if self.shouldShow:
@@ -131,7 +162,7 @@ class CVStream(Process):
             cv2.waitKey(1)
             cv2.destroyAllWindows()
             cv2.waitKey(1)
-            
+
     def GenerateMask(self, _frame):
         """
            Generate a proper mask from the set of proportional coordinates passed in.
@@ -175,7 +206,8 @@ class CVStream(Process):
             _running += _res[m]
             self.STRIPES.append((_start, _end))
 
-    def pullBack(self, _input, _scalar, _base):
+    @staticmethod
+    def _pull_back(_input, _scalar, _base):
         """
             The location algorithms just need help being right.
         """
@@ -184,7 +216,8 @@ class CVStream(Process):
         _result = _salt*_input
         return int(_result)
 
-    def pullBackAlt(self, _input, _mod, _base):
+    @staticmethod
+    def _pull_back_alt(_input, _mod, _base):
         """
             The location algorithms just need help being right.
         """
@@ -205,13 +238,10 @@ class CVStream(Process):
         stripe = 99
         overlap_tweak = 0
         if self.stream_id == "River":
-            _x = self.pullBackAlt(_x, 5, 667.0)
+            _x = self._pull_back_alt(_x, 5, 667.0)
             overlap_tweak = 4
         else:
-            _x = self.pullBackAlt(_x, 0, 650.0)
-            #if _x < 600:
-            #    _x = self.pullBack(_x, 25, 350.0)
-            #_x = self.pullBackAlt(_x)
+            _x = self._pull_back(_x, 0, 650.0)
         for st in range(0, self.stripe_count):
             if _x >= self.STRIPES[st][0] and _x < self.STRIPES[st][1]:
                 stripe = st

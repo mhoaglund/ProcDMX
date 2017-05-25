@@ -54,11 +54,11 @@ class Emulator(Frame):
             _light += 1
         self.pack()
 
-root=Tk()
-app = Emulator(root)
-dmxframe = [125,125,125,125]*136
-if __name__ == '__main__':
-    while True:
-        app.renderDMX(dmxframe)
-        root.update()
-        time.sleep(0.001)
+# root=Tk()
+# app = Emulator(root)
+# dmxframe = [125,125,125,125]*136
+# if __name__ == '__main__':
+#     while True:
+#         app.renderDMX(dmxframe)
+#         root.update()
+#         time.sleep(0.001)
