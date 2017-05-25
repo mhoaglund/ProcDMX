@@ -10,22 +10,21 @@ Website: www.zetcode.com
 """
 
 import time
-from Tkinter import Tk, W, E
-from Tkinter import *
-from ttk import Entry
-from random import *
+from Tkinter import Tk, W, E, Frame
+from random import randint
 
-class Example(Frame):
+class Emulator(Frame):
     def __init__(self, parent):
         Frame.__init__(self, parent)
         self.parent = parent
-        self.cells = 136
+        self.lights = 136
+        self.channels_per_light = 4
         self.initUI()
 
     def initUI(self):
         self.parent.title("Simple")
         self.mylist = []
-        for x in range(0, self.cells):
+        for x in range(0, self.lights):
             cell = Frame(self, width=8, height=24, bg="red")
             self.mylist.append(cell)
             cell.grid(row=0, column=x)
@@ -38,7 +37,7 @@ class Example(Frame):
         self.pack()
 
 root=Tk()
-app = Example(root)
+app = Emulator(root)
 currframe = 0
 if __name__ == '__main__':
     while True:

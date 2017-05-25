@@ -30,17 +30,17 @@ class ImmediatePlayer(Process):
         self.universes = _playersettings.universes
         self.dmxDataOne = [chr(0)]* 513
         self.dmxDataTwo = [chr(0)]* 513
-        if self.isHardwareConnected:
-            try:
-                self.serialOne = serial.Serial('/dev/ttyUSB0', baudrate=57600)
-                self.serialTwo = serial.Serial('/dev/ttyUSB1', baudrate=57600)
-            except:
-                print "Error: could not open Serial port"
-                logging.info("An issue has occurred with one of the Serial Ports. Exiting...")
-                self.cont = False
-                #sys.exit(0)
-        else:
-            print "Running in dummy mode with no Serial Output!"
+        try:
+            self.serialOne = serial.Serial('/dev/ttyUSB0', baudrate=57600)
+            self.serialTwo = serial.Serial('/dev/ttyUSB1', baudrate=57600)
+        except:
+            print "Error: could not open Serial port"
+            logging.info("An issue has occurred with one of the Serial Ports. Running in dummy mode with no serial output.")
+            self.isHardwareConnected = False
+            from DMXgui import Emulator
+            from Tkinter import Tk
+            self.root = Tk()
+            self.gui = Emulator(self.root)
 
         self.verbose = True
         self.dataqueue = _playersettings.dataqueue
@@ -103,8 +103,9 @@ class ImmediatePlayer(Process):
             sdata2 = ''.join(self.dmxDataTwo)
             self.serialTwo.write(DMXOPEN+DMXINTENSITY+sdata2+DMXCLOSE)
         else:
-            return 0
-            #GUI stuff here
+            _all = _payloadOne + _payloadTwo
+            self.gui.updateUI(_all)
+            self.root.update()
 
     def constructInteractiveGoalFrame(self, _cdcs):
         """Build an end-goal frame for the run loop to work toward"""
