@@ -22,7 +22,7 @@ class Emulator(Frame):
         self.initUI()
 
     def initUI(self):
-        self.parent.title("Simple")
+        self.parent.title("DMX emulator display")
         self.widgets = []
         for x in range(0, self.lights):
             cell = Frame(self, width=8, height=24, bg="red")

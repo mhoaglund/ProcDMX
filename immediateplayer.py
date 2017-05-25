@@ -42,6 +42,9 @@ class ImmediatePlayer(Process):
             self.root = Tk()
             self.gui = Emulator(self.root)
 
+        self.current_active_color = 0
+        self.quietframes = 0
+        self.maxquietframes = 2000
         self.verbose = True
         self.dataqueue = _playersettings.dataqueue
         self.jobqueue = _playersettings.jobqueue
@@ -107,13 +110,20 @@ class ImmediatePlayer(Process):
             self.gui.renderDMX(_all)
             self.root.update()
 
+    def updateActiveColor(self):
+        """If we have a period of inactivity, switch the activation color."""
+        if self.current_active_color == len(self.colors.activations)-1:
+            self.current_active_color = 0
+        else:
+            self.current_active_color += 1
+
     def constructInteractiveGoalFrame(self, _cdcs):
         """Build an end-goal frame for the run loop to work toward"""
         #we have 132 interactive lights (4 per fixture) and some that aren't.
         #each light has 4 channels, so we have a total of 544 channels.
         #building more than one universe worth here, to be divided up later.
         _temp = self.colors.base*136
-        _fixturehue = self.colors.speeds[0]
+        _fixturehue = self.colors.activations[self.current_active_color]
         _startchannel = 0
         #for channelheat in range(0,136): #cool all the channels
         #    self.heats[channelheat] -= 1
@@ -136,12 +146,22 @@ class ImmediatePlayer(Process):
         while self.cont:
             if not self.dataqueue.empty():
                 self.compileLatestContours(self.dataqueue.get())
+                self.quietframes = 0
+            else:
+                if self.quietframes > self.maxquietframes:
+                    self.updateActiveColor()
+                else:
+                    self.quietframes += 1
             self.playTowardLatest()
 
     def stop(self):
         print 'Terminating...'
         self.cont = False
         super(ImmediatePlayer, self).terminate()
+
+    def tweakNoisyChannels(self):
+        """Some channels get feedback. We can just lock them at 0 for a moment after they drop to prevent this."""
+        return 0
 
     def compileLatestContours(self, _contours):
         """When a set of contours comes in, build a goal frame out of it."""
@@ -190,4 +210,4 @@ class ImmediatePlayer(Process):
 
         self.prev_frame = _actual
         self.render(self.dmxDataOne, self.dmxDataTwo)
-        time.sleep(0.002)
+        time.sleep(0.01) #100fps is probably good

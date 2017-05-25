@@ -45,7 +45,7 @@ DEFAULT_COLOR = [135, 135, 135, 135]
 REDUCED_DEFAULT = [0, 0, 90, 0]
 THRESHOLD_COLOR = [255, 200, 255, 125]
 BUSY_THRESHOLD_COLOR = [150, 120, 255, 200]
-SPEED_COLORS = [[130, 0, 255, 0], [150, 200, 150, 150], [175, 175, 255, 175]]#default, walker, runner, biker (supposedly)
+ACTIVATION_COLORS = [[130, 0, 255, 0], [225, 0, 0, 0], [150, 150, 0, 0], [0, 255, 0, 0], [0, 150, 150, 0], [0, 0, 255, 0], [0, 0, 150, 150], [0, 0, 0, 255], [150, 0, 0, 150]]#default, walker, runner, biker (supposedly)
 BACKFILL_COLOR_A = [240, 0, 180, 0] #backfill for the 1ft fixtures
 BACKFILL_COLOR_B = [0, 0, 255, 0]
 NIGHT_IDLE_COLOR = [125, 125, 0, 255]
@@ -79,7 +79,7 @@ COLOR_SETTINGS = ColorSettings(
     DEFAULT_COLOR,
     DEFAULT_COLOR,
     THRESHOLD_COLOR,
-    SPEED_COLORS,
+    ACTIVATION_COLORS,
     [BACKFILL_COLOR_A, BACKFILL_COLOR_B],
     BUSY_THRESHOLD_COLOR,
     NIGHT_IDLE_COLOR,
@@ -104,7 +104,14 @@ OPENCV_STREAM_RIVER = CVInputSettings(
     MASK_PTS,
     RIVER_CONTOURQUEUE,
     RIVER_JOBQUEUE,
-    [(652,184, 136),(638,234, 124),(613,184, 112),(575,234, 100),(492,184, 88),(295,234, 66)],
+    [
+        (652, 184, 136),
+        (638, 234, 124),
+        (613, 184, 112),
+        (575, 234, 100),
+        (492, 184, 88),
+        (295, 234, 66)
+    ],
     [0.003170, 2, -0.535, 23.43],
     False
 )
@@ -122,7 +129,14 @@ OPENCV_STREAM_CITY = CVInputSettings(
     MASK_PTS,
     CITY_CONTOURQUEUE,
     CITY_JOBQUEUE,
-    [(664,200, 0),(642,234, 16),(616,200, 28),(566,234, 40),(458,200, 52),(231,234, 64)],
+    [
+        (664, 200, 0),
+        (642, 234, 16),
+        (616, 200, 28),
+        (566, 234, 40),
+        (458, 200, 52),
+        (231, 234, 64)
+    ],
     [0.003170, 2, -0.535, 23.43],
     False
 )

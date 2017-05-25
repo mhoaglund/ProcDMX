@@ -1,7 +1,6 @@
 """Helper objects for configuring the player"""
 
-#TODO: the player settings family of objects is indistinct in overall intent and use.
-#Things that shouldnt be generalized are, and vice versa. Could use a refactor.
+#TODO: clean up the docstring, it's totally wrong
 class ColorSettings(object):
     """
         Bucket for colors.
@@ -9,18 +8,18 @@ class ColorSettings(object):
         Base Color (int[4])
         Dimmed Color (int[4])
         Peak Color (int[4])
-        Speed Colors ([int[4]])
+        Activation Colors ([int[4]])
         Backfill Color (int[4])
         Busy Color (int[4])
         Night Color (int[4])
         Increment (int[4])
         Decrement (int[4])
     """
-    def __init__(self, _base, _dimmed, _peak, _speeds, _backfill, _busy, _night, _inc, _dec):
+    def __init__(self, _base, _dimmed, _peak, _activation_colors, _backfill, _busy, _night, _inc, _dec):
         self.base = _base
         self.dimmed = _dimmed
         self.peak = _peak
-        self.speeds = _speeds
+        self.activations = _activation_colors
         self.backfill = _backfill
         self.busy = _busy
         self.night = _night
