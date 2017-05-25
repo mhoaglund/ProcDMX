@@ -30,14 +30,35 @@ class Emulator(Frame):
             cell.grid(row=0, column=x)
         self.pack()
 
+    def clamped(self, value):
+        if value > 255:
+            return 255
+        if value < 1:
+            return 1
+        else:
+            return value
+
     def renderDMX(self, dmxPayload):
         """Take in arbitrarily sized dmx payload and render it on the emulator"""
         _light = 0
         light_packets = [dmxPayload[i:i + self.channels_per_light] for i in range(0, len(dmxPayload), self.channels_per_light)]
         for channelset in light_packets:
             #what do we do with amber?
-            mycolor = '#%02x%02x%02x' % (channelset[0], channelset[1], channelset[2])
+            (amber_rmod, amber_gmod, amber_bmod) = channelset[3]/4, channelset[3]/8, channelset[3]/16
+            mycolor = '#%02x%02x%02x' % (
+                self.clamped(channelset[0]+amber_rmod),
+                self.clamped(channelset[1]+amber_gmod),
+                self.clamped(channelset[2]+amber_bmod)
+                )
             self.widgets[_light].configure(bg=mycolor)
             _light += 1
         self.pack()
 
+root=Tk()
+app = Emulator(root)
+dmxframe = [125,125,125,125]*136
+if __name__ == '__main__':
+    while True:
+        app.renderDMX(dmxframe)
+        root.update()
+        time.sleep(0.001)
