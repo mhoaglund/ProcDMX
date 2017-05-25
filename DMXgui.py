@@ -23,28 +23,21 @@ class Emulator(Frame):
 
     def initUI(self):
         self.parent.title("Simple")
-        self.mylist = []
+        self.widgets = []
         for x in range(0, self.lights):
             cell = Frame(self, width=8, height=24, bg="red")
-            self.mylist.append(cell)
+            self.widgets.append(cell)
             cell.grid(row=0, column=x)
         self.pack()
 
-    def updateUI(self, framenumber):
-        for _widget in self.mylist:
-            mycolor = '#%02x%02x%02x' % (randint(1, 255), randint(1, 255), framenumber)  # set your favourite rgb color
-            _widget.configure(bg = mycolor)
+    def renderDMX(self, dmxPayload):
+        """Take in arbitrarily sized dmx payload and render it on the emulator"""
+        _light = 0
+        light_packets = [dmxPayload[i:i + self.channels_per_light] for i in range(0, len(dmxPayload), self.channels_per_light)]
+        for channelset in light_packets:
+            #what do we do with amber?
+            mycolor = '#%02x%02x%02x' % (channelset[0], channelset[1], channelset[2])
+            self.widgets[_light].configure(bg=mycolor)
+            _light += 1
         self.pack()
 
-root=Tk()
-app = Emulator(root)
-currframe = 0
-if __name__ == '__main__':
-    while True:
-        app.updateUI(currframe)
-        root.update()
-        time.sleep(0.001)
-        if currframe < 254:
-            currframe += 1
-        else:
-            currframe = 0

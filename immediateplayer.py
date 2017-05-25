@@ -104,7 +104,7 @@ class ImmediatePlayer(Process):
             self.serialTwo.write(DMXOPEN+DMXINTENSITY+sdata2+DMXCLOSE)
         else:
             _all = _payloadOne + _payloadTwo
-            self.gui.updateUI(_all)
+            self.gui.renderDMX(_all)
             self.root.update()
 
     def constructInteractiveGoalFrame(self, _cdcs):
