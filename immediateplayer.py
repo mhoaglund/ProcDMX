@@ -44,7 +44,8 @@ class ImmediatePlayer(Process):
 
         self.current_active_color = 0
         self.quietframes = 0
-        self.maxquietframes = 2000
+        self.maxquietframes = 120
+        self.shouldUpdateColor = False
         self.verbose = True
         self.dataqueue = _playersettings.dataqueue
         self.jobqueue = _playersettings.jobqueue
@@ -106,16 +107,21 @@ class ImmediatePlayer(Process):
             sdata2 = ''.join(self.dmxDataTwo)
             self.serialTwo.write(DMXOPEN+DMXINTENSITY+sdata2+DMXCLOSE)
         else:
+            _payloadTwo.pop(0)
+            _payloadTwo.append(chr(0))
             _all = _payloadOne + _payloadTwo
+            _all.pop(0)
             self.gui.renderDMX(_all)
             self.root.update()
 
     def updateActiveColor(self):
         """If we have a period of inactivity, switch the activation color."""
+        print "cycling active color"
         if self.current_active_color == len(self.colors.activations)-1:
             self.current_active_color = 0
         else:
             self.current_active_color += 1
+        self.shouldUpdateColor = False
 
     def constructInteractiveGoalFrame(self, _cdcs):
         """Build an end-goal frame for the run loop to work toward"""
@@ -145,13 +151,18 @@ class ImmediatePlayer(Process):
     def run(self):
         while self.cont:
             if not self.dataqueue.empty():
-                self.compileLatestContours(self.dataqueue.get())
-                self.quietframes = 0
-            else:
-                if self.quietframes > self.maxquietframes:
-                    self.updateActiveColor()
+                Contours = self.dataqueue.get()
+                self.compileLatestContours(Contours)
+                if len(Contours) < 2:
+                    if self.quietframes > self.maxquietframes:
+                        if self.shouldUpdateColor:
+                            self.updateActiveColor()
+                        self.quietframes = 0
+                    else:
+                        self.quietframes += 1
                 else:
-                    self.quietframes += 1
+                    self.quietframes = 0
+                    self.shouldUpdateColor = True
             self.playTowardLatest()
 
     def stop(self):
