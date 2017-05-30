@@ -33,7 +33,7 @@ class CVStream(Process):
         self.mask = []
         self.hasMasked = False
         self.shouldmask = False
-        self.shouldShow = True
+        self.shouldShow = False
         self.STRIPES = []
         self.stripe_count = 72 #each camera sees 72 feet of flat distance
         self.exit_event = Event()
@@ -99,7 +99,7 @@ class CVStream(Process):
             current_contours = []
 
             total_cntr_area = 0
-            max_cntr_area = 12000 #this figure is a guess.
+            max_cntr_area = 12000
             for c in cnts:
                 (x, y, w, h) = cv2.boundingRect(c)
                 _area = cv2.contourArea(c)
@@ -208,17 +208,7 @@ class CVStream(Process):
             self.STRIPES.append((_start, _end))
 
     @staticmethod
-    def _pull_back(_input, _base):
-        """
-            The location algorithms just need help being right.
-        """
-        _result = 0
-        _salt = 1.0-(_base/_input)
-        _result = _salt*_input
-        return int(_result)
-
-    @staticmethod
-    def _pull_back_alt(_input, _mod, _base):
+    def _pull_back(_input, _mod, _base):
         """
             The location algorithms just need help being right.
         """
@@ -239,10 +229,10 @@ class CVStream(Process):
         stripe = 99
         overlap_tweak = 0
         if self.stream_id == "River":
-            _x = self._pull_back_alt(_x, 5, 667.0)
+            _x = self._pull_back(_x, 5, 667.0)
             overlap_tweak = 4
         else:
-            _x = self._pull_back_alt(_x, 0, 650.0)
+            _x = self._pull_back(_x, 0, 650.0)
         for st in range(0, self.stripe_count):
             if _x >= self.STRIPES[st][0] and _x < self.STRIPES[st][1]:
                 stripe = st

@@ -37,14 +37,18 @@ class ImmediatePlayer(Process):
             print "Error: could not open Serial port"
             logging.info("An issue has occurred with one of the Serial Ports. Running in dummy mode with no serial output.")
             self.isHardwareConnected = False
-            from DMXgui import Emulator
-            from Tkinter import Tk
-            self.root = Tk()
-            self.gui = Emulator(self.root)
+			try:
+                from DMXgui import Emulator
+                from Tkinter import Tk
+                self.root = Tk()
+                self.gui = Emulator(self.root)
+			except ImportError:
+			    logging.info("Tkinter is missing...")
+			    self.cont = False
 
         self.current_active_color = 0
         self.quietframes = 0
-        self.maxquietframes = 120
+        self.maxquietframes = 140
         self.shouldUpdateColor = False
         self.verbose = True
         self.dataqueue = _playersettings.dataqueue
