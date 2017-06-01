@@ -152,6 +152,7 @@ class CVStream(Process):
             if len(current_contours) > 30 or total_cntr_area > max_cntr_area:
                 #camera must be changing exposure or there's feedback
                 print "Feedback or exposure change!"
+				logging.info('Culled a frame because of feedback or exposure change.')
                 current_contours = []
             self.my_contour_queue.put(current_contours)
             if self.shouldShow:

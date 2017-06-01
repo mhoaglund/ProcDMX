@@ -43,6 +43,7 @@ class ImmediatePlayer(Process):
                 self.root = Tk()
                 self.gui = Emulator(self.root)
 			except ImportError:
+			    print "Missing GUI library..."
 			    logging.info("Tkinter is missing...")
 			    self.cont = False
 
