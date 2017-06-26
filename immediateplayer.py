@@ -156,8 +156,7 @@ class ImmediatePlayer(Process):
 
     #TODO handle the case of contours that land in the same index but have different colors
     #kyle's suggestion was the highest-first style where we additively filter the two colors together.
-    #TODO pull fixturehue from the individual contours
-    def constructVariableInteractiveGoalFrame(self, _cdcs):
+    def constructVariableInteractiveGoalFrame(self, _status, _cdcs):
         """Build an end-goal frame for the run loop to work toward"""
         _temp = self.colors.base*136
         _fixturehue = self.colors.activations[self.current_active_color]
@@ -165,18 +164,24 @@ class ImmediatePlayer(Process):
         #for channelheat in range(0,136): #cool all the channels
         #    self.heats[channelheat] -= 1
         for x in range(0, 136):
-            if _cdcs[x] > 1:
-                #hot spot
+            _color = _fixturehue
+            for x in _cdcs:
+                if x.color != _fixturehue and x.color != [0, 0, 0, 0,]:
+                    #TODO blend colors here
+                    _color = x.color
+                    break
+
+            if _status[x] > 1:
                 if x > 0:
                     _startchannel = x * 4
                 if _startchannel > 4: #conditionally brighten the previous fixture
                     for ch in range(-4, 0):
-                        _temp[_startchannel + ch] = _fixturehue[ch+4]
+                        _temp[_startchannel + ch] = _color[ch+4]
                 for ch in range(0, 4):
-                    _temp[_startchannel + ch] = _fixturehue[ch]
+                    _temp[_startchannel + ch] = _color[ch]
                 if _startchannel + 7 < 544:  #conditionally brighten the next fixture
                     for ch in range(4, 8):
-                        _temp[_startchannel + ch] = _fixturehue[ch-4]
+                        _temp[_startchannel + ch] = _color[ch-4]
         return _temp
 
 
@@ -198,6 +203,7 @@ class ImmediatePlayer(Process):
             self.playTowardLatest()
 
     #TODO figure out if this spacing_limit is reasonable.
+    #TODO figure out how to do multiple passes of this recursively back into the past
     cont_limit = 2
     spacing_limit = 150
     def findContinuity(self, contours):
@@ -217,13 +223,13 @@ class ImmediatePlayer(Process):
                 _with = None
                 _thisnew = ordered_contours[cnt]
                 if cnt -1 > 0:
-                    _prevold = prev_contours[cnt -1]
+                    _prevold = self.prev_contours[cnt -1]
                     if abs(_prevold.pos[1] - _thisnew.pos[1]) < spacing_limit and abs(_prevold.spatialindex - _thisnew.spatialindex) < cont_limit:
                         _associated = True
                         _with = _prevold
                         #a contour moved from the previous index to the current index
                 if cnt + 1 < indices:
-                     _nextold = prev_contours[cnt + 1]
+                     _nextold = self.prev_contours[cnt + 1]
                     if abs(_nextold.pos[1] - _thisnew.pos[1]) < spacing_limit and abs(_nextold.spatialindex - _thisnew.spatialindex) < cont_limit:
                         _associated = True
                         _with = _nextold
@@ -234,7 +240,7 @@ class ImmediatePlayer(Process):
                 else:
                     _thisnew.color = self.colors.activations[randint(0, len(self.colors.activations))]
 
-        self.prev_contours
+        return ordered_contours
 
     def stop(self):
         print 'Terminating...'
@@ -255,7 +261,8 @@ class ImmediatePlayer(Process):
         self.status[1] = self.status[6]
         self.status[2] = self.status[7]
         self.status[3] = self.status[8]
-        self.goal_frame = self.constructInteractiveGoalFrame(self.status)
+        #self.goal_frame = self.constructInteractiveGoalFrame(self.status)
+        self.goal_frame = self.constructVariableInteractiveGoalFrame(findContinuity(_contours), self.status)
 
     def playTowardLatest(self):
         """Always pushing every channel toward where it needs to go
