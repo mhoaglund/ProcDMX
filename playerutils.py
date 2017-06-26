@@ -133,6 +133,7 @@ class CalcdContour(object):
         self.spatialindex = 0
         self.center = (_x+(_w/2), _y+(_h/2))
         self.area = 0
+        self.color = [0,0,0,0] #sorry forever! this doesn't get used until we get to the player.
         if self.a_ratio <= 2:
             self.spd = 0
         if self.a_ratio > 2 and self.a_ratio <= 3:
