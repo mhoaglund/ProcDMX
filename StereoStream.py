@@ -92,9 +92,10 @@ STREAM_ACCUMULATION = 0.03
 STREAM_THRESH = 40
 STREAM_BLUR = 5
 MASK_PTS = [(1.0, 0.4), (1.0, 0.6), (0.25, 1.0), (0.0, 1.0), (0.0, 0.0), (0.25, 0.0)]
-#studio setup: river cam is 10.254.239.7 
+#studio setup: river cam is 10.254.239.7
+#sibley setup: river cam is 10.254.239.9 
 OPENCV_STREAM_RIVER = CVInputSettings(
-    "rtsp://10.254.239.9:554/11.cgi",
+    "rtsp://10.254.239.7:554/11.cgi",
     STREAM_PIDS[0],
     STREAM_WIDTH,
     cv2.THRESH_BINARY,
@@ -118,8 +119,9 @@ OPENCV_STREAM_RIVER = CVInputSettings(
 )
 
 #studio setup: city cam is 10.254.239.6
+#sibley setup: city cam is 10.254.239.8
 OPENCV_STREAM_CITY = CVInputSettings(
-    "rtsp://10.254.239.8:554/11.cgi",
+    "rtsp://10.254.239.6:554/11.cgi",
     STREAM_PIDS[1],
     STREAM_WIDTH,
     cv2.THRESH_BINARY,
