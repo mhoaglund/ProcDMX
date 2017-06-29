@@ -241,6 +241,7 @@ class ImmediatePlayer(Process):
                 #_thisnew.color = self.colors.activations[self.current_active_color]
                 _thisnew.color = self.colors.activations[
                     randint(0, (len(self.colors.activations)-1))
+                    and abs(cnt.pos[1] - _thisnew.pos[1]) < self.spacing_limit
                     ]
                 #look up contours in previous frame which were reasonably close.
                 _prevneighbors = [cnt for cnt in self.prev_contours if(
