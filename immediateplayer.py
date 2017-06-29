@@ -241,7 +241,9 @@ class ImmediatePlayer(Process):
                 if _associated and _with:
                     _thisnew.color = _with.color
                 else:
-                    _thisnew.color = self.colors.activations[randint(0, len(self.colors.activations))]
+                    _thisnew.color = self.colors.activations[
+                        randint(0, (len(self.colors.activations)-1))
+                        ]
 
         self.prev_contours = ordered_contours
         return ordered_contours
