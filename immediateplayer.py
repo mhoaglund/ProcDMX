@@ -154,22 +154,22 @@ class ImmediatePlayer(Process):
                         _temp[_startchannel + ch] = _fixturehue[ch-4]
         return _temp
 
-    #TODO handle the case of contours that land in the same index but have different colors
-    #kyle's suggestion was the highest-first style where we additively filter the two colors together.
     def constructVariableInteractiveGoalFrame(self, _status, _cdcs):
         """Build an end-goal frame for the run loop to work toward"""
         _temp = self.colors.base*136
         _fixturehue = self.colors.activations[self.current_active_color]
         _startchannel = 0
-        #for channelheat in range(0,136): #cool all the channels
-        #    self.heats[channelheat] -= 1
+
         for x in range(0, 136):
             _color = _fixturehue
-            for x in _cdcs:
-                if x.color != _fixturehue and x.color != [0, 0, 0, 0,]:
-                    #TODO blend colors here
-                    _color = x.color
-                    break
+            contours_at_this_fixture = [cnt for cnt in _cdcs if cnt.spatialindex == x]
+            if len(contours_at_this_fixture > 0):
+                _tempcolor = [0,0,0,0]
+                for c in contours_at_this_fixture:
+                    for channel in range(0, len(c.color)):
+                        if c.color[channel] > _tempcolor[channel]:
+                            _tempcolor[channel] = c.color[channel]
+                _color = _tempcolor
 
             if _status[x] > 1:
                 if x > 0:
@@ -239,7 +239,8 @@ class ImmediatePlayer(Process):
                     _thisnew.color = _with.color
                 else:
                     _thisnew.color = self.colors.activations[randint(0, len(self.colors.activations))]
-
+                    
+        self.prev_contours = ordered_contours
         return ordered_contours
 
     def stop(self):
@@ -262,7 +263,7 @@ class ImmediatePlayer(Process):
         self.status[2] = self.status[7]
         self.status[3] = self.status[8]
         #self.goal_frame = self.constructInteractiveGoalFrame(self.status)
-        self.goal_frame = self.constructVariableInteractiveGoalFrame(findContinuity(_contours), self.status)
+        self.goal_frame = self.constructVariableInteractiveGoalFrame(self.status, findContinuity(_contours))
 
     def playTowardLatest(self):
         """Always pushing every channel toward where it needs to go
