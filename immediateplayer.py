@@ -138,10 +138,10 @@ class ImmediatePlayer(Process):
             self.current_active_color += 1
         #clearing plastic color memory
         for arr in self.color_memory:
-            arr[0] = self.current_active_color[0]
-            arr[1] = self.current_active_color[1]
-            arr[2] = self.current_active_color[2]
-            arr[3] = self.current_active_color[3]
+            arr[0] = self.colors.activations[self.current_active_color][0]
+            arr[1] = self.colors.activations[self.current_active_color][1]
+            arr[2] = self.colors.activations[self.current_active_color][2]
+            arr[3] = self.colors.activations[self.current_active_color][3]
         self.shouldUpdateColor = False
 
     def constructInteractiveGoalFrame(self, _cdcs):
