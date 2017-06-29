@@ -165,7 +165,7 @@ class ImmediatePlayer(Process):
         for x in range(0, 136):
             _color = _fixturehue
             contours_at_this_fixture = [cnt for cnt in _cdcs if cnt.spatialindex == x]
-            if len(contours_at_this_fixture > 0):
+            if len(contours_at_this_fixture) > 0:
                 _tempcolor = [0,0,0,0]
                 for c in contours_at_this_fixture:
                     for channel in range(0, len(c.color)):
@@ -215,10 +215,10 @@ class ImmediatePlayer(Process):
         if len(self.prev_contours) > 0:
             indices = len(ordered_contours)
             for cnt in range(0, indices):
-                cnt.color = self.colors.activations[self.current_active_color]
                 _associated = False
                 _with = None
                 _thisnew = ordered_contours[cnt]
+                _thisnew.color = self.colors.activations[self.current_active_color]
                 if cnt -1 > 0:
                     _prevold = self.prev_contours[cnt -1]
                     if (
