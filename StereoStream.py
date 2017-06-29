@@ -92,6 +92,7 @@ STREAM_ACCUMULATION = 0.03
 STREAM_THRESH = 40
 STREAM_BLUR = 5
 MASK_PTS = [(1.0, 0.4), (1.0, 0.6), (0.25, 1.0), (0.0, 1.0), (0.0, 0.0), (0.25, 0.0)]
+#studio setup: river cam is 10.254.239.7 
 OPENCV_STREAM_RIVER = CVInputSettings(
     "rtsp://10.254.239.9:554/11.cgi",
     STREAM_PIDS[0],
@@ -116,7 +117,7 @@ OPENCV_STREAM_RIVER = CVInputSettings(
     False
 )
 
-#subtract 80 from starting x
+#studio setup: city cam is 10.254.239.6
 OPENCV_STREAM_CITY = CVInputSettings(
     "rtsp://10.254.239.8:554/11.cgi",
     STREAM_PIDS[1],
