@@ -67,9 +67,16 @@ class ImmediatePlayer(Process):
 
         self.increment = self.colors.increment
         self.decrement = self.colors.decrement
-        
+
         self.cont_limit = 4
         self.spacing_limit = 250
+        w, h = 4, 136
+        self.color_memory = [[0 for x in range(w)] for y in range(h)]
+        for arr in self.color_memory:
+            arr[0] = self.colors.base[0]
+            arr[1] = self.colors.base[1]
+            arr[2] = self.colors.base[2]
+            arr[3] = self.colors.base[3]
         #Prev Frame and Goal Frame are containers for data pertaining to ALL interactive channels.
         #They get split up for rendering and don't have anything to do with DMX packets.
         self.prev_contours = []
@@ -129,6 +136,12 @@ class ImmediatePlayer(Process):
             self.current_active_color = 0
         else:
             self.current_active_color += 1
+        #clearing plastic color memory
+        for arr in self.color_memory:
+            arr[0] = self.current_active_color[0]
+            arr[1] = self.current_active_color[1]
+            arr[2] = self.current_active_color[2]
+            arr[3] = self.current_active_color[3]
         self.shouldUpdateColor = False
 
     def constructInteractiveGoalFrame(self, _cdcs):
@@ -159,19 +172,28 @@ class ImmediatePlayer(Process):
     def constructVariableInteractiveGoalFrame(self, _status, _cdcs):
         """Build an end-goal frame for the run loop to work toward"""
         _temp = self.colors.base*136
+        #_assignments = self.colors.base*136
         _fixturehue = self.colors.activations[self.current_active_color]
         _startchannel = 0
 
+        #For each fixture...
+        #TODO: problem. This here is clearing out contour-specific colors because of the sustain.
+        #The sustain thing is probably still fine, but we need to pull out the correct color from
+        #somewhere before we arrive at that sustain loop.
         for x in range(0, 136):
-            _color = _fixturehue
+            _color = self.color_memory[x]
             contours_at_this_fixture = [cnt for cnt in _cdcs if cnt.spatialindex == x]
             if len(contours_at_this_fixture) > 0:
-                _tempcolor = [0,0,0,0]
+                _tempcolor = [0, 0, 0, 0]
                 for c in contours_at_this_fixture:
                     for channel in range(0, len(c.color)):
                         if c.color[channel] > _tempcolor[channel]:
                             _tempcolor[channel] = c.color[channel]
                 _color = _tempcolor
+                self.color_memory[x][0] = _tempcolor[0]
+                self.color_memory[x][1] = _tempcolor[1]
+                self.color_memory[x][2] = _tempcolor[2]
+                self.color_memory[x][3] = _tempcolor[3]
 
             if _status[x] > 1:
                 if x > 0:
@@ -184,6 +206,7 @@ class ImmediatePlayer(Process):
                 if _startchannel + 7 < 544:  #conditionally brighten the next fixture
                     for ch in range(4, 8):
                         _temp[_startchannel + ch] = _color[ch-4]
+
         return _temp
 
 
@@ -211,13 +234,12 @@ class ImmediatePlayer(Process):
             Given a set of new contours, compare to previous set and
             try to identify nearest neighbors.
         """
-        ordered_contours = sorted(contours, key=lambda cntr: cntr.spatialindex)
-        if len(self.prev_contours) > 0:
-            indices = len(ordered_contours)
+        if len(contours) > 0:
+            indices = len(contours)
             for cnt in range(0, indices):
                 _associated = False
                 _with = None
-                _thisnew = ordered_contours[cnt]
+                _thisnew = contours[cnt]
                 #_thisnew.color = self.colors.activations[self.current_active_color]
                 _thisnew.color = self.colors.activations[
                     randint(0, (len(self.colors.activations)-1))
@@ -232,8 +254,8 @@ class ImmediatePlayer(Process):
                         _thisnew.color = prev_neighbor.color
                         _thisnew.isassociated = True
                         continue
-        self.prev_contours = ordered_contours
-        return ordered_contours
+        self.prev_contours = contours
+        return contours
 
     def stop(self):
         print 'Terminating...'
