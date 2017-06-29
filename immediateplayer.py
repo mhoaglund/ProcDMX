@@ -86,6 +86,7 @@ class ImmediatePlayer(Process):
         self.heats = [0]*136
         self.sustain = _playersettings.sustain
         self.backfills = self.colors.backfill[0]+ self.colors.backfill[0]+ self.colors.backfill[1]+ self.colors.backfill[0]+ self.colors.backfill[0]+ self.colors.backfill[1]+ self.colors.backfill[0]+ self.colors.backfill[0]
+        self.updateActiveColor()
         self.playTowardLatest()
 
     def setchannelOnOne(self, chan, _intensity):
@@ -177,9 +178,6 @@ class ImmediatePlayer(Process):
         _startchannel = 0
 
         #For each fixture...
-        #TODO: problem. This here is clearing out contour-specific colors because of the sustain.
-        #The sustain thing is probably still fine, but we need to pull out the correct color from
-        #somewhere before we arrive at that sustain loop.
         for x in range(0, 136):
             _color = self.color_memory[x]
             contours_at_this_fixture = [cnt for cnt in _cdcs if cnt.spatialindex == x]
@@ -248,10 +246,11 @@ class ImmediatePlayer(Process):
                 _prevneighbors = [cnt for cnt in self.prev_contours if(
                     abs(cnt.spatialindex - _thisnew.spatialindex) < self.cont_limit)]
                 if len(_prevneighbors) > 0:
+                    _thisnew.isassociated = True
                     for prev_neighbor in _prevneighbors:
                         _thisnew.color = prev_neighbor.color
-                        _thisnew.isassociated = True
-                        continue
+                        if prev_neighbor.isassociated:
+                            continue
         self.prev_contours = contours
         return contours
 
