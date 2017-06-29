@@ -37,12 +37,12 @@ class ImmediatePlayer(Process):
             print "Error: could not open Serial port"
             logging.info("An issue has occurred with one of the Serial Ports. Running in dummy mode with no serial output.")
             self.isHardwareConnected = False
-		    try:
+            try:
                 from DMXgui import Emulator
                 from Tkinter import Tk
                 self.root = Tk()
                 self.gui = Emulator(self.root)
-			except ImportError:
+            except ImportError:
 			    print "Missing GUI library..."
 			    logging.info("Tkinter is missing...")
 			    self.cont = False
@@ -68,6 +68,8 @@ class ImmediatePlayer(Process):
         self.increment = self.colors.increment
         self.decrement = self.colors.decrement
         
+        self.cont_limit = 2
+        self.spacing_limit = 150
         #Prev Frame and Goal Frame are containers for data pertaining to ALL interactive channels.
         #They get split up for rendering and don't have anything to do with DMX packets.
         self.prev_contours = []
@@ -204,8 +206,6 @@ class ImmediatePlayer(Process):
 
     #TODO figure out if this spacing_limit is reasonable.
     #TODO figure out how to do multiple passes of this recursively back into the past
-    cont_limit = 2
-    spacing_limit = 150
     def findContinuity(self, contours):
         """
             Given a set of new contours, compare to previous set and
@@ -224,13 +224,19 @@ class ImmediatePlayer(Process):
                 _thisnew = ordered_contours[cnt]
                 if cnt -1 > 0:
                     _prevold = self.prev_contours[cnt -1]
-                    if abs(_prevold.pos[1] - _thisnew.pos[1]) < spacing_limit and abs(_prevold.spatialindex - _thisnew.spatialindex) < cont_limit:
+                    if (
+                            abs(_prevold.pos[1] - _thisnew.pos[1]) < self.spacing_limit
+                            and abs(_prevold.spatialindex - _thisnew.spatialindex) < self.cont_limit
+                    ):
                         _associated = True
                         _with = _prevold
                         #a contour moved from the previous index to the current index
                 if cnt + 1 < indices:
-                     _nextold = self.prev_contours[cnt + 1]
-                    if abs(_nextold.pos[1] - _thisnew.pos[1]) < spacing_limit and abs(_nextold.spatialindex - _thisnew.spatialindex) < cont_limit:
+                    _nextold = self.prev_contours[cnt + 1]
+                    if (
+                            abs(_nextold.pos[1] - _thisnew.pos[1]) < self.spacing_limit
+                            and abs(_nextold.spatialindex - _thisnew.spatialindex) < self.cont_limit
+                    ):
                         _associated = True
                         _with = _nextold
                         #a contour moved from the previous index to the current index
@@ -239,7 +245,7 @@ class ImmediatePlayer(Process):
                     _thisnew.color = _with.color
                 else:
                     _thisnew.color = self.colors.activations[randint(0, len(self.colors.activations))]
-                    
+
         self.prev_contours = ordered_contours
         return ordered_contours
 
