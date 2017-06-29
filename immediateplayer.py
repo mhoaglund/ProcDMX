@@ -219,32 +219,16 @@ class ImmediatePlayer(Process):
                 _with = None
                 _thisnew = ordered_contours[cnt]
                 _thisnew.color = self.colors.activations[self.current_active_color]
-                if cnt -1 > 0:
-                    _prevold = self.prev_contours[cnt -1]
-                    if (
-                            abs(_prevold.pos[1] - _thisnew.pos[1]) < self.spacing_limit
-                            and abs(_prevold.spatialindex - _thisnew.spatialindex) < self.cont_limit
-                    ):
-                        _associated = True
-                        _with = _prevold
-                        #a contour moved from the previous index to the current index
-                if cnt + 1 < (indices-1):
-                    _nextold = self.prev_contours[cnt + 1]
-                    if (
-                            abs(_nextold.pos[1] - _thisnew.pos[1]) < self.spacing_limit
-                            and abs(_nextold.spatialindex - _thisnew.spatialindex) < self.cont_limit
-                    ):
-                        _associated = True
-                        _with = _nextold
-                        #a contour moved from the previous index to the current index
-                #if this contour has a neighbor, get the neighbor's color.
-                if _associated and _with:
-                    _thisnew.color = _with.color
-                else:
-                    _thisnew.color = self.colors.activations[
-                        randint(0, (len(self.colors.activations)-1))
-                        ]
-
+                #look up contours in previous frame which were reasonably close.
+                _prevneighbors = [cnt for cnt in self.prev_contours if(
+                    abs(cnt.spatialindex - _thisnew.spatialindex) < self.cont_limit
+                    and abs(cnt.pos[1] - _thisnew.pos[1]) < self.spacing_limit
+                    )]
+                if len(_prevneighbors) > 0:
+                    for prev_neighbor in _prevneighbors:
+                        _thisnew.color = prev_neighbor.color
+                        _thisnew.isassociated = True
+                        continue
         self.prev_contours = ordered_contours
         return ordered_contours
 
