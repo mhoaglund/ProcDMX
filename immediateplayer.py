@@ -228,7 +228,7 @@ class ImmediatePlayer(Process):
                         _associated = True
                         _with = _prevold
                         #a contour moved from the previous index to the current index
-                if cnt + 1 < indices:
+                if cnt + 1 < (indices-1):
                     _nextold = self.prev_contours[cnt + 1]
                     if (
                             abs(_nextold.pos[1] - _thisnew.pos[1]) < self.spacing_limit
