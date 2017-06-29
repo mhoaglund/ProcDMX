@@ -212,10 +212,7 @@ class ImmediatePlayer(Process):
             try to identify nearest neighbors.
         """
         ordered_contours = sorted(contours, key=lambda cntr: cntr.spatialindex)
-        if len(self.prev_contours) == 0:
-            self.prev_contours = ordered_contours
-            return
-        else:
+        if len(self.prev_contours) > 0:
             indices = len(ordered_contours)
             for cnt in range(0, indices):
                 cnt.color = self.colors.activations[self.current_active_color]
