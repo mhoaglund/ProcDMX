@@ -261,7 +261,7 @@ class ImmediatePlayer(Process):
     def compileLatestContours(self, _contours):
         """When a set of contours comes in, build a goal frame out of it."""
         for y in range(0, 136):
-            self.status[y] -=1
+            self.status[y] -= 1
         for x in range(0, len(_contours)):
             self.status[_contours[x].spatialindex] = 100
         self.status[0] = self.status[6]
@@ -269,7 +269,10 @@ class ImmediatePlayer(Process):
         self.status[2] = self.status[7]
         self.status[3] = self.status[8]
         #self.goal_frame = self.constructInteractiveGoalFrame(self.status)
-        self.goal_frame = self.constructVariableInteractiveGoalFrame(self.status, findContinuity(_contours))
+        self.goal_frame = self.constructVariableInteractiveGoalFrame(
+            self.status,
+            self.findContinuity(_contours)
+            )
 
     def playTowardLatest(self):
         """Always pushing every channel toward where it needs to go
