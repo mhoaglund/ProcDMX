@@ -123,6 +123,7 @@ class ImmediatePlayer(Process):
             sdata2 = ''.join(self.dmxDataTwo)
             self.serialTwo.write(DMXOPEN+DMXINTENSITY+sdata2+DMXCLOSE)
         else:
+            _payloadTwo.reverse()
             _payloadTwo.pop(0)
             _payloadTwo.append(chr(0))
             _all = _payloadOne + _payloadTwo
@@ -249,7 +250,6 @@ class ImmediatePlayer(Process):
                         for prev_neighbor in _prev_indices:
                             _thisnew.color = self.prev_contours[prev_neighbor].color
                             if self.prev_contours[prev_neighbor].isassociated:
-                            #TODO: get these values back into contours
                                 for current_neighbor in _curr_neighbor_indices:
                                     contours[current_neighbor].color = _thisnew.color
                                     contours[current_neighbor].isassociated = True
