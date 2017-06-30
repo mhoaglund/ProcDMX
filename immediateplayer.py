@@ -258,6 +258,8 @@ class ImmediatePlayer(Process):
                         if len(_curr_neighbor_indices) > 0:
                             for current_neighbor in _curr_neighbor_indices:
                                 contours[current_neighbor].color = _thisnew.color
+                else:
+                    _thisnew.color = self.color_memory[cnt]
 
         self.prev_contours = contours
         return contours
