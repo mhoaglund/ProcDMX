@@ -240,8 +240,10 @@ class ImmediatePlayer(Process):
                     randint(0, (len(self.colors.activations)-1))]
                 if not _thisnew.isassociated:
                 #look up contours in previous frame which were reasonably close.
-                    _prev_indices = [i for i in range(len(self.prev_contours)) if self.prev_contours[i].cont_limit < self.cont_limit]
-                    _curr_neighbor_indices = [i for i in range(len(contours)) if contours[i].cont_limit < self.cont_limit]
+                    _prev_indices = [i for i in range(len(self.prev_contours)) if (
+                        abs(self.prev_contours[i].spatialindex - _thisnew.spatialindex) < self.cont_limit)]
+                    _curr_neighbor_indices = [i for i in range(len(contours)) if(
+                        abs(contours[i].spatialindex - _thisnew.spatialindex) < self.cont_limit)]
                     if len(_prev_indices) > 0:
                         _thisnew.isassociated = True
                         for prev_neighbor in _prev_indices:
