@@ -68,7 +68,7 @@ class ImmediatePlayer(Process):
         self.increment = self.colors.increment
         self.decrement = self.colors.decrement
 
-        self.cont_limit = 4
+        self.cont_limit = 12
         self.spacing_limit = 250
         w, h = 4, 136
         self.color_memory = [[0 for x in range(w)] for y in range(h)]
@@ -235,31 +235,28 @@ class ImmediatePlayer(Process):
         if len(contours) > 0:
             indices = len(contours)
             for cnt in range(0, indices):
-                _associated = False
-                _with = None
                 _thisnew = contours[cnt]
-                #_thisnew.color = self.colors.activations[self.current_active_color]
                 _thisnew.color = self.colors.activations[
                     randint(0, (len(self.colors.activations)-1))]
                 if not _thisnew.isassociated:
                 #look up contours in previous frame which were reasonably close.
-                    _prevneighbors = [cnt for cnt in self.prev_contours if(
-                        abs(cnt.spatialindex - _thisnew.spatialindex) < self.cont_limit)]
-                    _currneighbors = [ccnt for ccnt in contours if(
-                        abs(ccnt.spatialindex - _thisnew.spatialindex) < self.cont_limit)]
-                    if len(_prevneighbors) > 0 and not _thisnew.isassociated:
+                    _prev_indices = [i for i in range(len(self.prev_contours)) if self.prev_contours[i].cont_limit < self.cont_limit]
+                    _curr_neighbor_indices = [i for i in range(len(contours)) if contours[i].cont_limit < self.cont_limit]
+                    if len(_prev_indices) > 0:
                         _thisnew.isassociated = True
-                        for prev_neighbor in _prevneighbors:
-                            _thisnew.color = prev_neighbor.color
-                            if prev_neighbor.isassociated:
-                            #Convoluted here, but:
-                            #If we have a previous neighbor who is part of an ongoing contour,
-                            #We want to take that color and apply it to nearby contours in the current frame
-                            #as a noise-reduction measure.
-                                for current_neighbor in _currneighbors:
-                                    current_neighbor.color = _thisnew.color
-                                    current_neighbor.isassociated = True
+                        for prev_neighbor in _prev_indices:
+                            _thisnew.color = self.prev_contours[prev_neighbor].color
+                            if self.prev_contours[prev_neighbor].isassociated:
+                            #TODO: get these values back into contours
+                                for current_neighbor in _curr_neighbor_indices:
+                                    contours[_curr_neighbor_indices].color = _thisnew.color
+                                    contours[_curr_neighbor_indices].isassociated = True
                                 continue
+                    else:
+                        if len(_curr_neighbor_indices) > 0:
+                            for current_neighbor in _curr_neighbor_indices:
+                                contours[current_neighbor].color = _thisnew.color
+
         self.prev_contours = contours
         return contours
 
