@@ -243,15 +243,25 @@ class ImmediatePlayer(Process):
                     randint(0, (len(self.colors.activations)-1))
                     and abs(cnt.pos[1] - _thisnew.pos[1]) < self.spacing_limit
                     ]
+                if not _thisnew.isassociated:
                 #look up contours in previous frame which were reasonably close.
-                _prevneighbors = [cnt for cnt in self.prev_contours if(
-                    abs(cnt.spatialindex - _thisnew.spatialindex) < self.cont_limit)]
-                if len(_prevneighbors) > 0:
-                    _thisnew.isassociated = True
-                    for prev_neighbor in _prevneighbors:
-                        _thisnew.color = prev_neighbor.color
-                        if prev_neighbor.isassociated:
-                            continue
+                    _prevneighbors = [cnt for cnt in self.prev_contours if(
+                        abs(cnt.spatialindex - _thisnew.spatialindex) < self.cont_limit)]
+                    _currneighbors = [ccnt for ccnt in contours if(
+                        abs(ccnt.spatialindex - _thisnew.spatialindex) < self.cont_limit)]
+                    if len(_prevneighbors) > 0 and not _thisnew.isassociated:
+                        _thisnew.isassociated = True
+                        for prev_neighbor in _prevneighbors:
+                            _thisnew.color = prev_neighbor.color
+                            if prev_neighbor.isassociated:
+                            #Convoluted here, but:
+                            #If we have a previous neighbor who is part of an ongoing contour,
+                            #We want to take that color and apply it to nearby contours in the current frame
+                            #as a noise-reduction measure.
+                                for current_neighbor in _currneighbors:
+                                    current_neighbor.color = _thisnew.color
+                                    current_neighbor.isassociated = True
+                                continue
         self.prev_contours = contours
         return contours
 

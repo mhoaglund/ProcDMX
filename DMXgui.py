@@ -25,7 +25,7 @@ class Emulator(Frame):
         self.parent.title("DMX emulator display")
         self.widgets = []
         for x in range(0, self.lights):
-            cell = Frame(self, width=4, height=24, bg="red")
+            cell = Frame(self, width=6, height=24, bg="red")
             self.widgets.append(cell)
             cell.grid(row=0, column=x)
         self.pack()
