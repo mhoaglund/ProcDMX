@@ -68,7 +68,7 @@ class ImmediatePlayer(Process):
         self.increment = self.colors.increment
         self.decrement = self.colors.decrement
 
-        self.cont_limit = 12
+        self.cont_limit = 6
         self.spacing_limit = 250
         w, h = 4, 136
         self.color_memory = [[0 for x in range(w)] for y in range(h)]
