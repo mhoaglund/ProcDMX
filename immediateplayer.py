@@ -251,8 +251,8 @@ class ImmediatePlayer(Process):
                             if self.prev_contours[prev_neighbor].isassociated:
                             #TODO: get these values back into contours
                                 for current_neighbor in _curr_neighbor_indices:
-                                    contours[_curr_neighbor_indices].color = _thisnew.color
-                                    contours[_curr_neighbor_indices].isassociated = True
+                                    contours[current_neighbor].color = _thisnew.color
+                                    contours[current_neighbor].isassociated = True
                                 continue
                     else:
                         if len(_curr_neighbor_indices) > 0:
