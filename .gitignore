@@ -91,3 +91,4 @@ ENV/
 # Uniques
 osname.py
 mappingtest.py
+groupertest.py

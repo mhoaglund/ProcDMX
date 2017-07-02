@@ -273,6 +273,30 @@ class ImmediatePlayer(Process):
         self.prev_contours = contours
         return contours
 
+    @staticmethod
+    def cluster(iterable, threshhold):
+        prev = None
+        group = []
+        for item in iterable:
+            if not prev or abs(item.spatialindex - prev.spatialindex) <= threshhold:
+                group.append(item)
+            else:
+                group_avg = sum(c.spatialindex for c in group)/len(group)
+                group_obj = {
+                    'cluster': group,
+                    'avg': group_avg
+                }
+                yield group_obj
+                group = [item]
+            prev = item
+        if group:
+            group_avg = sum(c.spatialindex for c in group)/len(group)
+            group_obj = {
+                'cluster': group,
+                'avg': group_avg
+            }
+            yield group_obj
+
     def stop(self):
         print 'Terminating...'
         self.cont = False
