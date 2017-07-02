@@ -61,7 +61,10 @@ objects = [
     SimpleContour(11),
     SimpleContour(119),
     SimpleContour(51),
-    SimpleContour(60)
+    SimpleContour(60),
+    SimpleContour(72),
+    SimpleContour(84),
+    SimpleContour(96)
 ]
 
 prev_objects = [
@@ -76,9 +79,15 @@ prev_objects = [
     SimpleContour(90)
 ]
 
+thresh = 14
 def findContinuity():
-    prev_clustered = dict(enumerate(cluster(prev_objects, 9), 1))
-    clustered = dict(enumerate(cluster(objects, 9), 1))
-    merge_up_clusters(prev_clustered, clustered, 5)
+    prev_clustered = dict(enumerate(cluster(prev_objects, thresh), 1))
+    clustered = dict(enumerate(cluster(objects, thresh), 1))
+    for key in clustered:
+        print("Group {}:".format(key))
+        print("Avg: {}".format(clustered[key]['avg']))
+        for cnt in clustered[key]['cluster']:
+            print("C at ", cnt.spatialindex) 
+    merge_up_clusters(prev_clustered, clustered, thresh)
 
 findContinuity()
