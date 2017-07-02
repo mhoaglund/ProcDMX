@@ -273,6 +273,8 @@ class ImmediatePlayer(Process):
         self.prev_contours = contours
         return contours
 
+    color_to_id = {}
+
     @staticmethod
     def cluster(iterable, threshhold):
         prev = None
@@ -296,6 +298,19 @@ class ImmediatePlayer(Process):
                 'avg': group_avg
             }
             yield group_obj
+
+    @staticmethod
+    def merge_up_clusters(previous, current, threshold):
+        """
+            Persist an attribute from one set of objects to another based on similarity in another attribute.
+        """
+        for item in current:
+            nearest = min(range(1,len(previous)), key=lambda i: abs(previous[i]['avg'] - current[item]['avg']))
+            if abs(previous[nearest]['avg'] - current[item]['avg']) < threshold:
+                print("Persisting ID: {}".format(previous[nearest]['id']))
+                current[item]['id'] = previous[nearest]['id']
+            else:
+                continue
 
     def stop(self):
         print 'Terminating...'

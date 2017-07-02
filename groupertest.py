@@ -7,24 +7,27 @@ class SimpleContour(object):
     def __init__(self, _index):
         self.spatialindex = _index
 
-#Could call this "merge_down_IDs"
-def cluster2d(previous, current, threshold):
+def merge_up_clusters(previous, current, threshold):
     """
-        Generator that kind of zips two iterables...
+        Persist an attribute from one set of objects to another,
+        based on similarity in another attribute.
     """
-    print("Merging...")
     for item in current:
-        try:
-            nearest = min(range(len(previous)), key=lambda i: abs(previous[i]['avg'] - current[item]['avg']) < threshold)
-        except KeyError:
-            print("Whoops")
+        nearest = min(
+            range(1, len(previous)),
+            key=lambda i: abs(previous[i]['avg'] - current[item]['avg'])
+            )
+        if abs(previous[nearest]['avg'] - current[item]['avg']) < threshold:
+            print("Persisting ID: {}".format(previous[nearest]['id']))
+            current[item]['id'] = previous[nearest]['id']
+        else:
             continue
-        print("Group {}:".format(item))
-        print("Avg: {}".format(current[item]['avg'])) 
-        print("Prev Neighbor Avg: {}".format(nearest['avg']))
+            #merge color here or do a dict lookup for colors?
 
-#TODO, include determination of average index across members of clusters
 def cluster(iterable, threshhold):
+    """
+        Given a set of contours, cluster them into groups using a distance threshold.
+    """
     prev = None
     group = []
     for item in iterable:
@@ -32,7 +35,6 @@ def cluster(iterable, threshhold):
             group.append(item)
         else:
             group_avg = sum(c.spatialindex for c in group)/len(group)
-            #set an ID, set a color
             group_obj = {
                 'cluster': group,
                 'avg': group_avg,
@@ -43,7 +45,6 @@ def cluster(iterable, threshhold):
         prev = item
     if group:
         group_avg = sum(c.spatialindex for c in group)/len(group)
-        #set an ID, set a color
         group_obj = {
             'cluster': group,
             'avg': group_avg,
@@ -75,17 +76,9 @@ prev_objects = [
     SimpleContour(90)
 ]
 
-
-#TODO: use the averages as keys to do the next dimension of clustering.
-#TODO: make it iterable this time as a challenge
 def findContinuity():
     prev_clustered = dict(enumerate(cluster(prev_objects, 9), 1))
     clustered = dict(enumerate(cluster(objects, 9), 1))
-    cluster2d(prev_clustered, clustered, 10)
-    # for key in clustered:
-    #     print("Group {}:".format(key))
-    #     print("Avg: {}".format(clustered[key]['avg']))
-    #     for cnt in clustered[key]['cluster']:
-    #         print("C at ", cnt.spatialindex)     
+    merge_up_clusters(prev_clustered, clustered, 5)
 
 findContinuity()
