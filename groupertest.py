@@ -7,11 +7,13 @@ class SimpleContour(object):
     def __init__(self, _index):
         self.spatialindex = _index
 
+color_by_id = {}
 def merge_up_clusters(previous, current, threshold):
     """
-        Persist an attribute from one set of objects to another,
+        Persist an attribute from one set of objects to another in place,
         based on similarity in another attribute.
     """
+    kept = []
     for item in current:
         nearest = min(
             range(1, len(previous)),
@@ -20,9 +22,15 @@ def merge_up_clusters(previous, current, threshold):
         if abs(previous[nearest]['avg'] - current[item]['avg']) < threshold:
             print("Persisting ID: {}".format(previous[nearest]['id']))
             current[item]['id'] = previous[nearest]['id']
+            kept.append(previous[nearest]['id'])
         else:
             continue
-            #merge color here or do a dict lookup for colors?
+            #TODO dict lookup for colors
+    
+    for id in color_by_id:
+        if not id in kept:
+            del color_by_id[id]
+
 
 def cluster(iterable, threshhold):
     """

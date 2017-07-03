@@ -70,6 +70,7 @@ class ImmediatePlayer(Process):
 
         self.cont_limit = 12
         self.spacing_limit = 250
+        self.color_by_id = {}
         w, h = 4, 136
         self.color_memory = [[0 for x in range(w)] for y in range(h)]
         for arr in self.color_memory:
@@ -273,8 +274,6 @@ class ImmediatePlayer(Process):
         self.prev_contours = contours
         return contours
 
-    color_to_id = {}
-
     @staticmethod
     def cluster(iterable, threshhold):
         prev = None
@@ -300,17 +299,27 @@ class ImmediatePlayer(Process):
             yield group_obj
 
     @staticmethod
-    def merge_up_clusters(previous, current, threshold):
+    def merge_up_clusters(previous, current, threshold, cache):
         """
             Persist an attribute from one set of objects to another based on similarity in another attribute.
+            cache should be self.color_by_id dictionary
         """
+       kept = []
         for item in current:
-            nearest = min(range(1,len(previous)), key=lambda i: abs(previous[i]['avg'] - current[item]['avg']))
+            nearest = min(
+                range(1, len(previous)),
+                key=lambda i: abs(previous[i]['avg'] - current[item]['avg'])
+                )
             if abs(previous[nearest]['avg'] - current[item]['avg']) < threshold:
                 print("Persisting ID: {}".format(previous[nearest]['id']))
                 current[item]['id'] = previous[nearest]['id']
+                kept.append(previous[nearest]['id'])
             else:
                 continue
+    
+        for id in cache:
+            if not id in kept:
+                del cache[id]
 
     def stop(self):
         print 'Terminating...'
