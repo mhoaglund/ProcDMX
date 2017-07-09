@@ -285,6 +285,7 @@ class ImmediatePlayer(Process):
                     key=lambda i: abs(previous[i]['avg'] - current[item]['avg'])
                     )
             except ValueError:
+                print "Min call failing."
                 continue
             if abs(previous[nearest]['avg'] - current[item]['avg']) < threshold:
                 print "Persisting ID: {}".format(previous[nearest]['id'])
