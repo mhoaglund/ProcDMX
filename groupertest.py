@@ -18,7 +18,7 @@ def merge_up_clusters(previous, current, threshold, color_dict):
     contout = []
     for item in current:
         nearest = min(
-            range(1, len(previous)),
+            range(1, len(previous)+1),
             key=lambda i: abs(previous[i]['avg'] - current[item]['avg'])
             )
         if abs(previous[nearest]['avg'] - current[item]['avg']) < threshold:
@@ -140,6 +140,6 @@ def findContinuity():
         print("Avg: {}".format(clustered[key]['avg']))
         for cnt in clustered[key]['cluster']:
             print("C at {}".format(cnt.spatialindex)) 
-    return merge_up_clusters(prev_clustered, clustered, thresh, self.color_by_id)
+    return merge_up_clusters(prev_clustered, clustered, thresh, color_by_id)
 
 findContinuity()
