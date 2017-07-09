@@ -184,9 +184,9 @@ class ImmediatePlayer(Process):
             if len(contours_at_this_fixture) > 0:
                 _tempcolor = [0, 0, 0, 0]
                 for c in contours_at_this_fixture:
-                    for channel in range(0, len(c.color)):
+                    for channel in range(0, len(c['color'])):
                         if c.color[channel] > _tempcolor[channel]:
-                            _tempcolor[channel] = c.color[channel]
+                            _tempcolor[channel] = c['color'][channel]
                 _color = _tempcolor
                 self.color_memory[x][0] = _tempcolor[0]
                 self.color_memory[x][1] = _tempcolor[1]
