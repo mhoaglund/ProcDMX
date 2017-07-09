@@ -180,7 +180,7 @@ class ImmediatePlayer(Process):
         #For each fixture...
         for x in range(0, 136):
             _color = self.color_memory[x]
-            contours_at_this_fixture = [cnt for cnt in _cdcs if cnt.spatialindex == x]
+            contours_at_this_fixture = [cnt for cnt in _cdcs if cnt['spatialindex'] == x]
             if len(contours_at_this_fixture) > 0:
                 _tempcolor = [0, 0, 0, 0]
                 for c in contours_at_this_fixture:
