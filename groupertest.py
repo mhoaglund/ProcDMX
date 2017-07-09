@@ -1,4 +1,5 @@
 import uuid
+from random import randint
 
 class SimpleContour(object):
     """
@@ -8,31 +9,36 @@ class SimpleContour(object):
         self.spatialindex = _index
 
 color_by_id = {}
-def merge_up_clusters(previous, current, threshold):
+def merge_up_clusters(previous, current, threshold, color_dict):
     """
         Persist an attribute from one set of objects to another in place,
         based on similarity in another attribute.
     """
-    kept = []
+    kept = {}
+    contout = []
     for item in current:
         nearest = min(
             range(1, len(previous)),
             key=lambda i: abs(previous[i]['avg'] - current[item]['avg'])
             )
         if abs(previous[nearest]['avg'] - current[item]['avg']) < threshold:
-            print("Persisting ID: {}".format(previous[nearest]['id']))
+            print "Persisting ID: {}".format(previous[nearest]['id'])
             current[item]['id'] = previous[nearest]['id']
-            kept.append(previous[nearest]['id'])
-        else:
-            continue
-            #TODO dict lookup for colors
-    
-    for id in color_by_id:
-        if not id in kept:
-            del color_by_id[id]
+            try:
+                current[item]['color'] = color_dict[current[item]['id']]
+            except KeyError:
+                current[item]['color'] = previous[nearest]['color']
+                kept[previous[nearest]['id']] = previous[nearest]['color']
+        for contour in current[item]['cluster']:
+            contout.append(
+                {'spatialindex':contour.spatialindex,
+                 'color': current[item]['color']}
+                )
 
+    color_dict = kept
+    return contout
 
-def cluster(iterable, threshhold):
+def color_cluster(iterable, threshhold, colors):
     """
         Given a set of contours, cluster them into groups using a distance threshold.
     """
@@ -46,7 +52,8 @@ def cluster(iterable, threshhold):
             group_obj = {
                 'cluster': group,
                 'avg': group_avg,
-                'id': uuid.uuid4().hex
+                'id': uuid.uuid4().hex,
+                'color': colors[randint(0, (len(colors)-1))]
             }
             yield group_obj
             group = [item]
@@ -56,9 +63,34 @@ def cluster(iterable, threshhold):
         group_obj = {
             'cluster': group,
             'avg': group_avg,
-            'id': uuid.uuid4().hex
+            'id': uuid.uuid4().hex,
+            'color': colors[randint(0, (len(colors)-1))]
         }
         yield group_obj
+
+def constructVariableInteractiveGoalFrame(_status, _cdcs):
+    """Build an end-goal frame for the run loop to work toward"""
+    _temp = colors.base*136
+    _fixturehue = colors.activations[3]
+    _startchannel = 0
+
+    #For each fixture...
+    for x in range(0, 136):
+        #TODO grab a color for this fixture somehow.
+        _color = _fixturehue
+        if _status[x] > 1:
+            if x > 0:
+                _startchannel = x * 4
+            if _startchannel > 4: #conditionally brighten the previous fixture
+                for ch in range(-4, 0):
+                    _temp[_startchannel + ch] = _color[ch+4]
+            for ch in range(0, 4):
+                _temp[_startchannel + ch] = _color[ch]
+            if _startchannel + 7 < 544:  #conditionally brighten the next fixture
+                for ch in range(4, 8):
+                    _temp[_startchannel + ch] = _color[ch-4]
+
+    return _temp
 
 objects = [
     SimpleContour(22),
@@ -87,15 +119,27 @@ prev_objects = [
     SimpleContour(90)
 ]
 
+ACTIVATION_COLORS = [
+    [130, 0, 255, 0],
+    [225, 0, 0, 0],
+    [150, 150, 0, 0],
+    [0, 255, 0, 0],
+    [0, 150, 150, 0],
+    [0, 0, 255, 0],
+    [0, 0, 150, 150],
+    [0, 0, 0, 255],
+    [150, 0, 0, 150]
+    ]
+
 thresh = 14
 def findContinuity():
-    prev_clustered = dict(enumerate(cluster(prev_objects, thresh), 1))
-    clustered = dict(enumerate(cluster(objects, thresh), 1))
+    prev_clustered = dict(enumerate(color_cluster(prev_objects, thresh, ACTIVATION_COLORS), 1))
+    clustered = dict(enumerate(color_cluster(objects, thresh, ACTIVATION_COLORS), 1))
     for key in clustered:
         print("Group {}:".format(key))
         print("Avg: {}".format(clustered[key]['avg']))
         for cnt in clustered[key]['cluster']:
-            print("C at ", cnt.spatialindex) 
-    merge_up_clusters(prev_clustered, clustered, thresh)
+            print("C at {}".format(cnt.spatialindex)) 
+    return merge_up_clusters(prev_clustered, clustered, thresh, self.color_by_id)
 
 findContinuity()

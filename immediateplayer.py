@@ -174,7 +174,6 @@ class ImmediatePlayer(Process):
     def constructVariableInteractiveGoalFrame(self, _status, _cdcs):
         """Build an end-goal frame for the run loop to work toward"""
         _temp = self.colors.base*136
-        #_assignments = self.colors.base*136
         _fixturehue = self.colors.activations[self.current_active_color]
         _startchannel = 0
 
@@ -227,7 +226,6 @@ class ImmediatePlayer(Process):
             self.playTowardLatest()
 
     #TODO figure out if this spacing_limit is reasonable.
-    #TODO figure out how to do multiple passes of this recursively back into the past
     #Narrative:
     #When a new contour appears, check for any close-by contours in the previous frame.
     #The idea is those contours might have been created by the same object in space.
@@ -272,10 +270,40 @@ class ImmediatePlayer(Process):
                     _thisnew.color = self.color_memory[cnt]
 
         self.prev_contours = contours
-        return contours
 
-    @staticmethod
-    def cluster(iterable, threshhold):
+    def merge_up_clusters(self, previous, current, threshold, color_dict):
+        """
+            Persist an attribute from one set of objects to another in place,
+            based on similarity in another attribute.
+        """
+        kept = {}
+        contout = []
+        for item in current:
+            nearest = min(
+                range(1, len(previous)),
+                key=lambda i: abs(previous[i]['avg'] - current[item]['avg'])
+                )
+            if abs(previous[nearest]['avg'] - current[item]['avg']) < threshold:
+                print "Persisting ID: {}".format(previous[nearest]['id'])
+                current[item]['id'] = previous[nearest]['id']
+                try:
+                    current[item]['color'] = color_dict[current[item]['id']]
+                except KeyError:
+                    current[item]['color'] = previous[nearest]['color']
+                    kept[previous[nearest]['id']] = previous[nearest]['color']
+            for contour in current[item]['cluster']:
+                contout.append(
+                    {'spatialindex':contour.spatialindex,
+                    'color': current[item]['color']}
+                    )
+
+        color_dict = kept
+        return contout
+
+    def color_cluster(self, iterable, threshhold):
+        """
+            Given a set of contours, cluster them into groups using a distance threshold.
+        """
         prev = None
         group = []
         for item in iterable:
@@ -285,7 +313,9 @@ class ImmediatePlayer(Process):
                 group_avg = sum(c.spatialindex for c in group)/len(group)
                 group_obj = {
                     'cluster': group,
-                    'avg': group_avg
+                    'avg': group_avg,
+                    'id': uuid.uuid4().hex,
+                    'color': self.colors.activations[randint(0, (len(self.colors.activations)-1))]
                 }
                 yield group_obj
                 group = [item]
@@ -294,41 +324,16 @@ class ImmediatePlayer(Process):
             group_avg = sum(c.spatialindex for c in group)/len(group)
             group_obj = {
                 'cluster': group,
-                'avg': group_avg
+                'avg': group_avg,
+                'id': uuid.uuid4().hex,
+                'color': self.colors.activations[randint(0, (len(self.colors.activations)-1))]
             }
             yield group_obj
-
-    @staticmethod
-    def merge_up_clusters(previous, current, threshold, cache):
-        """
-            Persist an attribute from one set of objects to another based on similarity in another attribute.
-            cache should be self.color_by_id dictionary
-        """
-       kept = []
-        for item in current:
-            nearest = min(
-                range(1, len(previous)),
-                key=lambda i: abs(previous[i]['avg'] - current[item]['avg'])
-                )
-            if abs(previous[nearest]['avg'] - current[item]['avg']) < threshold:
-                print("Persisting ID: {}".format(previous[nearest]['id']))
-                current[item]['id'] = previous[nearest]['id']
-                kept.append(previous[nearest]['id'])
-            else:
-                continue
-    
-        for id in cache:
-            if not id in kept:
-                del cache[id]
-
+   
     def stop(self):
         print 'Terminating...'
         self.cont = False
         super(ImmediatePlayer, self).terminate()
-
-    def tweakNoisyChannels(self):
-        """Some channels get feedback. We can just lock them at 0 for a moment after they drop to prevent this."""
-        return 0
 
     def compileLatestContours(self, _contours):
         """When a set of contours comes in, build a goal frame out of it."""
@@ -343,7 +348,11 @@ class ImmediatePlayer(Process):
         #self.goal_frame = self.constructInteractiveGoalFrame(self.status)
         self.goal_frame = self.constructVariableInteractiveGoalFrame(
             self.status,
-            self.findContinuity(_contours)
+            self.merge_up_clusters(
+                dict(enumerate(self.color_cluster(self.prev_contours, self.cont_limit), 1)),
+                dict(enumerate(self.color_cluster(_contours, self.cont_limit), 1)),
+                self.cont_limit,
+                self.color_by_id)
             )
 
     def playTowardLatest(self):
