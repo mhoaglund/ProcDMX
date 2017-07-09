@@ -279,10 +279,13 @@ class ImmediatePlayer(Process):
         kept = {}
         contout = []
         for item in current:
-            nearest = min(
-                range(1, len(previous)),
-                key=lambda i: abs(previous[i]['avg'] - current[item]['avg'])
-                )
+            try:
+                nearest = min(
+                    range(1, len(previous)),
+                    key=lambda i: abs(previous[i]['avg'] - current[item]['avg'])
+                    )
+            except ValueError:
+                continue
             if abs(previous[nearest]['avg'] - current[item]['avg']) < threshold:
                 print "Persisting ID: {}".format(previous[nearest]['id'])
                 current[item]['id'] = previous[nearest]['id']
@@ -329,7 +332,7 @@ class ImmediatePlayer(Process):
                 'color': self.colors.activations[randint(0, (len(self.colors.activations)-1))]
             }
             yield group_obj
-   
+ 
     def stop(self):
         print 'Terminating...'
         self.cont = False
@@ -354,6 +357,7 @@ class ImmediatePlayer(Process):
                 self.cont_limit,
                 self.color_by_id)
             )
+        self.prev_contours = _contours
 
     def playTowardLatest(self):
         """Always pushing every channel toward where it needs to go
