@@ -278,14 +278,16 @@ class ImmediatePlayer(Process):
         """
         kept = {}
         contout = []
+        print "Prev: ", previous
+        print "Current: ", current
         for item in current:
             try:
                 nearest = min(
                     range(1, len(previous)),
                     key=lambda i: abs(previous[i]['avg'] - current[item]['avg'])
                     )
-            except ValueError:
-                print "Min call failing."
+            except ValueError as e:
+                print "Min call failing.", e
                 continue
             if abs(previous[nearest]['avg'] - current[item]['avg']) < threshold:
                 print "Persisting ID: {}".format(previous[nearest]['id'])
