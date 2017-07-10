@@ -132,6 +132,8 @@ ACTIVATION_COLORS = [
     ]
 
 thresh = 14
+#TODO: this clustering mechanism is just too slow.
+#Alternate strat: use the cooldown/sustain mechanism to stain regions of new activity on the color memory stack.
 def findContinuity():
     prev_clustered = dict(enumerate(color_cluster(prev_objects, thresh, ACTIVATION_COLORS), 1))
     clustered = dict(enumerate(color_cluster(objects, thresh, ACTIVATION_COLORS), 1))

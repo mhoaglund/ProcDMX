@@ -226,52 +226,6 @@ class ImmediatePlayer(Process):
                     self.shouldUpdateColor = True
             self.playTowardLatest()
 
-    #TODO figure out if this spacing_limit is reasonable.
-    #Narrative:
-    #When a new contour appears, check for any close-by contours in the previous frame.
-    #The idea is those contours might have been created by the same object in space.
-    #If there are previous-frame neighbors, that means the current contour is part of a group.
-    #When the current contour is added to the group, it checks for any existing color held by
-    #Associated contours in that group. It prioritizes finding a color from an associated contour,
-    #as opposed to an unassociated one.
-    #TODO: assign IDs to groups of contours and just color the IDs. Generate new color
-    #for new ID.
-    def findContinuity(self, contours):
-        """
-            Given a set of new contours, compare to previous set and
-            try to identify nearest neighbors.
-        """
-        if len(contours) > 0:
-            indices = len(contours)
-            for cnt in range(0, indices):
-                _thisnew = contours[cnt]
-                _thisnew.color = self.colors.activations[
-                    randint(0, (len(self.colors.activations)-1))]
-                if not _thisnew.isassociated:
-                #look up contours in previous frame which were reasonably close.
-                    _prev_indices = [i for i in range(len(self.prev_contours)) if (
-                        abs(self.prev_contours[i].spatialindex - _thisnew.spatialindex) < self.cont_limit)]
-                    _curr_neighbor_indices = [i for i in range(len(contours)) if(
-                        abs(contours[i].spatialindex - _thisnew.spatialindex) < self.cont_limit)]
-                    if len(_prev_indices) > 0:
-                        _thisnew.isassociated = True
-                        for prev_neighbor in _prev_indices:
-                            _thisnew.color = self.prev_contours[prev_neighbor].color
-                            #try to get an associated color from last frame
-                            if self.prev_contours[prev_neighbor].isassociated:
-                                for current_neighbor in _curr_neighbor_indices:
-                                    contours[current_neighbor].color = self.prev_contours[prev_neighbor].color
-                                    contours[current_neighbor].isassociated = True
-                                continue
-                    else:
-                        if len(_curr_neighbor_indices) > 0:
-                            for current_neighbor in _curr_neighbor_indices:
-                                contours[current_neighbor].color = _thisnew.color
-                else: #this is weird, maybe not quite right
-                    _thisnew.color = self.color_memory[cnt]
-
-        self.prev_contours = contours
-
     def merge_up_clusters(self, previous, current, threshold, color_dict):
         """
             Persist an attribute from one set of objects to another in place,
@@ -348,15 +302,17 @@ class ImmediatePlayer(Process):
         self.status[1] = self.status[6]
         self.status[2] = self.status[7]
         self.status[3] = self.status[8]
-        #self.goal_frame = self.constructInteractiveGoalFrame(self.status)
-        self.goal_frame = self.constructVariableInteractiveGoalFrame(
-            self.status,
-            self.merge_up_clusters(
-                dict(enumerate(self.color_cluster(self.prev_contours, self.cont_limit), 1)),
-                dict(enumerate(self.color_cluster(_contours, self.cont_limit), 1)),
-                self.cont_limit,
-                self.color_by_id)
-            )
+        self.goal_frame = self.constructInteractiveGoalFrame(self.status)
+        #TODO: revise this strategy, all this dictionary work is too slow for live play.
+        #it's gotten slower than camera fps! just stain regions of color memory stack based on activity.
+        # self.goal_frame = self.constructVariableInteractiveGoalFrame(
+        #     self.status,
+        #     self.merge_up_clusters(
+        #         dict(enumerate(self.color_cluster(self.prev_contours, self.cont_limit), 1)),
+        #         dict(enumerate(self.color_cluster(_contours, self.cont_limit), 1)),
+        #         self.cont_limit,
+        #         self.color_by_id)
+        #     )
         self.prev_contours = _contours
 
     def playTowardLatest(self):
