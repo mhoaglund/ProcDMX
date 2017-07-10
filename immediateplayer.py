@@ -287,7 +287,6 @@ class ImmediatePlayer(Process):
             except ValueError:
                 continue
             if abs(previous[nearest]['avg'] - current[item]['avg']) < threshold:
-                print "Persisting ID: {}".format(previous[nearest]['id'])
                 current[item]['id'] = previous[nearest]['id']
                 try:
                     current[item]['color'] = color_dict[current[item]['id']]
