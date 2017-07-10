@@ -174,12 +174,13 @@ class ImmediatePlayer(Process):
     def constructVariableInteractiveGoalFrame(self, _status, _cdcs):
         """Build an end-goal frame for the run loop to work toward"""
         _temp = self.colors.base*136
-        _fixturehue = self.colors.activations[self.current_active_color]
+        #_fixturehue = self.colors.activations[self.current_active_color]
         _startchannel = 0
 
         #For each fixture...
         for x in range(0, 136):
-            _color = _fixturehue
+            #_color = _fixturehue
+            _color = self.color_memory[x]
             contours_at_this_fixture = [cnt for cnt in _cdcs if cnt['spatialindex'] == x]
             if len(contours_at_this_fixture) > 0:
                 _tempcolor = [0, 0, 0, 0]
@@ -188,10 +189,10 @@ class ImmediatePlayer(Process):
                         if c['color'][channel] > _tempcolor[channel]:
                             _tempcolor[channel] = c['color'][channel]
                 _color = _tempcolor
-                #self.color_memory[x][0] = _tempcolor[0]
-                #self.color_memory[x][1] = _tempcolor[1]
-                #self.color_memory[x][2] = _tempcolor[2]
-                #self.color_memory[x][3] = _tempcolor[3]
+                self.color_memory[x][0] = _tempcolor[0]
+                self.color_memory[x][1] = _tempcolor[1]
+                self.color_memory[x][2] = _tempcolor[2]
+                self.color_memory[x][3] = _tempcolor[3]
 
             if _status[x] > 1:
                 if x > 0:
