@@ -25,7 +25,6 @@ class ImmediatePlayer(Process):
         super(ImmediatePlayer, self).__init__()
         print 'starting worker'
         self.isHardwareConnected = True #debug flag for working without the dmx harness
-        self.dmxData = []
         self.cont = True
         self.universes = _playersettings.universes
         self.dmxDataOne = [chr(0)]* 513
@@ -62,15 +61,10 @@ class ImmediatePlayer(Process):
         self.baseframe = self.colors.base*_playersettings.lights
         self.dimframe = self.colors.dimmed*_playersettings.lights
         self.peakframe = self.colors.peak*_playersettings.lights
-        self.busyframe = self.colors.busy*_playersettings.lights
-        self.nightframe = self.colors.night*_playersettings.lights
 
-        self.increment = self.colors.increment
-        self.decrement = self.colors.decrement
-
+        self.dye_range = 6
         self.cont_limit = 12
         self.spacing_limit = 250
-        self.color_by_id = {}
         w, h = 4, 136
         self.color_memory = [[0 for x in range(w)] for y in range(h)]
         for arr in self.color_memory:
@@ -84,7 +78,6 @@ class ImmediatePlayer(Process):
         self.status = [0]*136
         self.prev_frame = self.colors.base*136
         self.goal_frame = self.colors.base*136
-        self.heats = [0]*136
         self.sustain = _playersettings.sustain
         self.backfills = self.colors.backfill[0]+ self.colors.backfill[0]+ self.colors.backfill[1]+ self.colors.backfill[0]+ self.colors.backfill[0]+ self.colors.backfill[1]+ self.colors.backfill[0]+ self.colors.backfill[0]
         self.updateActiveColor()
@@ -154,8 +147,6 @@ class ImmediatePlayer(Process):
         _temp = self.colors.base*136
         _fixturehue = self.colors.activations[self.current_active_color]
         _startchannel = 0
-        #for channelheat in range(0,136): #cool all the channels
-        #    self.heats[channelheat] -= 1
         for x in range(0, 136):
             if _cdcs[x] > 1:
                 #hot spot
@@ -171,15 +162,34 @@ class ImmediatePlayer(Process):
                         _temp[_startchannel + ch] = _fixturehue[ch-4]
         return _temp
 
+    def constructColorMemoryGoalFrame(self, _status):
+        """
+            Using color memory, construct a goal frame.
+            :param _status: array with cooldown state of each fixture
+        """
+        _temp = self.colors.base*136
+        for x in range(0, 136):
+            _color = self.color_memory[x]
+            if _status[x] > 1:
+                if x > 0:
+                    _startchannel = x * 4
+                if _startchannel > 4: #conditionally brighten the previous fixture
+                    for ch in range(-4, 0):
+                        _temp[_startchannel + ch] = _color[ch+4]
+                for ch in range(0, 4):
+                    _temp[_startchannel + ch] = _color[ch]
+                if _startchannel + 7 < 544:  #conditionally brighten the next fixture
+                    for ch in range(4, 8):
+                        _temp[_startchannel + ch] = _color[ch-4]
+        return _temp
+
     def constructVariableInteractiveGoalFrame(self, _status, _cdcs):
         """Build an end-goal frame for the run loop to work toward"""
         _temp = self.colors.base*136
-        #_fixturehue = self.colors.activations[self.current_active_color]
         _startchannel = 0
 
         #For each fixture...
         for x in range(0, 136):
-            #_color = _fixturehue
             _color = self.color_memory[x]
             contours_at_this_fixture = [cnt for cnt in _cdcs if cnt['spatialindex'] == x]
             if len(contours_at_this_fixture) > 0:
@@ -208,6 +218,33 @@ class ImmediatePlayer(Process):
 
         return _temp
 
+    def setColorMemory(self, _status, _cdcs):
+        """
+            Given status and contours, dye sections of cooled-down color memory
+            where new contours have appeared. Contours that show up in already-dyed
+            regions should pick up the dye.
+            When new sections get dyed, check for running into other dyed regions and
+            mix accordingly.
+            :param _status: array with cooldown state of each fixture
+            :param _cdcs: array of contours from opencv procs
+        """
+        for x in range(0, 136):
+            contours_at_this_fixture = [cnt for cnt in _cdcs if cnt['spatialindex'] == x]
+            if len(contours_at_this_fixture) < 1:
+                return
+            if _status[x] > 1:
+                #Pull color from color memory and dye it back.
+                _color = self.color_memory[x]
+                self.dye_memory(x, _color)
+            else:
+                #Blank area! Pull a random color and dye the area.
+                _color = self.colors.activations[randint(0, (len(self.colors.activations)-1))]
+                self.dye_memory(x, _color)
+
+    def dye_memory(self, center, color):
+        for cm in range(center - self.dye_range, center + self.dye_range):
+            if cm >= 0 and cm <= len(self.color_memory):
+                self.color_memory[cm] = color
 
     def run(self):
         while self.cont:
@@ -226,67 +263,6 @@ class ImmediatePlayer(Process):
                     self.shouldUpdateColor = True
             self.playTowardLatest()
 
-    def merge_up_clusters(self, previous, current, threshold, color_dict):
-        """
-            Persist an attribute from one set of objects to another in place,
-            based on similarity in another attribute.
-        """
-        kept = {}
-        contout = []
-        for item in current:
-            try:
-                nearest = min(
-                    range(1, len(previous)+1),
-                    key=lambda i: abs(previous[i]['avg'] - current[item]['avg'])
-                    )
-            except ValueError:
-                continue
-            if abs(previous[nearest]['avg'] - current[item]['avg']) < threshold:
-                current[item]['id'] = previous[nearest]['id']
-                try:
-                    current[item]['color'] = color_dict[current[item]['id']]
-                except KeyError:
-                    current[item]['color'] = previous[nearest]['color']
-                    kept[previous[nearest]['id']] = previous[nearest]['color']
-            for contour in current[item]['cluster']:
-                contout.append(
-                    {'spatialindex':contour.spatialindex,
-                    'color': current[item]['color']}
-                    )
-
-        color_dict = kept
-        return contout
-
-    def color_cluster(self, iterable, threshhold):
-        """
-            Given a set of contours, cluster them into groups using a distance threshold.
-        """
-        prev = None
-        group = []
-        for item in iterable:
-            if not prev or abs(item.spatialindex - prev.spatialindex) <= threshhold:
-                group.append(item)
-            else:
-                group_avg = sum(c.spatialindex for c in group)/len(group)
-                group_obj = {
-                    'cluster': group,
-                    'avg': group_avg,
-                    'id': uuid.uuid4().hex,
-                    'color': self.colors.activations[randint(0, (len(self.colors.activations)-1))]
-                }
-                yield group_obj
-                group = [item]
-            prev = item
-        if group:
-            group_avg = sum(c.spatialindex for c in group)/len(group)
-            group_obj = {
-                'cluster': group,
-                'avg': group_avg,
-                'id': uuid.uuid4().hex,
-                'color': self.colors.activations[randint(0, (len(self.colors.activations)-1))]
-            }
-            yield group_obj
- 
     def stop(self):
         print 'Terminating...'
         self.cont = False
@@ -298,22 +274,14 @@ class ImmediatePlayer(Process):
             self.status[y] -= 1
         for x in range(0, len(_contours)):
             self.status[_contours[x].spatialindex] = 100
+        #TODO figure out this bullshit. These channels just never get tripped
         self.status[0] = self.status[6]
         self.status[1] = self.status[6]
         self.status[2] = self.status[7]
         self.status[3] = self.status[8]
-        self.goal_frame = self.constructInteractiveGoalFrame(self.status)
-        #TODO: revise this strategy, all this dictionary work is too slow for live play.
-        #it's gotten slower than camera fps! just stain regions of color memory stack based on activity.
-        # self.goal_frame = self.constructVariableInteractiveGoalFrame(
-        #     self.status,
-        #     self.merge_up_clusters(
-        #         dict(enumerate(self.color_cluster(self.prev_contours, self.cont_limit), 1)),
-        #         dict(enumerate(self.color_cluster(_contours, self.cont_limit), 1)),
-        #         self.cont_limit,
-        #         self.color_by_id)
-        #     )
-        self.prev_contours = _contours
+
+        self.setColorMemory(self.status, _contours)
+        self.goal_frame = self.constructColorMemoryGoalFrame(self.status)
 
     def playTowardLatest(self):
         """Always pushing every channel toward where it needs to go
