@@ -232,6 +232,7 @@ class ImmediatePlayer(Process):
             contours_at_this_fixture = [cnt for cnt in _cdcs if cnt.spatialindex == x]
             if len(contours_at_this_fixture) < 1:
                 return
+            print "got contours at a fixture..."
             if x in _fresh:
                 print "dying blank area..."
                 _color = self.colors.activations[randint(0, (len(self.colors.activations)-1))]
@@ -284,7 +285,7 @@ class ImmediatePlayer(Process):
         self.status[1] = self.status[6]
         self.status[2] = self.status[7]
         self.status[3] = self.status[8]
-        print len(newly_active)
+        #print len(newly_active)
         self.setColorMemory(self.status, _contours, newly_active)
         self.goal_frame = self.constructColorMemoryGoalFrame(self.status)
 
