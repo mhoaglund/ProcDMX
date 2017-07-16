@@ -242,7 +242,7 @@ class ImmediatePlayer(Process):
 
     def dye_memory(self, center, color):
         for cm in range(center - self.dye_range, center + self.dye_range):
-            if cm >= 0 and cm <= len(self.color_memory):
+            if cm >= 0 and cm < len(self.color_memory):
                 self.color_memory[cm] = color
 
     def run(self):
