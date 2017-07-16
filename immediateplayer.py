@@ -218,7 +218,7 @@ class ImmediatePlayer(Process):
 
         return _temp
 
-    def setColorMemory(self, _status, _cdcs):
+    def setColorMemory(self, _status, _cdcs, _fresh):
         """
             Given status and contours, dye sections of cooled-down color memory
             where new contours have appeared. Contours that show up in already-dyed
@@ -232,14 +232,13 @@ class ImmediatePlayer(Process):
             contours_at_this_fixture = [cnt for cnt in _cdcs if cnt.spatialindex == x]
             if len(contours_at_this_fixture) < 1:
                 return
+            if x in _fresh:
+                print "dying blank area..."
+                _color = self.colors.activations[randint(0, (len(self.colors.activations)-1))]
+                self.dye_memory(x, _color)
             if _status[x] > 1:
                 #Pull color from color memory and dye it back.
                 _color = self.color_memory[x]
-                self.dye_memory(x, _color)
-            else:
-                #Blank area! Pull a random color and dye the area.
-                print "dying blank area..."
-                _color = self.colors.activations[randint(0, (len(self.colors.activations)-1))]
                 self.dye_memory(x, _color)
 
     def dye_memory(self, center, color):
@@ -271,17 +270,21 @@ class ImmediatePlayer(Process):
 
     def compileLatestContours(self, _contours):
         """When a set of contours comes in, build a goal frame out of it."""
+        newly_active = []
         for y in range(0, 136):
             self.status[y] -= 1
         for x in range(0, len(_contours)):
+            if self.status[_contours[x].spatialindex] == 0:
+                newly_active.append(_contours[x].spatialindex)
             self.status[_contours[x].spatialindex] = 100
+        
         #TODO figure out this bullshit. These channels just never get tripped
         self.status[0] = self.status[6]
         self.status[1] = self.status[6]
         self.status[2] = self.status[7]
         self.status[3] = self.status[8]
 
-        self.setColorMemory(self.status, _contours)
+        self.setColorMemory(self.status, _contours, newly_active)
         self.goal_frame = self.constructColorMemoryGoalFrame(self.status)
 
     def playTowardLatest(self):
