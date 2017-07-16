@@ -230,17 +230,16 @@ class ImmediatePlayer(Process):
         """
         print len(_cdcs)
         for x in range(0, 136):
-            contours_at_this_fixture = [cnt for cnt in _cdcs if cnt.spatialindex == x]
-            if len(contours_at_this_fixture) < 1: #our comprehension is bad. never any results.
-                return
-            if x in _fresh:
-                print "dying blank area..."
-                _color = self.colors.activations[randint(0, (len(self.colors.activations)-1))]
-                self.dye_memory(x, _color)
-            elif _status[x] > 1:
-                #Pull color from color memory and dye it back.
-                _color = self.color_memory[x]
-                self.dye_memory(x, _color)
+            #contours_at_this_fixture = [cnt for cnt in _cdcs if cnt.spatialindex == x]
+            if x in _cdcs:
+                if x in _fresh:
+                    print "dying blank area..."
+                    _color = self.colors.activations[randint(0, (len(self.colors.activations)-1))]
+                    self.dye_memory(x, _color)
+                elif _status[x] > 1:
+                    #Pull color from color memory and dye it back.
+                    _color = self.color_memory[x]
+                    self.dye_memory(x, _color)
 
     def dye_memory(self, center, color):
         for cm in range(center - self.dye_range, center + self.dye_range):
@@ -286,7 +285,8 @@ class ImmediatePlayer(Process):
         self.status[2] = self.status[7]
         self.status[3] = self.status[8]
         #print len(newly_active)
-        self.setColorMemory(self.status, _contours, newly_active)
+        stripped_down = [cnt.spatialindex for cnt in _contours]
+        self.setColorMemory(self.status, stripped_down, newly_active)
         self.goal_frame = self.constructColorMemoryGoalFrame(self.status)
 
     def playTowardLatest(self):
