@@ -228,11 +228,11 @@ class ImmediatePlayer(Process):
             :param _status: array with cooldown state of each fixture
             :param _cdcs: array of contours from opencv procs
         """
+        print len(_cdcs)
         for x in range(0, 136):
             contours_at_this_fixture = [cnt for cnt in _cdcs if cnt.spatialindex == x]
-            if len(contours_at_this_fixture) < 1:
+            if len(contours_at_this_fixture) < 1: #our comprehension is bad. never any results.
                 return
-            print "got contours at a fixture..."
             if x in _fresh:
                 print "dying blank area..."
                 _color = self.colors.activations[randint(0, (len(self.colors.activations)-1))]
