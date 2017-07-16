@@ -229,7 +229,7 @@ class ImmediatePlayer(Process):
             :param _cdcs: array of contours from opencv procs
         """
         for x in range(0, 136):
-            contours_at_this_fixture = [cnt for cnt in _cdcs if cnt['spatialindex'] == x]
+            contours_at_this_fixture = [cnt for cnt in _cdcs if cnt.spatialindex == x]
             if len(contours_at_this_fixture) < 1:
                 return
             if _status[x] > 1:
