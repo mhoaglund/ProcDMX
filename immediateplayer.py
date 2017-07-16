@@ -62,7 +62,7 @@ class ImmediatePlayer(Process):
         self.dimframe = self.colors.dimmed*_playersettings.lights
         self.peakframe = self.colors.peak*_playersettings.lights
 
-        self.dye_range = 6
+        self.dye_range = 12
         self.cont_limit = 12
         self.spacing_limit = 250
         w, h = 4, 136
@@ -228,12 +228,10 @@ class ImmediatePlayer(Process):
             :param _status: array with cooldown state of each fixture
             :param _cdcs: array of contours from opencv procs
         """
-        print len(_cdcs)
         for x in range(0, 136):
             #contours_at_this_fixture = [cnt for cnt in _cdcs if cnt.spatialindex == x]
             if x in _cdcs:
                 if x in _fresh:
-                    print "dying blank area..."
                     _color = self.colors.activations[randint(0, (len(self.colors.activations)-1))]
                     self.dye_memory(x, _color)
                 elif _status[x] > 1:
@@ -324,6 +322,6 @@ class ImmediatePlayer(Process):
 
         self.prev_frame = _actual
         self.render(self.dmxDataOne, self.dmxDataTwo)
-        time.sleep(0.01) #100fps is probably good
+        time.sleep(0.005) #100fps is probably good
         #A good reminder here- the player loop takes more than zero time to run!
         #So this sleep isn't A. a good design choice or B. indicative of framerate!
