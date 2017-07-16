@@ -238,6 +238,7 @@ class ImmediatePlayer(Process):
                 self.dye_memory(x, _color)
             else:
                 #Blank area! Pull a random color and dye the area.
+                print "dying blank area..."
                 _color = self.colors.activations[randint(0, (len(self.colors.activations)-1))]
                 self.dye_memory(x, _color)
 
