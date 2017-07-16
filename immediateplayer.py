@@ -229,7 +229,6 @@ class ImmediatePlayer(Process):
             :param _cdcs: array of contours from opencv procs
         """
         for x in range(0, 136):
-            #contours_at_this_fixture = [cnt for cnt in _cdcs if cnt.spatialindex == x]
             if x in _cdcs:
                 if x in _fresh:
                     if self.color_memory[x] == self.colors.base:
@@ -240,6 +239,7 @@ class ImmediatePlayer(Process):
                     _color = self.color_memory[x]
                     self.dye_memory(x, _color)
 
+    #TODO: based on some information about nearby color, additively mix.
     def dye_memory(self, center, color):
         for cm in range(center - self.dye_range, center + self.dye_range):
             if cm >= 0 and cm < len(self.color_memory):
