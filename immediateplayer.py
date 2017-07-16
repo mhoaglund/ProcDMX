@@ -232,6 +232,7 @@ class ImmediatePlayer(Process):
             contours_at_this_fixture = [cnt for cnt in _cdcs if cnt.spatialindex == x]
             if len(contours_at_this_fixture) < 1:
                 return
+            print _fresh
             if x in _fresh:
                 print "dying blank area..."
                 _color = self.colors.activations[randint(0, (len(self.colors.activations)-1))]
@@ -272,9 +273,10 @@ class ImmediatePlayer(Process):
         """When a set of contours comes in, build a goal frame out of it."""
         newly_active = []
         for y in range(0, 136):
-            self.status[y] -= 1
+            if self.status[y] > 0
+                self.status[y] -= 1
         for x in range(0, len(_contours)):
-            if self.status[_contours[x].spatialindex] == 0:
+            if self.status[_contours[x].spatialindex] < 1:
                 newly_active.append(_contours[x].spatialindex)
             self.status[_contours[x].spatialindex] = 100
         
