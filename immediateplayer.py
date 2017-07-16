@@ -132,11 +132,11 @@ class ImmediatePlayer(Process):
         else:
             self.current_active_color += 1
         #clearing plastic color memory
-        for arr in self.color_memory:
-            arr[0] = self.colors.base[0]
-            arr[1] = self.colors.base[1]
-            arr[2] = self.colors.base[2]
-            arr[3] = self.colors.base[3]
+        # for arr in self.color_memory:
+        #     arr[0] = self.colors.base[0]
+        #     arr[1] = self.colors.base[1]
+        #     arr[2] = self.colors.base[2]
+        #     arr[3] = self.colors.base[3]
         self.shouldUpdateColor = False
 
     def constructInteractiveGoalFrame(self, _cdcs):
@@ -232,8 +232,9 @@ class ImmediatePlayer(Process):
             #contours_at_this_fixture = [cnt for cnt in _cdcs if cnt.spatialindex == x]
             if x in _cdcs:
                 if x in _fresh:
-                    _color = self.colors.activations[randint(0, (len(self.colors.activations)-1))]
-                    self.dye_memory(x, _color)
+                    if self.color_memory[x] == self.colors.base:
+                        _color = self.colors.activations[randint(0, (len(self.colors.activations)-1))]
+                        self.dye_memory(x, _color)
                 elif _status[x] > 1:
                     #Pull color from color memory and dye it back.
                     _color = self.color_memory[x]
