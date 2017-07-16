@@ -273,7 +273,7 @@ class ImmediatePlayer(Process):
         """When a set of contours comes in, build a goal frame out of it."""
         newly_active = []
         for y in range(0, 136):
-            if self.status[y] > 0
+            if self.status[y] > 0:
                 self.status[y] -= 1
         for x in range(0, len(_contours)):
             if self.status[_contours[x].spatialindex] < 1:
