@@ -167,12 +167,13 @@ class ImmediatePlayer(Process):
                         _color = self.colors.activations[randint(0, (len(self.colors.activations)-1))]
                         self.dye_memory(x, _color, self.dye_range)
                     elif self.color_memory[x] in self.palette:
+                        #Doing this only with freshly-changed channels has some limitations.
+                        #Maybe we could also add a case for performing the same mix on channels with <50 status or something?
                         _color = self.add_mix(
-                            self.color_memory[x],
+                            self.color_memory[x], 
                             self.colors.activations[randint(0, (len(self.colors.activations)-1))]
                             )
                         self.dye_memory(x, _color, self.dye_range)
-
                 elif _status[x] > 1:
                     #Pull color from color memory and dye it back.
                     _color = self.color_memory[x]
