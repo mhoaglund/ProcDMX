@@ -62,25 +62,19 @@ class ImmediatePlayer(Process):
         self.dimframe = self.colors.dimmed*_playersettings.lights
         self.peakframe = self.colors.peak*_playersettings.lights
 
-        self.dye_range = 12
-        self.cont_limit = 12
-        self.spacing_limit = 250
+        self.dye_range = 6
         w, h = 4, 136
         self.color_memory = [[0 for x in range(w)] for y in range(h)]
-        for arr in self.color_memory:
-            arr[0] = self.colors.base[0]
-            arr[1] = self.colors.base[1]
-            arr[2] = self.colors.base[2]
-            arr[3] = self.colors.base[3]
+        self.palette = []
         #Prev Frame and Goal Frame are containers for data pertaining to ALL interactive channels.
         #They get split up for rendering and don't have anything to do with DMX packets.
-        self.prev_contours = []
+        self.prev_contours = [self.colors.base]
         self.status = [0]*136
         self.prev_frame = self.colors.base*136
         self.goal_frame = self.colors.base*136
         self.sustain = _playersettings.sustain
         self.backfills = self.colors.backfill[0]+ self.colors.backfill[0]+ self.colors.backfill[1]+ self.colors.backfill[0]+ self.colors.backfill[0]+ self.colors.backfill[1]+ self.colors.backfill[0]+ self.colors.backfill[0]
-        self.updateActiveColor()
+        self.wipeColorMemory()
         self.playTowardLatest()
 
     def setchannelOnOne(self, chan, _intensity):
@@ -124,13 +118,8 @@ class ImmediatePlayer(Process):
             self.gui.renderDMX(_all)
             self.root.update()
 
-    def updateActiveColor(self):
-        """If we have a period of inactivity, switch the activation color."""
-        print "cycling active color"
-        if self.current_active_color == len(self.colors.activations)-1:
-            self.current_active_color = 0
-        else:
-            self.current_active_color += 1
+    def wipeColorMemory(self):
+        """If we have a period of inactivity, wipe color memory."""
         #clearing plastic color memory
         for arr in self.color_memory:
             arr[0] = self.colors.base[0]
@@ -138,29 +127,7 @@ class ImmediatePlayer(Process):
             arr[2] = self.colors.base[2]
             arr[3] = self.colors.base[3]
         self.shouldUpdateColor = False
-
-    def constructInteractiveGoalFrame(self, _cdcs):
-        """Build an end-goal frame for the run loop to work toward"""
-        #we have 132 interactive lights (4 per fixture) and some that aren't.
-        #each light has 4 channels, so we have a total of 544 channels.
-        #building more than one universe worth here, to be divided up later.
-        _temp = self.colors.base*136
-        _fixturehue = self.colors.activations[self.current_active_color]
-        _startchannel = 0
-        for x in range(0, 136):
-            if _cdcs[x] > 1:
-                #hot spot
-                if x > 0:
-                    _startchannel = x * 4
-                if _startchannel > 4: #conditionally brighten the previous fixture
-                    for ch in range(-4, 0):
-                        _temp[_startchannel + ch] = _fixturehue[ch+4]
-                for ch in range(0, 4):
-                    _temp[_startchannel + ch] = _fixturehue[ch]
-                if _startchannel + 7 < 544:  #conditionally brighten the next fixture
-                    for ch in range(4, 8):
-                        _temp[_startchannel + ch] = _fixturehue[ch-4]
-        return _temp
+        self.palette = [self.colors.base]
 
     def constructColorMemoryGoalFrame(self, _status):
         """
@@ -183,41 +150,6 @@ class ImmediatePlayer(Process):
                         _temp[_startchannel + ch] = _color[ch-4]
         return _temp
 
-    def constructVariableInteractiveGoalFrame(self, _status, _cdcs):
-        """Build an end-goal frame for the run loop to work toward"""
-        _temp = self.colors.base*136
-        _startchannel = 0
-
-        #For each fixture...
-        for x in range(0, 136):
-            _color = self.color_memory[x]
-            contours_at_this_fixture = [cnt for cnt in _cdcs if cnt['spatialindex'] == x]
-            if len(contours_at_this_fixture) > 0:
-                _tempcolor = [0, 0, 0, 0]
-                for c in contours_at_this_fixture:
-                    for channel in range(0, len(c['color'])):
-                        if c['color'][channel] > _tempcolor[channel]:
-                            _tempcolor[channel] = c['color'][channel]
-                _color = _tempcolor
-                self.color_memory[x][0] = _tempcolor[0]
-                self.color_memory[x][1] = _tempcolor[1]
-                self.color_memory[x][2] = _tempcolor[2]
-                self.color_memory[x][3] = _tempcolor[3]
-
-            if _status[x] > 1:
-                if x > 0:
-                    _startchannel = x * 4
-                if _startchannel > 4: #conditionally brighten the previous fixture
-                    for ch in range(-4, 0):
-                        _temp[_startchannel + ch] = _color[ch+4]
-                for ch in range(0, 4):
-                    _temp[_startchannel + ch] = _color[ch]
-                if _startchannel + 7 < 544:  #conditionally brighten the next fixture
-                    for ch in range(4, 8):
-                        _temp[_startchannel + ch] = _color[ch-4]
-
-        return _temp
-
     def setColorMemory(self, _status, _cdcs, _fresh):
         """
             Given status and contours, dye sections of cooled-down color memory
@@ -233,17 +165,39 @@ class ImmediatePlayer(Process):
                 if x in _fresh:
                     if self.color_memory[x] == self.colors.base:
                         _color = self.colors.activations[randint(0, (len(self.colors.activations)-1))]
-                        self.dye_memory(x, _color)
+                        self.dye_memory(x, _color, self.dye_range)
+                    elif self.color_memory[x] in self.palette:
+                        _color = self.add_mix(
+                            self.color_memory[x],
+                            self.colors.activations[randint(0, (len(self.colors.activations)-1))]
+                            )
+                        self.dye_memory(x, _color, self.dye_range)
+
                 elif _status[x] > 1:
                     #Pull color from color memory and dye it back.
                     _color = self.color_memory[x]
-                    self.dye_memory(x, _color)
+                    self.dye_memory(x, _color, self.dye_range)
 
-    #TODO: based on some information about nearby color, additively mix.
-    def dye_memory(self, center, color):
-        for cm in range(center - self.dye_range, center + self.dye_range):
+    def dye_memory(self, center, color, range):
+        """
+            Dye a range of cells in color memory array.
+        """
+        for cm in range(center - range, center + range):
             if cm >= 0 and cm < len(self.color_memory):
                 self.color_memory[cm] = color
+
+    @staticmethod
+    def add_mix(old, new):
+        """
+            Mix two rgba colors, privilege to higher values.
+        """
+        mixed = []
+        for x in range(0, len(old)):
+            if new[x] > old[x]:
+                mixed[x] = new[x]
+            else:
+                mixed[x] = old[x]
+        return mixed
 
     def run(self):
         while self.cont:
@@ -253,7 +207,7 @@ class ImmediatePlayer(Process):
                 if len(Contours) < 2:
                     if self.quietframes > self.maxquietframes:
                         if self.shouldUpdateColor:
-                            self.updateActiveColor()
+                            self.wipeColorMemory()
                         self.quietframes = 0
                     else:
                         self.quietframes += 1
