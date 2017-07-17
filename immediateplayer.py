@@ -173,6 +173,8 @@ class ImmediatePlayer(Process):
                             self.color_memory[x], 
                             self.colors.activations[randint(0, (len(self.colors.activations)-1))]
                             )
+                        if not _color in self.palette:
+                            self.palette.append(_color)
                         self.dye_memory(x, _color, self.dye_range)
                 elif _status[x] > 1:
                     #Pull color from color memory and dye it back.
