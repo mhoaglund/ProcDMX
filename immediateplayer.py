@@ -168,6 +168,7 @@ class ImmediatePlayer(Process):
                         _color = self.colors.activations[randint(0, (len(self.colors.activations)-1))]
                         if not _color in self.palette:
                              self.palette.append(_color)
+                             print "Added ", _color, " to palette"
                         #self.dye_memory(x, _color, self.dye_range)
                     # elif self.color_memory[x] in self.palette:
                     #     #Doing this only with freshly-changed channels has some limitations.
