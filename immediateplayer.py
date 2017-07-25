@@ -118,15 +118,15 @@ class ImmediatePlayer(Process):
             self.gui.renderDMX(_all)
             self.root.update()
 
+    #when we wipe this, it isn't having the desired effect.
+    #we should just return to default behavior.
+    #after a couple of wipes we end up with wierd pastel colors, like we're add-mixing base or something.
     def wipeColorMemory(self):
         """If we have a period of inactivity, wipe color memory."""
         #clearing plastic color memory
         print "wiping color memory..."
-        for arr in self.color_memory:
-            arr[0] = self.colors.base[0]
-            arr[1] = self.colors.base[1]
-            arr[2] = self.colors.base[2]
-            arr[3] = self.colors.base[3]
+        for x in range(1, len(self.color_memory)):
+            self.color_memory[x] = self.color_memory.base
         self.shouldUpdateColor = False
         self.palette = []
 
