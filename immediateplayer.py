@@ -62,13 +62,12 @@ class ImmediatePlayer(Process):
         self.dimframe = self.colors.dimmed*_playersettings.lights
         self.peakframe = self.colors.peak*_playersettings.lights
 
-        self.dye_range = 6
+        self.dye_range = 3
         w, h = 4, 136
         self.color_memory = [[0 for x in range(w)] for y in range(h)]
         self.palette = []
         #Prev Frame and Goal Frame are containers for data pertaining to ALL interactive channels.
         #They get split up for rendering and don't have anything to do with DMX packets.
-        self.prev_contours = [self.colors.base]
         self.status = [0]*136
         self.prev_frame = self.colors.base*136
         self.goal_frame = self.colors.base*136
@@ -165,7 +164,7 @@ class ImmediatePlayer(Process):
             if x in _cdcs:
                 _color = self.color_memory[x]
                 if x in _fresh:
-                    if self.color_memory[x] == self.colors.base:
+                    if _color == self.colors.base:
                         _color = self.colors.activations[randint(0, (len(self.colors.activations)-1))]
                         if not _color in self.palette:
                              self.palette.append(_color)
