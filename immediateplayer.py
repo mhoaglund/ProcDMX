@@ -196,8 +196,8 @@ class ImmediatePlayer(Process):
             Intelligently dye a range of color memory cells based on their contents.
         """
         _color = color
-        start = center - range if center - range > 0 else 0
-        end = center + range if center + range < len(self.color_memory) else len(self.color_memory)
+        start = center - distance if center - distance > 0 else 0
+        end = center + distance if center + distance < len(self.color_memory) else len(self.color_memory)
         cells = self.color_memory[start:end]
         has_new = False
         try:
