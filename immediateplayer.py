@@ -125,7 +125,7 @@ class ImmediatePlayer(Process):
         #clearing plastic color memory
         print "wiping color memory..."
         for x in range(1, len(self.color_memory)):
-            self.color_memory[x] = self.color_memory.base
+            self.color_memory[x] = self.colors.base
         self.shouldUpdateColor = False
         self.palette = []
 
