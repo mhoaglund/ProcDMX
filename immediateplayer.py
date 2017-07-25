@@ -165,6 +165,8 @@ class ImmediatePlayer(Process):
                 if x in _fresh:
                     if self.color_memory[x] == self.colors.base:
                         _color = self.colors.activations[randint(0, (len(self.colors.activations)-1))]
+                        if not _color in self.palette:
+                             self.palette.append(_color)
                         self.dye_memory(x, _color, self.dye_range)
                     # elif self.color_memory[x] in self.palette:
                     #     #Doing this only with freshly-changed channels has some limitations.
@@ -193,12 +195,23 @@ class ImmediatePlayer(Process):
         """
             Intelligently dye a range of color memory cells based on their contents.
         """
-        for cm in range(center - range, center + range):
-            if cm >= 0 and cm < len(self.color_memory):
-                #TODO: basically need to reboot the loop at this point.
-                if self.color_memory[cm] in self.palette and self.color_memory[cm] != color:
-                    color = self.add_mix(self.color_memory[cm], color)    
-                self.color_memory[cm] = color
+        _color = color
+        start = center - range if center - range > 0 else 0
+        end = center + range if center + range < len(self.color_memory) else len(self.color_memory)
+        cells = self.color_memory[start:end]
+        has_new = False
+        try:
+            #Encountered a new color, so add up.
+            #need to figure out if this iter makes sense
+            newcolor = next(c for c in cells if c != color and c in self.palette)
+            _color = self.add_mix(newcolor, color)   
+            has_new = True
+        except StopIteration:
+            #no new color, back to business
+            has_new = False
+            _color = color
+        for cm in range(start, end):
+            self.color_memory[cm] = _color
 
     @staticmethod
     def add_mix(old, new):
