@@ -121,6 +121,7 @@ class ImmediatePlayer(Process):
     def wipeColorMemory(self):
         """If we have a period of inactivity, wipe color memory."""
         #clearing plastic color memory
+        print "wiping color memory..."
         for arr in self.color_memory:
             arr[0] = self.colors.base[0]
             arr[1] = self.colors.base[1]
