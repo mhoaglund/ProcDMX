@@ -162,6 +162,7 @@ class ImmediatePlayer(Process):
         """
         for x in range(0, 136):
             if x in _cdcs:
+                _color = self.color_memory[x]
                 if x in _fresh:
                     if self.color_memory[x] == self.colors.base:
                         _color = self.colors.activations[randint(0, (len(self.colors.activations)-1))]
