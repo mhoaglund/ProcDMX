@@ -181,19 +181,19 @@ class ImmediatePlayer(Process):
                     _color = self.color_memory[x]
                     self.dye_memory(x, _color, self.dye_range)
 
-    def dye_memory(self, center, color, range):
+    def dye_memory(self, center, color, distance):
         """
             Dye a range of cells in color memory array.
         """
-        for cm in range(center - range, center + range):
+        for cm in range(center - distance, center + distance):
             if cm >= 0 and cm < len(self.color_memory):
                 self.color_memory[cm] = color
 
-    def conditional_dye(self, center, color, range):
+    def conditional_dye(self, center, color, distance):
         """
             Intelligently dye a range of color memory cells based on their contents.
         """
-        for cm in range(center - range, center + range):
+        for cm in range(center - distance, center + distance):
             if cm >= 0 and cm < len(self.color_memory):
                 #TODO: basically need to reboot the loop at this point.
                 if self.color_memory[cm] in self.palette and self.color_memory[cm] != color:
