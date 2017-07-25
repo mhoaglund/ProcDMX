@@ -166,16 +166,16 @@ class ImmediatePlayer(Process):
                     if self.color_memory[x] == self.colors.base:
                         _color = self.colors.activations[randint(0, (len(self.colors.activations)-1))]
                         self.dye_memory(x, _color, self.dye_range)
-                    elif self.color_memory[x] in self.palette:
-                        #Doing this only with freshly-changed channels has some limitations.
-                        #Maybe we could also add a case for performing the same mix on channels with <50 status or something?
-                        _color = self.add_mix(
-                            self.color_memory[x], 
-                            self.colors.activations[randint(0, (len(self.colors.activations)-1))]
-                            )
-                        if not _color in self.palette:
-                            self.palette.append(_color)
-                        self.dye_memory(x, _color, self.dye_range)
+                    # elif self.color_memory[x] in self.palette:
+                    #     #Doing this only with freshly-changed channels has some limitations.
+                    #     #Maybe we could also add a case for performing the same mix on channels with <50 status or something?
+                    #     _color = self.add_mix(
+                    #         self.color_memory[x], 
+                    #         self.colors.activations[randint(0, (len(self.colors.activations)-1))]
+                    #         )
+                    #     if not _color in self.palette:
+                    #         self.palette.append(_color)
+                    #     self.dye_memory(x, _color, self.dye_range)
                 elif _status[x] > 1:
                     #Pull color from color memory and dye it back.
                     _color = self.color_memory[x]
@@ -187,6 +187,17 @@ class ImmediatePlayer(Process):
         """
         for cm in range(center - range, center + range):
             if cm >= 0 and cm < len(self.color_memory):
+                self.color_memory[cm] = color
+
+    def conditional_dye(self, center, color, range):
+        """
+            Intelligently dye a range of color memory cells based on their contents.
+        """
+        for cm in range(center - range, center + range):
+            if cm >= 0 and cm < len(self.color_memory):
+                #TODO: basically need to reboot the loop at this point.
+                if self.color_memory[cm] in self.palette and self.color_memory[cm] != color:
+                    color = self.add_mix(self.color_memory[cm], color)    
                 self.color_memory[cm] = color
 
     @staticmethod
@@ -240,7 +251,6 @@ class ImmediatePlayer(Process):
         self.status[1] = self.status[6]
         self.status[2] = self.status[7]
         self.status[3] = self.status[8]
-        #print len(newly_active)
         stripped_down = [cnt.spatialindex for cnt in _contours]
         self.setColorMemory(self.status, stripped_down, newly_active)
         self.goal_frame = self.constructColorMemoryGoalFrame(self.status)
