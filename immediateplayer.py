@@ -219,7 +219,7 @@ class ImmediatePlayer(Process):
         """
             Mix two rgba colors, privilege to higher values.
         """
-        mixed = []
+        mixed = [0,0,0,0]
         for x in range(0, len(old)):
             if new[x] > old[x]:
                 mixed[x] = new[x]
