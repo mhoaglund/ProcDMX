@@ -117,9 +117,6 @@ class ImmediatePlayer(Process):
             self.gui.renderDMX(_all)
             self.root.update()
 
-    #when we wipe this, it isn't having the desired effect.
-    #we should just return to default behavior.
-    #after a couple of wipes we end up with wierd pastel colors, like we're add-mixing base or something.
     def wipeColorMemory(self):
         """If we have a period of inactivity, wipe color memory."""
         #clearing plastic color memory
@@ -163,27 +160,21 @@ class ImmediatePlayer(Process):
         for x in range(0, 136):
             if x in _cdcs:
                 _color = self.color_memory[x]
+                _range = self.dye_range
                 if x in _fresh:
                     if _color == self.colors.base:
-                        _color = self.colors.activations[randint(0, (len(self.colors.activations)-1))]
+                        _validcolors = self.colors.activations
+                        if len(self.palette < 6):
+                            #aggressively reduce incidence of double colors unless site is super busy
+                            _validcolors = [color for color in self.colors.activations if color not in self.palette]
+                        _color = _validcolors[randint(0, (len(_validcolors)-1))]
+                        _range = self.dye_range * 2 #doubling range of new dye drops to get consistency
                         if not _color in self.palette:
                              self.palette.append(_color)
                              print "Added ", _color, " to palette"
-                        #self.dye_memory(x, _color, self.dye_range)
-                    # elif self.color_memory[x] in self.palette:
-                    #     #Doing this only with freshly-changed channels has some limitations.
-                    #     #Maybe we could also add a case for performing the same mix on channels with <50 status or something?
-                    #     _color = self.add_mix(
-                    #         self.color_memory[x], 
-                    #         self.colors.activations[randint(0, (len(self.colors.activations)-1))]
-                    #         )
-                    #     if not _color in self.palette:
-                    #         self.palette.append(_color)
-                    #     self.dye_memory(x, _color, self.dye_range)
                 elif _status[x] > 1:
-                    #Pull color from color memory and dye it back.
                     _color = self.color_memory[x]
-                self.conditional_dye(x, _color, self.dye_range)
+                self.conditional_dye(x, _color, _range)
 
     def dye_memory(self, center, color, distance):
         """

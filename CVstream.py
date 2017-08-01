@@ -237,7 +237,8 @@ class CVStream(Process):
         for st in range(0, self.stripe_count):
             if _x >= self.STRIPES[st][0] and _x < self.STRIPES[st][1]:
                 stripe = st
-        
+        if self.stream_id == "City" and stripe > 0:
+            stripe -= 1 #experimental tweak for city side
         return stripe - overlap_tweak
 
     def stop(self):
