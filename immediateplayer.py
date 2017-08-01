@@ -299,6 +299,6 @@ class ImmediatePlayer(Process):
 
         self.prev_frame = _actual
         self.render(self.dmxDataOne, self.dmxDataTwo)
-        #time.sleep(0.005) #100fps is probably good
+        time.sleep(0.005) #100fps is probably good
         #A good reminder here- the player loop takes more than zero time to run!
         #So this sleep isn't A. a good design choice or B. indicative of framerate!
