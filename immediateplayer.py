@@ -164,7 +164,7 @@ class ImmediatePlayer(Process):
                 if x in _fresh:
                     if _color == self.colors.base:
                         _validcolors = self.colors.activations
-                        if len(self.palette < 6):
+                        if len(self.palette) < 6:
                             #aggressively reduce incidence of double colors unless site is super busy
                             _validcolors = [color for color in self.colors.activations if color not in self.palette]
                         _color = _validcolors[randint(0, (len(_validcolors)-1))]
