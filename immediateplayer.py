@@ -62,15 +62,17 @@ class ImmediatePlayer(Process):
         self.dimframe = self.colors.dimmed*_playersettings.lights
         self.peakframe = self.colors.peak*_playersettings.lights
 
-        self.dye_range = 3
+        self.dye_range = 5
         w, h = 4, 136
         self.color_memory = [[0 for x in range(w)] for y in range(h)]
         self.palette = []
         #Prev Frame and Goal Frame are containers for data pertaining to ALL interactive channels.
         #They get split up for rendering and don't have anything to do with DMX packets.
-        self.status = [0]*136
-        self.prev_frame = self.colors.base*136
-        self.goal_frame = self.colors.base*136
+        self.fixtures = 136
+        self.endcapsize = 12
+        self.status = [0]*self.fixtures
+        self.prev_frame = self.colors.base*self.fixtures
+        self.goal_frame = self.colors.base*self.fixtures
         self.sustain = _playersettings.sustain
         self.backfills = self.colors.backfill[0]+ self.colors.backfill[0]+ self.colors.backfill[1]+ self.colors.backfill[0]+ self.colors.backfill[0]+ self.colors.backfill[1]+ self.colors.backfill[0]+ self.colors.backfill[0]
         self.wipeColorMemory()
@@ -162,6 +164,8 @@ class ImmediatePlayer(Process):
                 _color = self.color_memory[x]
                 _range = self.dye_range
                 if x in _fresh:
+                    if x > self.fixtures - self.endcapsize or x < self.endcapsize:
+                        _range = self.dye_range * 2
                     if _color == self.colors.base:
                         _validcolors = self.colors.activations
                         if len(self.palette) < 6:
@@ -171,7 +175,6 @@ class ImmediatePlayer(Process):
                         _range = self.dye_range * 2 #doubling range of new dye drops to get consistency
                         if not _color in self.palette:
                              self.palette.append(_color)
-                             print "Added ", _color, " to palette"
                 elif _status[x] > 1:
                     _color = self.color_memory[x]
                 self.conditional_dye(x, _color, _range)
