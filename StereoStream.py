@@ -226,7 +226,6 @@ try:
         if RIVER_WATCHDOG > 8000 or CITY_WATCHDOG > 8000:
             reclaim_stream('river')
             print 'Problem! Reclaiming streams...'
-            logging.info('Stream outage...')
             RIVER_WATCHDOG = 0
             CITY_WATCHDOG = 0
         if hasattr(schedule, 'run_pending'):
