@@ -66,8 +66,6 @@ vcap = cv2.VideoCapture(STREAM_ADDRESS)
 
 CAPTURE_W = vcap.get(3)
 CAPTURE_H = vcap.get(4)
-print CAPTURE_W
-print CAPTURE_H
 firstFrame = None
 
 def spinupplayer():

@@ -18,7 +18,6 @@ class CVStream(Process):
     """
     def __init__(self, _CVInputSettings):
         super(CVStream, self).__init__()
-        print 'Starting CVstream'
         self.settings = _CVInputSettings
         self.vcap = cv2.VideoCapture()
         self.stream_id = _CVInputSettings.stream_id
@@ -240,7 +239,6 @@ class CVStream(Process):
         return stripe - overlap_tweak
 
     def stop(self):
-        print 'Terminating...'
         self.cont = False
         self.exit_event.set()
 

@@ -23,7 +23,6 @@ class ImmediatePlayer(Process):
     """
     def __init__(self, _playersettings, _colorsettings):
         super(ImmediatePlayer, self).__init__()
-        print 'starting worker'
         self.isHardwareConnected = True #debug flag for working without the dmx harness
         self.cont = True
         self.universes = _playersettings.universes
@@ -33,7 +32,6 @@ class ImmediatePlayer(Process):
             self.serialOne = serial.Serial('/dev/ttyUSB0', baudrate=57600)
             self.serialTwo = serial.Serial('/dev/ttyUSB1', baudrate=57600)
         except:
-            print "Error: could not open Serial port"
             logging.info("An issue has occurred with one of the Serial Ports. Running in dummy mode with no serial output.")
             self.isHardwareConnected = False
             try:
@@ -121,8 +119,6 @@ class ImmediatePlayer(Process):
 
     def wipeColorMemory(self):
         """If we have a period of inactivity, wipe color memory."""
-        #clearing plastic color memory
-        print "wiping color memory..."
         for x in range(1, len(self.color_memory)):
             self.color_memory[x] = self.colors.base
         self.shouldUpdateColor = False
@@ -195,17 +191,16 @@ class ImmediatePlayer(Process):
         start = center - distance if center - distance > 0 else 0
         end = center + distance if center + distance < len(self.color_memory) else len(self.color_memory)
         cells = self.color_memory[start:end]
-        has_new = False
         try:
-            #Encountered a new color, so add up.
-            #need to figure out if this iter makes sense
-            newcolor = next(c for c in cells if c != color and c in self.palette)
-            _color = self.add_mix(newcolor, color)   
-            has_new = True
+            mixedcolor = next(c for c in cells if c!= color and c not in self.palette and c != self.colors.base)
+            _color = mixedcolor
         except StopIteration:
-            #no new color, back to business
-            has_new = False
-            _color = color
+            try:
+                newcolor = next(c for c in cells if c != color and c in self.palette)
+                _color = self.add_mix(newcolor, color)  
+            except StopIteration:
+                _color = color
+
         for cm in range(start, end):
             self.color_memory[cm] = _color
 
