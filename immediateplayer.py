@@ -161,7 +161,7 @@ class ImmediatePlayer(Process):
                 _range = self.dye_range
                 if x in _fresh:
                     if x > self.fixtures - self.endcapsize or x < self.endcapsize:
-                        _range = self.dye_range * 2
+                        _range = self.dye_range * 3
                     if _color == self.colors.base:
                         _validcolors = self.colors.activations
                         if len(self.palette) < 6:
@@ -192,7 +192,7 @@ class ImmediatePlayer(Process):
         end = center + distance if center + distance < len(self.color_memory) else len(self.color_memory)
         cells = self.color_memory[start:end]
         try:
-            mixedcolor = next(c for c in cells if c!= color and c not in self.palette and c != self.colors.base)
+            mixedcolor = next(c for c in cells if c != color and c not in self.palette and c != self.colors.base)
             _color = mixedcolor
         except StopIteration:
             try:
