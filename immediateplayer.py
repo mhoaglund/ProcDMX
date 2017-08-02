@@ -64,6 +64,7 @@ class ImmediatePlayer(Process):
         w, h = 4, 136
         self.color_memory = [[0 for x in range(w)] for y in range(h)]
         self.palette = []
+        self.dynamic_refresh = True
         #Prev Frame and Goal Frame are containers for data pertaining to ALL interactive channels.
         #They get split up for rendering and don't have anything to do with DMX packets.
         self.fixtures = 136
@@ -245,6 +246,9 @@ class ImmediatePlayer(Process):
         for y in range(0, 136):
             if self.status[y] > 0:
                 self.status[y] -= 1
+            else:
+                if self.dynamic_refresh:
+                    self.color_memory[y] = self.colors.base
         for x in range(0, len(_contours)):
             if self.status[_contours[x].spatialindex] < 1:
                 newly_active.append(_contours[x].spatialindex)
