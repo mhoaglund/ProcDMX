@@ -46,7 +46,7 @@ class ImmediatePlayer(Process):
 
         self.current_active_color = 0
         self.quietframes = 0
-        self.maxquietframes = 140
+        self.maxquietframes = 160
         self.shouldUpdateColor = False
         self.verbose = True
         self.dataqueue = _playersettings.dataqueue
@@ -62,9 +62,9 @@ class ImmediatePlayer(Process):
 
         self.dye_range = 5
         w, h = 4, 136
-        self.color_memory = [[0 for x in range(w)] for y in range(h)]
+        self.color_memory = [[125 for x in range(w)] for y in range(h)]
         self.palette = []
-        self.dynamic_refresh = True
+        self.dynamic_refresh = False
         #Prev Frame and Goal Frame are containers for data pertaining to ALL interactive channels.
         #They get split up for rendering and don't have anything to do with DMX packets.
         self.fixtures = 136
@@ -165,11 +165,11 @@ class ImmediatePlayer(Process):
                         _range = self.dye_range * 3
                     if _color == self.colors.base:
                         _validcolors = self.colors.activations
-                        if len(self.palette) < 6:
+                        if len(self.palette) < len(self.colors.activations)-1:
                             #aggressively reduce incidence of double colors unless site is super busy
                             _validcolors = [color for color in self.colors.activations if color not in self.palette]
                         _color = _validcolors[randint(0, (len(_validcolors)-1))]
-                        _range = self.dye_range * 2 #doubling range of new dye drops to get consistency
+                        _range = self.dye_range * 3 #doubling range of new dye drops to get consistency
                         if not _color in self.palette:
                              self.palette.append(_color)
                 elif _status[x] > 1:
@@ -223,7 +223,7 @@ class ImmediatePlayer(Process):
             if not self.dataqueue.empty():
                 Contours = self.dataqueue.get()
                 self.compileLatestContours(Contours)
-                if len(Contours) < 2:
+                if len(Contours) is 0:
                     if self.quietframes > self.maxquietframes:
                         if self.shouldUpdateColor:
                             self.wipeColorMemory()

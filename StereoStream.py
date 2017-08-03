@@ -41,11 +41,12 @@ DAY_START_HOUR = 6 #6am
 DAY_END_HOUR = 5 #5am
 
 PRIORITIZE_FASTEST = False
-DEFAULT_COLOR = [135, 135, 135, 135]
+DEFAULT_COLOR = [125, 125, 125, 125]
 REDUCED_DEFAULT = [0, 0, 90, 0]
 THRESHOLD_COLOR = [255, 200, 255, 125]
 BUSY_THRESHOLD_COLOR = [150, 120, 255, 200]
-ACTIVATION_COLORS = [[130, 0, 255, 0], [225, 0, 0, 0], [151, 153, 0, 0], [0, 255, 0, 0], [0, 149, 154, 0], [25, 25, 230, 25], [0, 0, 148, 150], [0, 0, 0, 255], [156, 0, 0, 157]]#default, walker, runner, biker (supposedly)
+ACTIVATION_COLORS = [[225, 0, 0, 0], [0, 255, 0, 0], [25, 25, 230, 25], [0, 0, 0, 255]]#default, walker, runner, biker (supposedly)
+#ACTIVATION_COLORS = [[125,125,0,255], [0,0,255,0], [255,0,0,0]]
 BACKFILL_COLOR_A = [240, 0, 180, 0] #backfill for the 1ft fixtures
 BACKFILL_COLOR_B = [0, 0, 255, 0]
 NIGHT_IDLE_COLOR = [125, 125, 0, 255]
@@ -66,8 +67,8 @@ UNI2 = UniverseProfile(
 )
 PLAYER_SETTINGS = OpenCVPlayerSettings(
     [UNI1, UNI2],
+    1,
     2,
-    4,
     6,
     4,
     CHAN_PER_FIXTURE,
@@ -95,7 +96,7 @@ MASK_PTS = [(1.0, 0.4), (1.0, 0.6), (0.25, 1.0), (0.0, 1.0), (0.0, 0.0), (0.25, 
 #studio setup: river cam is 10.254.239.7
 #sibley setup: river cam is 10.254.239.9 
 OPENCV_STREAM_RIVER = CVInputSettings(
-    "rtsp://10.254.239.7:554/11.cgi",
+    "rtsp://10.254.239.9:554/11.cgi",
     STREAM_PIDS[0],
     STREAM_WIDTH,
     cv2.THRESH_BINARY,
@@ -121,7 +122,7 @@ OPENCV_STREAM_RIVER = CVInputSettings(
 #studio setup: city cam is 10.254.239.6
 #sibley setup: city cam is 10.254.239.8
 OPENCV_STREAM_CITY = CVInputSettings(
-    "rtsp://10.254.239.6:554/11.cgi",
+    "rtsp://10.254.239.8:554/11.cgi",
     STREAM_PIDS[1],
     STREAM_WIDTH,
     cv2.THRESH_BINARY,
